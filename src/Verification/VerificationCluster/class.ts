@@ -1,4 +1,4 @@
-import { VerifyAgent } from '../VerifyAgent/class.js'
+import { VerifyAgent } from '../../Verifier/VerifyKeyHarness/class.js'
 import { SignAgent } from '../SignAgent/class.js'
 import type { SignJWK, VerifyJWK } from '../index.js'
 

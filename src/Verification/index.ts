@@ -1,6 +1,6 @@
 export { generateVerificationPair } from './generateVerificationPair/index.js'
 export { SignAgent } from './SignAgent/class.js'
-export { VerifyAgent } from './VerifyAgent/class.js'
+export { VerifyAgent } from '../Verifier/VerifyKeyHarness/class.js'
 export { VerificationCluster } from './VerificationCluster/class.js'
 export type SignJWK = JsonWebKey & {
   kty: 'OKP'

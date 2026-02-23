@@ -1,28 +1,31 @@
 import { toBufferSource } from '@z-base/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
-import { assertEd25519PublicKey } from '../../.helpers/assertEd25519PublicKey.js'
 import { assertSubtleAvailable } from '../../.helpers/assertSubtleAvailable.js'
-import type { VerifyJWK } from '../index.js'
+import { normalizeVerifyJWK } from '../normalizeVerifyJWK/index.js'
+import type { VerifyJWK } from '../types/index.js'
 
-export class VerifyAgent {
+export class VerifyKeyHarness {
   private keyPromise: Promise<CryptoKey>
-
+  private keyAlgorithm: string = ''
   constructor(verifyJwk: VerifyJWK) {
-    assertEd25519PublicKey(verifyJwk, 'VerifyAgent')
-    assertSubtleAvailable('VerifyAgent')
+    assertSubtleAvailable('VerifyKeyHarness')
+
+    const normalized = normalizeVerifyJWK(verifyJwk)
+    this.keyAlgorithm = normalized.alg
+
     this.keyPromise = (async () => {
       try {
         return await crypto.subtle.importKey(
           'jwk',
-          verifyJwk,
-          { name: 'Ed25519' },
+          normalized,
+          { name: this.keyAlgorithm },
           false,
           ['verify']
         )
       } catch {
         throw new CryptosuiteError(
-          'ED25519_UNSUPPORTED',
-          'VerifyAgent: Ed25519 is not supported.'
+          'VERIFY_KEY_IMPORT_FAILED',
+          'VerifyKeyHarness: verify key is not supported by this WebCrypto runtime.'
         )
       }
     })()
@@ -31,7 +34,7 @@ export class VerifyAgent {
   async verify(bytes: Uint8Array, signature: ArrayBuffer): Promise<boolean> {
     const key = await this.keyPromise
     return crypto.subtle.verify(
-      'Ed25519',
+      this.keyAlgorithm,
       key,
       signature,
       toBufferSource(bytes)
