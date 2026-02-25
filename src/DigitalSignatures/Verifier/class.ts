@@ -1,3 +1,4 @@
+import { toArrayBuffer } from '@z-base/bytecodec'
 import { VerifyKeyHarness } from './VerifyKeyHarness/class.js'
 import { VerifyJWK } from './types/index.js'
 
@@ -17,9 +18,9 @@ export class Verifier {
   static async verify(
     verifyJwk: VerifyJWK,
     bytes: Uint8Array,
-    signature: ArrayBuffer
+    signature: Uint8Array
   ): Promise<boolean> {
     const harness = Verifier.#loadHarness(verifyJwk)
-    return await harness.verify(bytes, signature)
+    return await harness.verify(bytes, toArrayBuffer(signature))
   }
 }
