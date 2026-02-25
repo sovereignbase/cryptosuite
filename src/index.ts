@@ -5,11 +5,18 @@ import {
   generateCipherKey,
 } from './Cipher/index.js'
 /***/
-import { ExchangeCluster, generateExchangePair } from './Exchange/index.js'
+import {
+  ExchangeCluster,
+  generateExchangePair,
+} from './KeyEncapsulation/index.js'
 /***/
-import { deriveHMACKey, generateHMACKey, HMACCluster } from './HMAC/index.js'
+import {
+  deriveHMACKey,
+  generateHMACKey,
+  HMACCluster,
+} from './MessageAuthentication/index.js'
 /***/
-import { deriveOID, generateOID, validateOID } from './OID/index.js'
+import { deriveOID, generateOID, validateOID } from './Identifiers/index.js'
 /***/
 import {
   Signer,
@@ -34,7 +41,7 @@ export {
   ExchangeCluster,
   type WrapJWK,
   type UnwrapJWK,
-} from './Exchange/index.js'
+} from './KeyEncapsulation/index.js'
 /***/
 export {
   generateHMACKey,
@@ -42,14 +49,14 @@ export {
   HMACAgent,
   HMACCluster,
   type HMACJWK,
-} from './HMAC/index.js'
+} from './MessageAuthentication/index.js'
 /***/
 export {
   deriveOID,
   generateOID,
   validateOID,
   type OpaqueIdentifier,
-} from './OID/index.js'
+} from './Identifiers/index.js'
 /***/
 export {
   Signer,
