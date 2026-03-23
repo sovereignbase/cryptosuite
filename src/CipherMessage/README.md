@@ -28,8 +28,8 @@ handled at the message/signature layer.
 
 `.core` owns algorithm-specific runtime compatibility:
 
-- key validation by `alg`
-- WebCrypto parameter construction by algorithm
+- key validation by `alg` code
+- WebCrypto parameter construction by `alg` code
 - key import behavior
 - encrypt/decrypt behavior for every supported historical key algorithm
 
@@ -54,8 +54,11 @@ branches accumulate.
 When upgrading the default algorithm:
 
 1. Add the new key/message types to `.core/types`.
-2. Add validation support for the new `alg` in `.core/validateCipherKeyByAlg`.
-3. Add parameter handling in `.core/getParamsByAlg`.
+2. Add validation support for the new `alg` in
+   `.core/helpers/validateKeyByAlgCode`.
+3. Add parameter handling in `.core/helpers/createParamsByAlgCode`,
+   `.core/helpers/getParamsByAlgCode`, and
+   `.core/helpers/getImportKeyAlgorithmByAlgCode`.
 4. Update `.core/CipherKeyHarness` so it can import and use both old and new
    algorithms.
 5. Switch `generateCipherKey` and `deriveCipherKey` to emit the new default.
