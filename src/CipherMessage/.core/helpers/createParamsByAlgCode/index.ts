@@ -1,9 +1,5 @@
 import { CryptosuiteError } from '../../../../.errors/class.js'
-import type {
-  A256CTRParams,
-  CipherKey,
-  CipherParams,
-} from '../../types/index.js'
+import type { CipherKey, CipherParams } from '../../types/index.js'
 
 export function createParamsByAlgCode(algCode: CipherKey['alg']): CipherParams {
   switch (algCode) {
