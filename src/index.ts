@@ -11,7 +11,7 @@ import {
   HMACCluster,
   deriveHMACKey,
   generateHMACKey,
-} from './MessageAuthentication/index.js'
+} from './MessageAuthentication/types/index.js'
 /***/
 import {
   KeyAgreementCluster,

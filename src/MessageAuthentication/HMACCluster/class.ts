@@ -1,22 +1,22 @@
-import { HMACAgent } from '../HMACKeyHarness/class.js'
-import type { HMACJWK } from '../index.js'
+import { HMACKeyHarness } from '../HMACKeyHarness/class.js'
+import type { HMACJWK } from '../types/index.js'
 
 export class HMACCluster {
-  static #agents = new WeakMap<HMACJWK, WeakRef<HMACAgent>>()
+  static #harnesses = new WeakMap<HMACJWK, WeakRef<HMACKeyHarness>>()
 
-  static #loadAgent(hmacJwk: HMACJWK): HMACAgent {
-    const weakRef = HMACCluster.#agents.get(hmacJwk)
-    let agent = weakRef?.deref()
-    if (!agent) {
-      agent = new HMACAgent(hmacJwk)
-      HMACCluster.#agents.set(hmacJwk, new WeakRef(agent))
+  static #loadHarness(hmacJwk: HMACJWK): HMACKeyHarness {
+    const weakRef = HMACCluster.#harnesses.get(hmacJwk)
+    let harness = weakRef?.deref()
+    if (!harness) {
+      harness = new HMACKeyHarness(hmacJwk)
+      HMACCluster.#harnesses.set(hmacJwk, new WeakRef(harness))
     }
-    return agent
+    return harness
   }
 
   static async sign(hmacJwk: HMACJWK, bytes: Uint8Array): Promise<ArrayBuffer> {
-    const agent = HMACCluster.#loadAgent(hmacJwk)
-    return await agent.sign(bytes)
+    const harness = HMACCluster.#loadHarness(hmacJwk)
+    return await harness.sign(bytes)
   }
 
   static async verify(
@@ -24,7 +24,7 @@ export class HMACCluster {
     bytes: Uint8Array,
     signature: ArrayBuffer
   ): Promise<boolean> {
-    const agent = HMACCluster.#loadAgent(hmacJwk)
-    return await agent.verify(bytes, signature)
+    const harness = HMACCluster.#loadHarness(hmacJwk)
+    return await harness.verify(bytes, signature)
   }
 }

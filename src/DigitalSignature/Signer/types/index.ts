@@ -11,6 +11,8 @@ export type SignJWK = JsonWebKey &
   HasPrivate & {
     kty: string
     alg: string
+    hash?: string
+    saltLength?: number
     use?: 'sig'
     key_ops?: readonly 'sign'[]
   }

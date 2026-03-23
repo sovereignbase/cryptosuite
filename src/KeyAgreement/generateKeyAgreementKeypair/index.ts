@@ -5,57 +5,57 @@ import type { EncapsulateJWK } from '../Encapsulator/types/index.js'
 import { normalizeDecapsulateJWK } from '../Decapsulator/normalizeDecapsulateJWK/index.js'
 import type { DecapsulateJWK } from '../Decapsulator/types/index.js'
 
-type RsaOaepHash = 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512'
-type ECDHCurve = 'P-256' | 'P-384' | 'P-521'
-type EcdhJwkAlg =
-  | 'ECDH-ES'
-  | 'ECDH-ES+A128KW'
-  | 'ECDH-ES+A192KW'
-  | 'ECDH-ES+A256KW'
+type CipherDeclaration = {
+  cipherAlg: string
+  ivLength?: number
+  tagLength?: number
+  counterLength?: number
+}
 
-type RsaPublicExponent = Uint8Array<ArrayBuffer>
-
-export type Algorithms =
+type KeyAgreementPrimitive =
   | {
       name: 'RSA-OAEP'
-      modulusLength: 2048 | 3072 | 4096
-      publicExponent?: RsaPublicExponent
-      hash: RsaOaepHash
+      modulusLength: number
+      publicExponent?: Uint8Array
+      hash: string
+      alg?: string
     }
   | {
       name: 'ECDH'
-      namedCurve: ECDHCurve
-      alg?: EcdhJwkAlg
+      namedCurve: string
+      alg?: string
     }
   | {
       name: 'X25519'
-      alg?: EcdhJwkAlg
+      alg?: string
     }
   | {
       name: 'X448'
-      alg?: EcdhJwkAlg
+      alg?: string
     }
 
-function jwkAlgOf(a: Algorithms): string {
+export type KeyAgreementAlgorithm = KeyAgreementPrimitive & CipherDeclaration
+
+function jwkAlgOf(a: KeyAgreementAlgorithm): string {
+  if (a.alg) return a.alg
   if (a.name === 'RSA-OAEP') {
     if (a.hash === 'SHA-1') return 'RSA-OAEP'
     if (a.hash === 'SHA-256') return 'RSA-OAEP-256'
     if (a.hash === 'SHA-384') return 'RSA-OAEP-384'
-    return 'RSA-OAEP-512'
+    if (a.hash === 'SHA-512') return 'RSA-OAEP-512'
+    return 'RSA-OAEP'
   }
-  return a.alg ?? 'ECDH-ES'
+  return a.name
 }
 
 function rsaPublicExponentOf(
-  a: Extract<Algorithms, { name: 'RSA-OAEP' }>
-): Uint8Array<ArrayBuffer> {
-  return (
-    a.publicExponent ?? (new Uint8Array([1, 0, 1]) as Uint8Array<ArrayBuffer>)
-  )
+  a: Extract<KeyAgreementAlgorithm, { name: 'RSA-OAEP' }>
+): Uint8Array {
+  return a.publicExponent ?? new Uint8Array([1, 0, 1])
 }
 
 function generateParamsOf(
-  a: Algorithms
+  a: KeyAgreementAlgorithm
 ): RsaHashedKeyGenParams | EcKeyGenParams | AlgorithmIdentifier {
   if (a.name === 'RSA-OAEP') {
     return {
@@ -76,13 +76,13 @@ function generateParamsOf(
   return { name: a.name } as AlgorithmIdentifier
 }
 
-function keyUsagesOf(a: Algorithms): KeyUsage[] {
+function keyUsagesOf(a: KeyAgreementAlgorithm): KeyUsage[] {
   if (a.name === 'RSA-OAEP') return ['wrapKey', 'unwrapKey']
   return ['deriveKey', 'deriveBits']
 }
 
 export async function generateKeyAgreementKeypair(
-  algorithm: Algorithms
+  algorithm: KeyAgreementAlgorithm
 ): Promise<{
   encapsulateJwk: EncapsulateJWK
   decapsulateJwk: DecapsulateJWK
@@ -117,14 +117,28 @@ export async function generateKeyAgreementKeypair(
   const encapsulateJwk = normalizeEncapsulateJWK({
     ...rawWrap,
     alg,
+    cipherAlg: algorithm.cipherAlg,
     use: 'enc',
+    ...(algorithm.name === 'RSA-OAEP' ? { hash: algorithm.hash } : {}),
+    ...(algorithm.ivLength === undefined ? {} : { ivLength: algorithm.ivLength }),
+    ...(algorithm.tagLength === undefined ? {} : { tagLength: algorithm.tagLength }),
+    ...(algorithm.counterLength === undefined
+      ? {}
+      : { counterLength: algorithm.counterLength }),
     key_ops: algorithm.name === 'RSA-OAEP' ? ['wrapKey'] : [],
   })
 
   const decapsulateJwk = normalizeDecapsulateJWK({
     ...rawUnwrap,
     alg,
+    cipherAlg: algorithm.cipherAlg,
     use: 'enc',
+    ...(algorithm.name === 'RSA-OAEP' ? { hash: algorithm.hash } : {}),
+    ...(algorithm.ivLength === undefined ? {} : { ivLength: algorithm.ivLength }),
+    ...(algorithm.tagLength === undefined ? {} : { tagLength: algorithm.tagLength }),
+    ...(algorithm.counterLength === undefined
+      ? {}
+      : { counterLength: algorithm.counterLength }),
     key_ops:
       algorithm.name === 'RSA-OAEP'
         ? ['unwrapKey']

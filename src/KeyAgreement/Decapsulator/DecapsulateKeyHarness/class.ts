@@ -2,23 +2,23 @@ import { CryptosuiteError } from '../../../.errors/class.js'
 import { assertSubtleAvailable } from '../../../.helpers/assertSubtleAvailable.js'
 import { normalizeCipherJWK } from '../../../CipherMessage/normalizeCipherJWK/index.js'
 import type { CipherJWK } from '../../../CipherMessage/types/index.js'
-import { normalizeEncapsulateJWK } from '../normalizeEncapsulateJWK/index.js'
-import type { EncapsulateJWK } from '../types/index.js'
+import { normalizeEncapsulateJWK } from '../../Encapsulator/normalizeEncapsulateJWK/index.js'
+import { normalizeDecapsulateJWK } from '../normalizeDecapsulateJWK/index.js'
+import type { DecapsulateJWK } from '../types/index.js'
 import type { KeyAgreementArtifact } from '../../types/index.js'
 
 type KeyAgreementStrategy =
   | {
       mode: 'wrap'
       importAlgorithm: AlgorithmIdentifier
-      publicKeyUsages: KeyUsage[]
-      wrapAlgorithm: AlgorithmIdentifier
+      privateKeyUsages: KeyUsage[]
+      unwrapAlgorithm: AlgorithmIdentifier
     }
   | {
       mode: 'derive'
       importAlgorithm: AlgorithmIdentifier
       publicKeyUsages: KeyUsage[]
       privateKeyUsages: KeyUsage[]
-      generateAlgorithm: AlgorithmIdentifier
       deriveAlgorithmName: 'ECDH' | 'X25519' | 'X448'
     }
 
@@ -36,13 +36,13 @@ function hashOf(alg: string): string | undefined {
   return undefined
 }
 
-function strategyOf(encapsulateJwk: EncapsulateJWK): KeyAgreementStrategy {
-  if (encapsulateJwk.kty === 'RSA') {
-    const hash = encapsulateJwk.hash ?? hashOf(encapsulateJwk.alg)
+function strategyOf(decapsulateJwk: DecapsulateJWK): KeyAgreementStrategy {
+  if (decapsulateJwk.kty === 'RSA') {
+    const hash = decapsulateJwk.hash ?? hashOf(decapsulateJwk.alg)
     if (!hash) {
       throw new CryptosuiteError(
         'ALGORITHM_UNSUPPORTED',
-        'EncapsulateKeyHarness: unsupported RSA-OAEP JWK alg.'
+        'DecapsulateKeyHarness: unsupported RSA-OAEP JWK alg.'
       )
     }
 
@@ -52,55 +52,48 @@ function strategyOf(encapsulateJwk: EncapsulateJWK): KeyAgreementStrategy {
         name: 'RSA-OAEP',
         hash: { name: hash },
       } as AlgorithmIdentifier,
-      publicKeyUsages: ['wrapKey'],
-      wrapAlgorithm: { name: 'RSA-OAEP' },
+      privateKeyUsages: ['unwrapKey'],
+      unwrapAlgorithm: { name: 'RSA-OAEP' },
     }
   }
 
-  if (encapsulateJwk.kty === 'EC' && typeof encapsulateJwk.crv === 'string') {
+  if (decapsulateJwk.kty === 'EC' && typeof decapsulateJwk.crv === 'string') {
     return {
       mode: 'derive',
       importAlgorithm: {
         name: 'ECDH',
-        namedCurve: encapsulateJwk.crv,
+        namedCurve: decapsulateJwk.crv,
       } as AlgorithmIdentifier,
       publicKeyUsages: [],
       privateKeyUsages: ['deriveKey', 'deriveBits'],
-      generateAlgorithm: {
-        name: 'ECDH',
-        namedCurve: encapsulateJwk.crv,
-      } as AlgorithmIdentifier,
       deriveAlgorithmName: 'ECDH',
     }
   }
 
   if (
-    encapsulateJwk.kty === 'OKP' &&
-    (encapsulateJwk.crv === 'X25519' || encapsulateJwk.crv === 'X448')
+    decapsulateJwk.kty === 'OKP' &&
+    (decapsulateJwk.crv === 'X25519' || decapsulateJwk.crv === 'X448')
   ) {
     return {
       mode: 'derive',
       importAlgorithm: {
-        name: encapsulateJwk.crv,
+        name: decapsulateJwk.crv,
       },
       publicKeyUsages: [],
       privateKeyUsages: ['deriveKey', 'deriveBits'],
-      generateAlgorithm: {
-        name: encapsulateJwk.crv,
-      },
-      deriveAlgorithmName: encapsulateJwk.crv,
+      deriveAlgorithmName: decapsulateJwk.crv,
     }
   }
 
   throw new CryptosuiteError(
     'ALGORITHM_UNSUPPORTED',
-    'EncapsulateKeyHarness: unsupported key agreement JWK.'
+    'DecapsulateKeyHarness: unsupported key agreement JWK.'
   )
 }
 
 function sharedCipherRuntimeOf(
   keyAgreementJwk: Pick<
-    EncapsulateJWK,
+    DecapsulateJWK,
     'cipherAlg' | 'ivLength' | 'tagLength' | 'counterLength'
   >
 ): SharedCipherRuntime {
@@ -110,7 +103,7 @@ function sharedCipherRuntimeOf(
   if (!match?.groups) {
     throw new CryptosuiteError(
       'ALGORITHM_UNSUPPORTED',
-      'EncapsulateKeyHarness: unsupported cipher declaration.'
+      'DecapsulateKeyHarness: unsupported cipher declaration.'
     )
   }
 
@@ -138,19 +131,36 @@ function sharedCipherRuntimeOf(
   }
 }
 
-function serializeArtifactCiphertext(jwk: JsonWebKey): ArrayBuffer {
-  const bytes = new TextEncoder().encode(JSON.stringify(jwk))
-  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+function encapsulateJwkOf(ciphertext: ArrayBuffer): JsonWebKey {
+  let parsed: unknown
+
+  try {
+    parsed = JSON.parse(new TextDecoder().decode(new Uint8Array(ciphertext)))
+  } catch {
+    throw new CryptosuiteError(
+      'KEY_AGREEMENT_ARTIFACT_INVALID',
+      'DecapsulateKeyHarness.decapsulate: invalid encapsulation artifact.'
+    )
+  }
+
+  if (!parsed || typeof parsed !== 'object') {
+    throw new CryptosuiteError(
+      'KEY_AGREEMENT_ARTIFACT_INVALID',
+      'DecapsulateKeyHarness.decapsulate: invalid encapsulation artifact.'
+    )
+  }
+
+  return parsed as JsonWebKey
 }
 
-export class EncapsulateKeyHarness {
-  private readonly normalized: EncapsulateJWK
+export class DecapsulateKeyHarness {
+  private readonly normalized: DecapsulateJWK
   private readonly strategy: KeyAgreementStrategy
   private readonly keyPromise: Promise<CryptoKey>
 
-  constructor(encapsulateJwk: EncapsulateJWK) {
-    assertSubtleAvailable('EncapsulateKeyHarness')
-    this.normalized = normalizeEncapsulateJWK(encapsulateJwk)
+  constructor(decapsulateJwk: DecapsulateJWK) {
+    assertSubtleAvailable('DecapsulateKeyHarness')
+    this.normalized = normalizeDecapsulateJWK(decapsulateJwk)
     this.strategy = strategyOf(this.normalized)
     this.keyPromise = this.importKey()
   }
@@ -162,90 +172,105 @@ export class EncapsulateKeyHarness {
         this.normalized,
         this.strategy.importAlgorithm,
         false,
-        this.strategy.publicKeyUsages
+        this.strategy.privateKeyUsages
       )
     } catch {
       throw new CryptosuiteError(
         'ALGORITHM_UNSUPPORTED',
-        'EncapsulateKeyHarness: selected key agreement JWK is not supported by this WebCrypto runtime.'
+        'DecapsulateKeyHarness: selected key agreement JWK is not supported by this WebCrypto runtime.'
       )
     }
   }
 
-  async encapsulate(): Promise<{
+  async decapsulate(
     artifact: KeyAgreementArtifact
-    cipherJwk: CipherJWK
-  }> {
+  ): Promise<{ cipherJwk: CipherJWK }> {
+    if (
+      !artifact ||
+      typeof artifact !== 'object' ||
+      !(artifact.ciphertext instanceof ArrayBuffer)
+    ) {
+      throw new CryptosuiteError(
+        'KEY_AGREEMENT_ARTIFACT_INVALID',
+        'DecapsulateKeyHarness.decapsulate: expected an artifact with ciphertext.'
+      )
+    }
+
     const sharedCipher = sharedCipherRuntimeOf(this.normalized)
 
     if (this.strategy.mode === 'wrap') {
-      const wrappingKey = await this.keyPromise
+      const unwrappingKey = await this.keyPromise
 
       try {
-        const sharedCryptoKey = (await crypto.subtle.generateKey(
+        const sharedCryptoKey = await crypto.subtle.unwrapKey(
+          'jwk',
+          artifact.ciphertext,
+          unwrappingKey,
+          this.strategy.unwrapAlgorithm,
           sharedCipher.keyAlgorithm,
           true,
           sharedCipher.keyUsages
-        )) as CryptoKey
-
-        const ciphertext = await crypto.subtle.wrapKey(
-          'jwk',
-          sharedCryptoKey,
-          wrappingKey,
-          this.strategy.wrapAlgorithm
         )
 
         return {
-          artifact: { ciphertext },
           cipherJwk: sharedCipher.normalize(
             await crypto.subtle.exportKey('jwk', sharedCryptoKey)
           ),
         }
       } catch {
         throw new CryptosuiteError(
-          'ENCAPSULATION_FAILED',
-          'EncapsulateKeyHarness.encapsulate: failed to encapsulate the cipher JWK.'
+          'DECAPSULATION_FAILED',
+          'DecapsulateKeyHarness.decapsulate: failed to decapsulate the cipher JWK.'
         )
       }
     }
 
-    const recipientPublicKey = await this.keyPromise
+    const privateKey = await this.keyPromise
 
     try {
-      const ephemeralPair = (await crypto.subtle.generateKey(
-        this.strategy.generateAlgorithm,
-        true,
-        this.strategy.privateKeyUsages
-      )) as CryptoKeyPair
+      const publicKey = await crypto.subtle.importKey(
+        'jwk',
+        normalizeEncapsulateJWK({
+          ...encapsulateJwkOf(artifact.ciphertext),
+          alg: this.normalized.alg,
+          cipherAlg: this.normalized.cipherAlg,
+          ...(this.normalized.ivLength === undefined
+            ? {}
+            : { ivLength: this.normalized.ivLength }),
+          ...(this.normalized.tagLength === undefined
+            ? {}
+            : { tagLength: this.normalized.tagLength }),
+          ...(this.normalized.counterLength === undefined
+            ? {}
+            : { counterLength: this.normalized.counterLength }),
+          use: 'enc',
+          key_ops: [],
+        }),
+        this.strategy.importAlgorithm,
+        false,
+        this.strategy.publicKeyUsages
+      )
 
       const sharedCryptoKey = await crypto.subtle.deriveKey(
         {
           name: this.strategy.deriveAlgorithmName,
-          public: recipientPublicKey,
+          public: publicKey,
         } as AlgorithmIdentifier,
-        ephemeralPair.privateKey,
+        privateKey,
         sharedCipher.keyAlgorithm,
         true,
         sharedCipher.keyUsages
       )
 
       return {
-        artifact: {
-          ciphertext: serializeArtifactCiphertext(
-            (await crypto.subtle.exportKey(
-              'jwk',
-              ephemeralPair.publicKey
-            )) as JsonWebKey
-          ),
-        },
         cipherJwk: sharedCipher.normalize(
           await crypto.subtle.exportKey('jwk', sharedCryptoKey)
         ),
       }
     } catch {
       throw new CryptosuiteError(
-        'ENCAPSULATION_FAILED',
-        'EncapsulateKeyHarness.encapsulate: failed to derive the cipher JWK.'
+        'DECAPSULATION_FAILED',
+        'DecapsulateKeyHarness.decapsulate: failed to derive the cipher JWK.'
       )
     }
   }
