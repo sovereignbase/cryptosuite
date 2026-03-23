@@ -6,8 +6,8 @@ import {
 } from './Cipher/index.js'
 /***/
 import {
-  ExchangeCluster,
-  generateExchangePair,
+  KeyAgreementCluster,
+  generateKeyAgreementKeypair,
 } from './KeyEncapsulation/index.js'
 /***/
 import {
@@ -19,53 +19,10 @@ import {
 import { deriveOID, generateOID, validateOID } from './Identifiers/index.js'
 /***/
 import {
-  Signer,
-  type SignJWK,
-  Verifier,
-  type VerifyJWK,
-  generateDigitalSignaturesPair,
+  DigitalSignatureCluster,
+  generateDigitalSignatureKeypair,
 } from './DigitalSignatures/index.js'
 /***/
-export {
-  generateCipherKey,
-  deriveCipherKey,
-  CipherAgent,
-  CipherCluster,
-  type CipherJWK,
-} from './Cipher/index.js'
-/***/
-export {
-  generateExchangePair,
-  WrapAgent,
-  UnwrapAgent,
-  ExchangeCluster,
-  type WrapJWK,
-  type UnwrapJWK,
-} from './KeyEncapsulation/index.js'
-/***/
-export {
-  generateHMACKey,
-  deriveHMACKey,
-  HMACAgent,
-  HMACCluster,
-  type HMACJWK,
-} from './MessageAuthentication/index.js'
-/***/
-export {
-  deriveOID,
-  generateOID,
-  validateOID,
-  type OpaqueIdentifier,
-} from './Identifiers/index.js'
-/***/
-export {
-  Signer,
-  type SignJWK,
-  Verifier,
-  type VerifyJWK,
-  generateDigitalSignaturesPair,
-} from './DigitalSignatures/index.js'
-
 export class Cryptosuite {
   /***/
   static readonly identifiers = {
@@ -87,15 +44,15 @@ export class Cryptosuite {
     generateKey: generateHMACKey,
   }
   /***/
-  static readonly keyEncapsulation = {
-    wrap: ExchangeCluster.wrap,
-    unwrap: ExchangeCluster.unwrap,
-    generatePair: generateExchangePair,
+  static readonly keyAgreement = {
+    encapsulate: KeyAgreementCluster.wrap,
+    decapsulate: KeyAgreementCluster.unwrap,
+    generateKeypair: generateKeyAgreementKeypair,
   }
   static readonly digitalSignatures = {
-    sign: Signer.sign,
-    verify: Verifier.verify,
-    generatePair: generateDigitalSignaturesPair,
+    sign: DigitalSignatureCluster.sign,
+    verify: DigitalSignatureCluster.verify,
+    generateKeypair: generateDigitalSignatureKeypair,
   }
   /***/
 }

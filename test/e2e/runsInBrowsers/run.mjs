@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process'
 import { resolve } from 'node:path'
 import process from 'node:process'
-import { resolveGlobs } from '../resolve-globs.mjs'
+import { resolveGlobs } from '../../resolve-globs.mjs'
 
 const cli = resolve('node_modules/playwright/cli.js')
 const inputGlobs = process.argv.slice(2)

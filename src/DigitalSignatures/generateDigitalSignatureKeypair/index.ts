@@ -1,5 +1,5 @@
-import { CryptosuiteError } from '../.errors/class.js'
-import { assertSubtleAvailable } from '../.helpers/assertSubtleAvailable.js'
+import { CryptosuiteError } from '../../.errors/class.js'
+import { assertSubtleAvailable } from '../../.helpers/assertSubtleAvailable.js'
 import { normalizeSignJWK } from '../Signer/normalizeSignJWK/index.js'
 import { SignJWK } from '../Signer/types/index.js'
 import { normalizeVerifyJWK } from '../Verifier/normalizeVerifyJWK/index.js'
@@ -41,13 +41,13 @@ function generateParamsOf(a: Algorithms): any {
   }
 }
 
-export async function generateDigitalSignaturesPair(
+export async function generateDigitalSignatureCryptoKeyPair(
   algorithm: Algorithms
 ): Promise<{
   signJwk: SignJWK
   verifyJwk: VerifyJWK
 }> {
-  assertSubtleAvailable('generateDigitalSignaturesPair')
+  assertSubtleAvailable('generateDigitalSignatureCryptoKeyPair')
 
   const alg = jwkAlgOf(algorithm)
 
@@ -60,7 +60,7 @@ export async function generateDigitalSignaturesPair(
   } catch {
     throw new CryptosuiteError(
       'ALGORITHM_UNSUPPORTED',
-      'generateDigitalSignaturesPair: selected algorithm is not supported by this WebCrypto runtime.'
+      'generateDigitalSignatureCryptoKeyPair: selected algorithm is not supported by this WebCrypto runtime.'
     )
   }
 

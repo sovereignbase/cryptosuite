@@ -39,6 +39,9 @@ export type CryptosuiteErrorCode =
   | 'ED25519_KEY_SIZE_INVALID'
   | 'ED25519_KEY_OPS_INVALID'
   | 'ED25519_USE_INVALID'
+  | 'DECAPSULATION_FAILED'
+  | 'ENCAPSULATION_FAILED'
+  | 'EXPORT_FAILED'
 
 export class CryptosuiteError extends Error {
   readonly code: CryptosuiteErrorCode

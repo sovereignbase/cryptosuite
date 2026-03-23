@@ -1,31 +1,42 @@
-import { toBase64UrlString, toBufferSource } from '@z-base/bytecodec'
+import { toBase64UrlString, toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../.errors/class.js'
 import { assertGetRandomValuesAvailable } from '../.helpers/assertGetRandomValuesAvailable.js'
 import { assertSubtleAvailable } from '../.helpers/assertSubtleAvailable.js'
 
-export type OpaqueIdentifier = Base64URLString
+export type ObliviousIdentifier = Base64URLString
 
-export async function deriveOID(rawId: Uint8Array): Promise<OpaqueIdentifier> {
+/**
+ * Turns pads input value to a unique string presentation in a space with more options than atoms in observable universe
+ */
+export async function deriveOID(
+  source: Uint8Array
+): Promise<ObliviousIentifier> {
   assertSubtleAvailable('deriveOID')
   let hash: ArrayBuffer
   try {
-    hash = await crypto.subtle.digest('SHA-256', toBufferSource(rawId))
+    hash = await crypto.subtle.digest('SHA-384', toBufferSource(source))
   } catch {
     throw new CryptosuiteError(
-      'SHA256_UNSUPPORTED',
-      'deriveOID: SHA-256 is not supported.'
+      'SHA384_UNSUPPORTED',
+      'deriveOID: SHA-384 is not supported.'
     )
   }
   return toBase64UrlString(hash)
 }
 
-export async function generateOID(): Promise<OpaqueIdentifier> {
+/**
+ * Generates an unique string presentation in a space with more options than atoms in observable universe
+ */
+export async function generateOID(): Promise<ObliviousIentifier> {
   assertGetRandomValuesAvailable('generateOID')
-  return toBase64UrlString(crypto.getRandomValues(new Uint8Array(32)))
+  return toBase64UrlString(crypto.getRandomValues(new Uint8Array(48)))
 }
 
-export function validateOID(id: string): OpaqueIdentifier | false {
+/**
+ * Validates an unique strings lenght and char encoding in a space with more options than atoms in observable universe
+ */
+export function validateOID(id: string): ObliviousIentifier | false {
   if (typeof id !== 'string') return false
-  if (!/^[A-Za-z0-9_-]{43}$/.test(id)) return false
-  return id as OpaqueIdentifier
+  if (!/^[A-Za-z0-9_-]{64}$/.test(id)) return false
+  return id as ObliviousIentifier
 }
