@@ -7,5 +7,5 @@ export type DecapsulateJWK = JsonWebKey &
     kty: string
     alg: string
     use?: 'enc'
-    key_ops?: readonly 'unwrapKey'[]
+    key_ops?: readonly ('unwrapKey' | 'deriveKey' | 'deriveBits')[]
   }

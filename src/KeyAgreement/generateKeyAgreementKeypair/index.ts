@@ -2,8 +2,8 @@ import { CryptosuiteError } from '../../.errors/class.js'
 import { assertSubtleAvailable } from '../../.helpers/assertSubtleAvailable.js'
 import { normalizeEncapsulateJWK } from '../Encapsulator/normalizeEncapsulateJWK/index.js'
 import type { EncapsulateJWK } from '../Encapsulator/types/index.js'
-import { normalizeUnwrapJWK } from '../Decapsulator/normalizeDecapsulateJWK/index.js'
-import type { UnwrapJWK } from '../Decapsulator/types/index.js'
+import { normalizeDecapsulateJWK } from '../Decapsulator/normalizeDecapsulateJWK/index.js'
+import type { DecapsulateJWK } from '../Decapsulator/types/index.js'
 
 type RsaOaepHash = 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512'
 type ECDHCurve = 'P-256' | 'P-384' | 'P-521'
@@ -85,7 +85,7 @@ export async function generateKeyAgreementKeypair(
   algorithm: Algorithms
 ): Promise<{
   encapsulateJwk: EncapsulateJWK
-  decapsulateJwk: UnwrapJWK
+  decapsulateJwk: DecapsulateJWK
 }> {
   assertSubtleAvailable('generateKeyAgreementKeypair')
 
@@ -118,14 +118,17 @@ export async function generateKeyAgreementKeypair(
     ...rawWrap,
     alg,
     use: 'enc',
-    key_ops: ['wrapKey'],
+    key_ops: algorithm.name === 'RSA-OAEP' ? ['wrapKey'] : [],
   })
 
-  const decapsulateJwk = normalizeUnwrapJWK({
+  const decapsulateJwk = normalizeDecapsulateJWK({
     ...rawUnwrap,
     alg,
     use: 'enc',
-    key_ops: ['unwrapKey'],
+    key_ops:
+      algorithm.name === 'RSA-OAEP'
+        ? ['unwrapKey']
+        : ['deriveKey', 'deriveBits'],
   })
 
   return { encapsulateJwk, decapsulateJwk }

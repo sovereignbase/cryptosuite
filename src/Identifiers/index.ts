@@ -3,14 +3,14 @@ import { CryptosuiteError } from '../.errors/class.js'
 import { assertGetRandomValuesAvailable } from '../.helpers/assertGetRandomValuesAvailable.js'
 import { assertSubtleAvailable } from '../.helpers/assertSubtleAvailable.js'
 
-export type ObliviousIdentifier = Base64URLString
+export type ObliviousIdentifier = string
 
 /**
  * Turns pads input value to a unique string presentation in a space with more options than atoms in observable universe
  */
 export async function deriveOID(
   source: Uint8Array
-): Promise<ObliviousIentifier> {
+): Promise<ObliviousIdentifier> {
   assertSubtleAvailable('deriveOID')
   let hash: ArrayBuffer
   try {
@@ -27,7 +27,7 @@ export async function deriveOID(
 /**
  * Generates an unique string presentation in a space with more options than atoms in observable universe
  */
-export async function generateOID(): Promise<ObliviousIentifier> {
+export async function generateOID(): Promise<ObliviousIdentifier> {
   assertGetRandomValuesAvailable('generateOID')
   return toBase64UrlString(crypto.getRandomValues(new Uint8Array(48)))
 }
@@ -35,8 +35,8 @@ export async function generateOID(): Promise<ObliviousIentifier> {
 /**
  * Validates an unique strings lenght and char encoding in a space with more options than atoms in observable universe
  */
-export function validateOID(id: string): ObliviousIentifier | false {
+export function validateOID(id: string): ObliviousIdentifier | false {
   if (typeof id !== 'string') return false
   if (!/^[A-Za-z0-9_-]{64}$/.test(id)) return false
-  return id as ObliviousIentifier
+  return id as ObliviousIdentifier
 }

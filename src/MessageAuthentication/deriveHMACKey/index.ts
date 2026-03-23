@@ -1,4 +1,4 @@
-import { toBufferSource } from '@z-base/bytecodec'
+import { toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
 import { assertSubtleAvailable } from '../../.helpers/assertSubtleAvailable.js'
 import { assertRawHmac256Bytes } from '../../.helpers/assertRawHmac256Bytes.js'

@@ -1,58 +1,60 @@
 /***/
+import { deriveOID, generateOID, validateOID } from './Identifiers/index.js'
+/***/
 import {
   CipherCluster,
   deriveCipherKey,
   generateCipherKey,
-} from './Cipher/index.js'
+} from './CipherMessage/index.js'
+/***/
+import {
+  HMACCluster,
+  deriveHMACKey,
+  generateHMACKey,
+} from './MessageAuthentication/index.js'
 /***/
 import {
   KeyAgreementCluster,
   generateKeyAgreementKeypair,
-} from './KeyEncapsulation/index.js'
-/***/
-import {
-  deriveHMACKey,
-  generateHMACKey,
-  HMACCluster,
-} from './MessageAuthentication/index.js'
-/***/
-import { deriveOID, generateOID, validateOID } from './Identifiers/index.js'
+} from './KeyAgreement/index.js'
 /***/
 import {
   DigitalSignatureCluster,
   generateDigitalSignatureKeypair,
-} from './DigitalSignatures/index.js'
+} from './DigitalSignature/index.js'
 /***/
-export class Cryptosuite {
+
+export const cryptographic = {
   /***/
-  static readonly identifiers = {
+  identifier: {
     derive: deriveOID,
     generate: generateOID,
     validate: validateOID,
-  }
+  },
   /***/
-  static readonly cipher = {
+  cipherMessage: {
     encrypt: CipherCluster.encrypt,
     decrypt: CipherCluster.decrypt,
     deriveKey: deriveCipherKey,
     generateKey: generateCipherKey,
-  }
-  static readonly messageAuthentication = {
+  },
+  /***/
+  messageAuthentication: {
     sign: HMACCluster.sign,
     verify: HMACCluster.verify,
     deriveKey: deriveHMACKey,
     generateKey: generateHMACKey,
-  }
+  },
   /***/
-  static readonly keyAgreement = {
-    encapsulate: KeyAgreementCluster.wrap,
-    decapsulate: KeyAgreementCluster.unwrap,
+  keyAgreement: {
+    encapsulate: KeyAgreementCluster.encapsulate,
+    decapsulate: KeyAgreementCluster.decapsulate,
     generateKeypair: generateKeyAgreementKeypair,
-  }
-  static readonly digitalSignatures = {
+  },
+  /***/
+  digitalSignature: {
     sign: DigitalSignatureCluster.sign,
     verify: DigitalSignatureCluster.verify,
     generateKeypair: generateDigitalSignatureKeypair,
-  }
-  /***/
+  },
 }

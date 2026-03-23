@@ -1,47 +1,69 @@
-import { EncapsulateJWK } from '../types/index.js'
+import { CryptosuiteError } from '../../../.errors/class.js'
+import { resolveKeyAgreementAlgorithm } from '../../resolveKeyAgreementAlgorithm/index.js'
+import type { EncapsulateJWK } from '../types/index.js'
 
 export function normalizeEncapsulateJWK(jwk: JsonWebKey): EncapsulateJWK {
-  const a = jwk as any
+  const candidate = jwk as JsonWebKey | null
 
-  if (!a || typeof a !== 'object') {
-    throw new TypeError('JWK must be an object')
+  if (!candidate || typeof candidate !== 'object') {
+    throw new CryptosuiteError(
+      'KEY_AGREEMENT_ENCAPSULATE_JWK_INVALID',
+      'normalizeEncapsulateJWK: expected an asymmetric public key agreement JWK.'
+    )
   }
 
-  if (typeof a.kty !== 'string' || !a.kty) {
-    throw new TypeError('JWK.kty required')
-  }
-
-  if (typeof a.alg !== 'string' || !a.alg) {
-    throw new TypeError('JWK.alg required')
-  }
-
-  // Public asymmetric only (no private parts, no symmetric key material)
   if (
-    'd' in a ||
-    'p' in a ||
-    'q' in a ||
-    'dp' in a ||
-    'dq' in a ||
-    'qi' in a ||
-    'oth' in a ||
-    'k' in a
+    typeof candidate.kty !== 'string' ||
+    typeof candidate.alg !== 'string' ||
+    'd' in candidate ||
+    'p' in candidate ||
+    'q' in candidate ||
+    'dp' in candidate ||
+    'dq' in candidate ||
+    'qi' in candidate ||
+    'oth' in candidate ||
+    'k' in candidate
   ) {
-    throw new TypeError('Not an asymmetric public wrap JWK')
+    throw new CryptosuiteError(
+      'KEY_AGREEMENT_ENCAPSULATE_JWK_INVALID',
+      'normalizeEncapsulateJWK: expected an asymmetric public key agreement JWK.'
+    )
   }
 
-  if (a.use !== undefined && a.use !== 'enc') {
-    throw new TypeError('JWK.use must be "enc" if present')
+  if (candidate.use !== undefined && candidate.use !== 'enc') {
+    throw new CryptosuiteError(
+      'KEY_AGREEMENT_ENCAPSULATE_JWK_INVALID',
+      'normalizeEncapsulateJWK: JWK.use must be "enc" when present.'
+    )
   }
 
-  if (a.key_ops !== undefined) {
-    if (!Array.isArray(a.key_ops) || !a.key_ops.includes('wrapKey')) {
-      throw new TypeError('JWK.key_ops must include "wrapKey" if present')
+  const strategy = resolveKeyAgreementAlgorithm(candidate)
+  if (candidate.key_ops !== undefined) {
+    if (!Array.isArray(candidate.key_ops)) {
+      throw new CryptosuiteError(
+        'KEY_AGREEMENT_ENCAPSULATE_JWK_INVALID',
+        'normalizeEncapsulateJWK: JWK.key_ops must be an array when present.'
+      )
+    }
+
+    if (strategy.mode === 'wrap') {
+      if (candidate.key_ops.length !== 1 || candidate.key_ops[0] !== 'wrapKey') {
+        throw new CryptosuiteError(
+          'KEY_AGREEMENT_ENCAPSULATE_JWK_INVALID',
+          'normalizeEncapsulateJWK: RSA encapsulation JWK.key_ops must be ["wrapKey"] when present.'
+        )
+      }
+    } else if (candidate.key_ops.length !== 0) {
+      throw new CryptosuiteError(
+        'KEY_AGREEMENT_ENCAPSULATE_JWK_INVALID',
+        'normalizeEncapsulateJWK: derived key agreement public JWK.key_ops must be [] when present.'
+      )
     }
   }
 
   return {
     ...jwk,
     use: 'enc',
-    key_ops: ['wrapKey'] as const,
+    key_ops: strategy.mode === 'wrap' ? (['wrapKey'] as const) : ([] as const),
   } as EncapsulateJWK
 }

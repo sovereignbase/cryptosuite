@@ -1,54 +1,87 @@
-import { EncapsulateJWKHarness } from '../Encapsulator/EncapsulateJWKHarness/class.js'
-import { UnwrapAgent } from '../Unwrapper/UnwrapAgent/class.js'
-import { generateCipherKey, type CipherJWK } from '../../Cipher/index.js'
-import type { EncapsulateJWK } from '../Encapsulator/types/index.js'
+import { DecapsulateJWKHarness } from '../Decapsulator/DecapuslateKeyHarness/class.js'
 import type { DecapsulateJWK } from '../Decapsulator/types/index.js'
-
-export type ExchangeAgentType = 'encapsulate' | 'decapsulate'
-export type ExchangeAgentByType = {
-  wrap: EncapsulateJWKHarness
-  unwrap: UnwrapAgent
-}
+import { EncapsulateJWKHarness } from '../Encapsulator/EncapsulateKeyHarness/class.js'
+import type { EncapsulateJWK } from '../Encapsulator/types/index.js'
+import type { CipherJWK } from '../../Cipher/types/index.js'
+import type {
+  KeyAgreementArtifact,
+  SharedKeyContext,
+  SharedKeyJWK,
+} from '../types/index.js'
 
 export class KeyAgreementCluster {
-  static #wrapAgents = new WeakMap<EncapsulateJWK, WeakRef<WrapAgent>>()
-  static #unwrapAgents = new WeakMap<DecapsulateJWK, WeakRef<UnwrapAgent>>()
+  static #encapsulators = new WeakMap<
+    EncapsulateJWK,
+    WeakRef<EncapsulateJWKHarness>
+  >()
+  static #decapsulators = new WeakMap<
+    DecapsulateJWK,
+    WeakRef<DecapsulateJWKHarness>
+  >()
 
-  static #loadWrapAgent(wrapJwk: WrapJWK): WrapAgent {
-    const weakRef = KeyAgreementCluster.#wrapAgents.get(wrapJwk)
-    let agent = weakRef?.deref()
-    if (!agent) {
-      agent = new WrapAgent(wrapJwk)
-      KeyAgreementCluster.#wrapAgents.set(wrapJwk, new WeakRef(agent))
+  static #loadEncapsulator(
+    encapsulateJwk: EncapsulateJWK
+  ): EncapsulateJWKHarness {
+    const weakRef = KeyAgreementCluster.#encapsulators.get(encapsulateJwk)
+    let harness = weakRef?.deref()
+    if (!harness) {
+      harness = new EncapsulateJWKHarness(encapsulateJwk)
+      KeyAgreementCluster.#encapsulators.set(
+        encapsulateJwk,
+        new WeakRef(harness)
+      )
     }
-    return agent
+    return harness
   }
 
-  static #loadUnwrapAgent(unwrapJwk: UnwrapJWK): UnwrapAgent {
-    const weakRef = KeyAgreementCluster.#unwrapAgents.get(unwrapJwk)
-    let agent = weakRef?.deref()
-    if (!agent) {
-      agent = new UnwrapAgent(unwrapJwk)
-      KeyAgreementCluster.#unwrapAgents.set(unwrapJwk, new WeakRef(agent))
+  static #loadDecapsulator(
+    decapsulateJwk: DecapsulateJWK
+  ): DecapsulateJWKHarness {
+    const weakRef = KeyAgreementCluster.#decapsulators.get(decapsulateJwk)
+    let harness = weakRef?.deref()
+    if (!harness) {
+      harness = new DecapsulateJWKHarness(decapsulateJwk)
+      KeyAgreementCluster.#decapsulators.set(
+        decapsulateJwk,
+        new WeakRef(harness)
+      )
     }
-    return agent
+    return harness
   }
 
   static async encapsulate(
-    encapsulateJwk: EncapsulateJWK
-  ): Promise<{ ciphertext: ArrayBuffer; sharedCipherJwk: CipherJWK }> {
-    const sharedCipherJwk = await generateCipherKey()
-    const harness = KeyAgreementCluster.#loadWrapAgent(encapsulateJwk)
-    const ciphertext = await harness.encapsulate(sharedCipherJwk)
-    return { ciphertext, sharedCipherJwk }
+    encapsulateJwk: EncapsulateJWK,
+    context: SharedKeyContext = {}
+  ): Promise<{ artifact: KeyAgreementArtifact; sharedJwk: SharedKeyJWK }> {
+    return KeyAgreementCluster.#loadEncapsulator(encapsulateJwk).encapsulate(
+      context
+    )
   }
 
   static async decapsulate(
-    ciphertext: ArrayBuffer,
-    decapsulateJwk: DecapsulateJWK
-  ): Promise<{ sharedCipherJwk: CipherJWK }> {
-    const agent = KeyAgreementCluster.#loadUnwrapAgent(decapsulateJwk)
-    const sharedCipherJwk = await agent.decapsulate(ciphertext)
-    return { sharedCipherJwk }
+    artifact: KeyAgreementArtifact,
+    decapsulateJwk: DecapsulateJWK,
+    context: SharedKeyContext = {}
+  ): Promise<{ sharedJwk: SharedKeyJWK }> {
+    return KeyAgreementCluster.#loadDecapsulator(decapsulateJwk).decapsulate(
+      artifact,
+      context
+    )
+  }
+
+  static async wrap(
+    wrapJwk: EncapsulateJWK,
+    cipherJwk: CipherJWK
+  ): Promise<ArrayBuffer> {
+    return KeyAgreementCluster.#loadEncapsulator(wrapJwk).wrap(cipherJwk)
+  }
+
+  static async unwrap(
+    unwrapJwk: DecapsulateJWK,
+    ciphertext: BufferSource
+  ): Promise<CipherJWK> {
+    return (await KeyAgreementCluster.#loadDecapsulator(unwrapJwk).unwrap(
+      ciphertext
+    )) as CipherJWK
   }
 }

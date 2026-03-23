@@ -1,4 +1,4 @@
-import { HMACAgent } from '../HMACAgent/class.js'
+import { HMACAgent } from '../HMACKeyHarness/class.js'
 import type { HMACJWK } from '../index.js'
 
 export class HMACCluster {

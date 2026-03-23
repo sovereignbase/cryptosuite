@@ -1,7 +1,7 @@
 {
-  "name": "@z-base/cryptosuite",
-  "version": "1.0.1",
-  "description": "Developer-experience-first WebCrypto toolkit with declarative APIs for encryption, signing, key wrapping, and identifiers.",
+  "name": "@sovereignbase/cryptosuite",
+  "version": "0.0.0",
+  "description": "JS/TS Runtime-Agnostic WebCrypto toolkit with declarative key-steered APIs for encryption, signing, key agreement, and identifiers.",
   "keywords": [
     "cryptography",
     "webcrypto",
@@ -17,18 +17,34 @@
     "hmac",
     "ed25519",
     "x25519",
-    "opaque-identifier",
+    "oblivious-identifier",
     "typescript",
     "bytecodec",
-    "z-base"
+    "sovereignbase"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "sideEffects": false,
   "scripts": {
     "format": "prettier . --write",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsup",
     "test": "npm run build && node test/run-coverage.mjs && node test/e2e/run.mjs",
     "bench": "npm run build && node benchmark/bench.js",
     "prepare": "husky",
@@ -55,7 +71,7 @@
   },
   "homepage": "https://github.com/z-base/cryptosuite#readme",
   "dependencies": {
-    "@sovereignbase/bytecodec": "^1.4.0"
+    "@sovereignbase/bytecodec": "^1.4.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
@@ -72,19 +88,6 @@
     "typescript": "^5.6.3"
   },
   "engines": {
-    "node": ">=18"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md"
-  ],
-  "sideEffects": false
+    "node": ">=20"
+  }
 }

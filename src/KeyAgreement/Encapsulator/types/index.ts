@@ -14,5 +14,7 @@ export type EncapsulateJWK = JsonWebKey &
     kty: string
     alg: string
     use?: 'enc'
-    key_ops?: readonly 'wrapKey'[]
+    key_ops?: readonly ('wrapKey')[]
+      | readonly ('deriveKey' | 'deriveBits')[]
+      | readonly []
   }
