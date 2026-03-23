@@ -58,8 +58,13 @@ test('deriveCipherKey imports raw keys deterministically', async () => {
   const raw = new Uint8Array(32).fill(9)
   const derived1 = await deriveCipherKey(raw)
   const derived2 = await deriveCipherKey(raw)
+  const customSalt = new Uint8Array(32).fill(7)
+  const derived3 = await deriveCipherKey(raw, { salt: customSalt })
+  const derived4 = await deriveCipherKey(raw, { salt: customSalt })
   assert.equal(derived1.kty, 'oct')
   assert.equal(derived1.k, derived2.k)
+  assert.equal(derived3.k, derived4.k)
+  assert.notEqual(derived1.k, derived3.k)
 })
 
 test('HMAC sign/verify roundtrip', async () => {

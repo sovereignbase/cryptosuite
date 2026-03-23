@@ -2,7 +2,7 @@ import { DecapsulateKeyHarness } from '../Decapsulator/DecapsulateKeyHarness/cla
 import type { DecapsulateJWK } from '../Decapsulator/types/index.js'
 import { EncapsulateKeyHarness } from '../Encapsulator/EncapsulateKeyHarness/class.js'
 import type { EncapsulateJWK } from '../Encapsulator/types/index.js'
-import type { CipherJWK } from '../../CipherMessage/types/index.js'
+import type { CipherJWK } from '../../CipherMessage/.core/types/index.js'
 import type { KeyAgreementArtifact } from '../types/index.js'
 
 export class KeyAgreementCluster {
@@ -55,6 +55,8 @@ export class KeyAgreementCluster {
     artifact: KeyAgreementArtifact,
     decapsulateJwk: DecapsulateJWK
   ): Promise<{ cipherJwk: CipherJWK }> {
-    return KeyAgreementCluster.#loadDecapsulator(decapsulateJwk).decapsulate(artifact)
+    return KeyAgreementCluster.#loadDecapsulator(decapsulateJwk).decapsulate(
+      artifact
+    )
   }
 }

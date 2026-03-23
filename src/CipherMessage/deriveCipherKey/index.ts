@@ -1,52 +1,70 @@
 import { toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
-import { assertSubtleAvailable } from '../../.helpers/assertSubtleAvailable.js'
 import { getBufferSourceLength } from '../../.helpers/getBufferSourceLength.js'
-import { normalizeCipherJWK } from '../normalizeCipherJWK/index.js'
-import type { CipherJWK, CipherMessageAlgorithm } from '../types/index.js'
-
-function jwkAlgOf(algorithm: CipherMessageAlgorithm): string {
-  if (algorithm.alg) return algorithm.alg
-  const mode = algorithm.name.replace('AES-', '')
-  return `A${algorithm.length}${mode}`
-}
+import { validateKeyByAlgorithmName } from '../.core/validateKeyByAlgorihtmName/index.js'
+import type { CipherKey } from '../.core/types/index.js'
 
 export async function deriveCipherKey(
-  rawKey: Uint8Array,
-  algorithm: CipherMessageAlgorithm = { name: 'AES-GCM', length: 256 }
-): Promise<CipherJWK> {
-  assertSubtleAvailable('deriveCipherKey')
-  if (getBufferSourceLength(rawKey, 'deriveCipherKey') * 8 !== algorithm.length) {
+  sourceKeyMaterial: Uint8Array,
+  options: {
+    salt?: Uint8Array
+  } = {}
+): Promise<{ cipherKey: CipherKey; salt: Uint8Array }> {
+  if (!globalThis.crypto?.subtle) {
     throw new CryptosuiteError(
-      'CIPHER_JWK_INVALID',
-      'deriveCipherKey: raw key material length does not match the declared algorithm length.'
+      'SUBTLE_UNAVAILABLE',
+      'deriveCipherKey: crypto.subtle is unavailable.'
     )
   }
+
+  if (getBufferSourceLength(sourceKeyMaterial, 'deriveCipherKey') === 0) {
+    throw new CryptosuiteError(
+      'CIPHER_KEY_INVALID',
+      'deriveCipherKey: source key material must not be empty.'
+    )
+  }
+
+  if (!options.salt && !globalThis.crypto?.getRandomValues) {
+    throw new CryptosuiteError(
+      'GET_RANDOM_VALUES_UNAVAILABLE',
+      'deriveCipherKey: crypto.getRandomValues is unavailable.'
+    )
+  }
+
+  const salt = options.salt ?? crypto.getRandomValues(new Uint8Array(16))
   let key: CryptoKey
+  let derived: CryptoKey
   try {
     key = await crypto.subtle.importKey(
       'raw',
-      toBufferSource(rawKey),
-      { name: algorithm.name },
+      toBufferSource(sourceKeyMaterial),
+      'HKDF',
+      false,
+      ['deriveKey']
+    )
+    derived = await crypto.subtle.deriveKey(
+      {
+        name: 'HKDF',
+        hash: 'SHA-256',
+        salt: toBufferSource(salt),
+      },
+      key,
+      { name: 'AES-CTR', length: 256 },
       true,
       ['encrypt', 'decrypt']
     )
   } catch {
     throw new CryptosuiteError(
       'ALGORITHM_UNSUPPORTED',
-      'deriveCipherKey: selected cipher algorithm is not supported by this WebCrypto runtime.'
+      'deriveCipherKey: HKDF-SHA-256 to AES-CTR-256 is not supported by this WebCrypto runtime.'
     )
   }
 
-  return normalizeCipherJWK({
-    ...(await crypto.subtle.exportKey('jwk', key)),
-    alg: jwkAlgOf(algorithm),
-    ...(algorithm.ivLength === undefined ? {} : { ivLength: algorithm.ivLength }),
-    ...(algorithm.name !== 'AES-GCM' || algorithm.tagLength === undefined
-      ? {}
-      : { tagLength: algorithm.tagLength }),
-    ...(algorithm.name !== 'AES-CTR' || algorithm.counterLength === undefined
-      ? {}
-      : { counterLength: algorithm.counterLength }),
-  })
+  const cipherKey = validateKeyByAlgorithmName(
+    await crypto.subtle.exportKey('jwk', derived)
+  )
+  return {
+    cipherKey,
+    salt,
+  }
 }

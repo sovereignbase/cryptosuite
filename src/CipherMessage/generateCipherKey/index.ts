@@ -1,41 +1,30 @@
 import { CryptosuiteError } from '../../.errors/class.js'
-import { assertSubtleAvailable } from '../../.helpers/assertSubtleAvailable.js'
-import { normalizeCipherJWK } from '../normalizeCipherJWK/index.js'
-import type { CipherJWK, CipherMessageAlgorithm } from '../types/index.js'
+import type { CipherKey } from '../.core/types/index.js'
+import { validateKeyByAlgorithmName } from '../.core/validateKeyByAlgorihtmName/index.js'
 
-function jwkAlgOf(algorithm: CipherMessageAlgorithm): string {
-  if (algorithm.alg) return algorithm.alg
-  const mode = algorithm.name.replace('AES-', '')
-  return `A${algorithm.length}${mode}`
-}
+export async function generateCipherKey(): Promise<CipherKey> {
+  if (!globalThis.crypto?.subtle) {
+    throw new CryptosuiteError(
+      'SUBTLE_UNAVAILABLE',
+      'generateCipherKey: crypto.subtle is unavailable.'
+    )
+  }
 
-export async function generateCipherKey(
-  algorithm: CipherMessageAlgorithm = { name: 'AES-GCM', length: 256 }
-): Promise<CipherJWK> {
-  assertSubtleAvailable('generateCipherKey')
-  let aesKey: CryptoKey
+  let cipherKey: CryptoKey
   try {
-    aesKey = await crypto.subtle.generateKey(
-      { name: algorithm.name, length: algorithm.length },
+    cipherKey = await crypto.subtle.generateKey(
+      { name: 'AES-CTR', length: 256 },
       true,
       ['encrypt', 'decrypt']
     )
   } catch {
     throw new CryptosuiteError(
       'ALGORITHM_UNSUPPORTED',
-      'generateCipherKey: selected cipher algorithm is not supported by this WebCrypto runtime.'
+      'generateCipherKey: AES-CTR-256 is not supported by this WebCrypto runtime.'
     )
   }
 
-  return normalizeCipherJWK({
-    ...(await crypto.subtle.exportKey('jwk', aesKey)),
-    alg: jwkAlgOf(algorithm),
-    ...(algorithm.ivLength === undefined ? {} : { ivLength: algorithm.ivLength }),
-    ...(algorithm.name !== 'AES-GCM' || algorithm.tagLength === undefined
-      ? {}
-      : { tagLength: algorithm.tagLength }),
-    ...(algorithm.name !== 'AES-CTR' || algorithm.counterLength === undefined
-      ? {}
-      : { counterLength: algorithm.counterLength }),
-  })
+  return validateKeyByAlgorithmName(
+    await crypto.subtle.exportKey('jwk', cipherKey)
+  )
 }

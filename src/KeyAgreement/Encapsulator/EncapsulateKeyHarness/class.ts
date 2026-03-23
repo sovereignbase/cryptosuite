@@ -1,7 +1,7 @@
 import { CryptosuiteError } from '../../../.errors/class.js'
 import { assertSubtleAvailable } from '../../../.helpers/assertSubtleAvailable.js'
-import { normalizeCipherJWK } from '../../../CipherMessage/normalizeCipherJWK/index.js'
-import type { CipherJWK } from '../../../CipherMessage/types/index.js'
+import { normalizeCipherJWK } from '../../../CipherMessage/.core/validateKeyByAlgorihtmName/index.js'
+import type { CipherJWK } from '../../../CipherMessage/.core/types/index.js'
 import { normalizeEncapsulateJWK } from '../normalizeEncapsulateJWK/index.js'
 import type { EncapsulateJWK } from '../types/index.js'
 import type { KeyAgreementArtifact } from '../../types/index.js'
@@ -140,7 +140,10 @@ function sharedCipherRuntimeOf(
 
 function serializeArtifactCiphertext(jwk: JsonWebKey): ArrayBuffer {
   const bytes = new TextEncoder().encode(JSON.stringify(jwk))
-  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+  return bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength
+  )
 }
 
 export class EncapsulateKeyHarness {

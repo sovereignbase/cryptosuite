@@ -71,7 +71,8 @@
   },
   "homepage": "https://github.com/z-base/cryptosuite#readme",
   "dependencies": {
-    "@sovereignbase/bytecodec": "^1.4.1"
+    "@sovereignbase/bytecodec": "^1.4.1",
+    "mlkem": "^2.7.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",

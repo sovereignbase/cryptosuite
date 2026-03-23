@@ -15,5 +15,10 @@
     "noImplicitReturns": true,
     "lib": ["es2024", "dom", "dom.iterable", "webworker"]
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "src/CipherMessage/.core/types",
+    "src/CipherMessage/.core/validateKeyByAlgorihtmName",
+    "src/CipherMessage/.core/getParamsByAlgorithmName"
+  ]
 }

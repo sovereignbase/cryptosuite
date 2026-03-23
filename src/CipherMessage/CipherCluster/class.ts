@@ -1,32 +1,32 @@
-import { CipherKeyHarness } from '../CipherKeyHarness/class.js'
-import type { CipherJWK, CipherMessageArtifact } from '../index.js'
+import { CipherKeyHarness } from '../.core/CipherKeyHarness/class.js'
+import type { CipherKey, CipherMessage } from '../.core/types/index.js'
 
 export class CipherCluster {
-  static #harnesses = new WeakMap<CipherJWK, WeakRef<CipherKeyHarness>>()
+  static #harnesses = new WeakMap<CipherKey, WeakRef<CipherKeyHarness>>()
 
-  static #loadHarness(cipherJwk: CipherJWK): CipherKeyHarness {
-    const weakRef = CipherCluster.#harnesses.get(cipherJwk)
+  static #loadHarness(cipherKey: CipherKey): CipherKeyHarness {
+    const weakRef = CipherCluster.#harnesses.get(cipherKey)
     let harness = weakRef?.deref()
     if (!harness) {
-      harness = new CipherKeyHarness(cipherJwk)
-      CipherCluster.#harnesses.set(cipherJwk, new WeakRef(harness))
+      harness = new CipherKeyHarness(cipherKey)
+      CipherCluster.#harnesses.set(cipherKey, new WeakRef(harness))
     }
     return harness
   }
 
   static async encrypt(
-    cipherJwk: CipherJWK,
-    bytes: Uint8Array
-  ): Promise<CipherMessageArtifact> {
-    const harness = CipherCluster.#loadHarness(cipherJwk)
-    return await harness.encrypt(bytes)
+    cipherKey: CipherKey,
+    messageBytes: Uint8Array
+  ): Promise<CipherMessage> {
+    const harness = CipherCluster.#loadHarness(cipherKey)
+    return await harness.encrypt(messageBytes)
   }
 
   static async decrypt(
-    cipherJwk: CipherJWK,
-    artifact: CipherMessageArtifact
+    cipherKey: CipherKey,
+    cipherMessage: CipherMessage
   ): Promise<Uint8Array> {
-    const harness = CipherCluster.#loadHarness(cipherJwk)
-    return await harness.decrypt(artifact)
+    const harness = CipherCluster.#loadHarness(cipherKey)
+    return await harness.decrypt(cipherMessage)
   }
 }
