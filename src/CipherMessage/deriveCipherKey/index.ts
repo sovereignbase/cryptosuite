@@ -1,7 +1,7 @@
 import { toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
 import { getBufferSourceLength } from '../../.helpers/getBufferSourceLength.js'
-import { validateKeyByAlgorithmName } from '../.core/validateKeyByAlgorihtmName/index.js'
+import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { CipherKey } from '../.core/types/index.js'
 
 export async function deriveCipherKey(
@@ -60,7 +60,7 @@ export async function deriveCipherKey(
     )
   }
 
-  const cipherKey = validateKeyByAlgorithmName(
+  const cipherKey = validateKeyByAlgCode(
     await crypto.subtle.exportKey('jwk', derived)
   )
   return {

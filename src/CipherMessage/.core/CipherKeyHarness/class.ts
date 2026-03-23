@@ -1,22 +1,19 @@
 import { toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../.errors/class.js'
-import {
-  getAlgorithmNameFromKey,
-  validateKeyByAlgorithmName,
-} from '../validateKeyByAlgorihtmName/index.js'
-import type { CipherKey, CipherMessage } from '../types/index.js'
-import { getParamsByAlgorithmName } from '../getParamsByAlgorithmName/index.js'
+import type { CipherKey, CipherMessage, CipherParams } from '../types/index.js'
+import { validateKeyByAlgCode } from '../helpers/validateKeyByAlgCode/index.js'
+import { createParamsByAlgCode } from '../helpers/createParamsByAlgCode/index.js'
+import { getParamsByAlgCode } from '../helpers/getParamsByAlgCode/index.js'
+import { getImportKeyAlgorithmByAlgCode } from '../helpers/getImportKeyAlgorithmByAlgCode/index.js'
 
 export class CipherKeyHarness {
+  private readonly algCode: CipherKey['alg']
   private readonly keyPromise: Promise<CryptoKey>
-  private readonly runtime: ReturnType<typeof getParamsByAlgorithmName>
 
   constructor(cipherKey: CipherKey) {
-    const normalized = validateKeyByAlgorithmName(cipherKey)
-    const runtime = getParamsByAlgorithmName(
-      getAlgorithmNameFromKey(normalized)
-    )
-    this.runtime = runtime
+    const validated = validateKeyByAlgCode(cipherKey)
+    const algCode = validated.alg
+    this.algCode = algCode
 
     if (!globalThis.crypto?.subtle) {
       throw new CryptosuiteError(
@@ -29,8 +26,8 @@ export class CipherKeyHarness {
       try {
         return await crypto.subtle.importKey(
           'jwk',
-          normalized,
-          runtime.importKeyAlgorithm,
+          validated,
+          getImportKeyAlgorithmByAlgCode(algCode),
           false,
           ['encrypt', 'decrypt']
         )
@@ -45,11 +42,11 @@ export class CipherKeyHarness {
 
   async encrypt(messageBytes: Uint8Array): Promise<CipherMessage> {
     const key = await this.keyPromise
-    const params = this.runtime.createParams()
+    const params = createParamsByAlgCode(this.algCode)
     return {
       ...params,
       ciphertext: await crypto.subtle.encrypt(
-        this.runtime.toWebCryptoParams(params),
+        getParamsByAlgCode(this.algCode, params),
         key,
         toBufferSource(messageBytes)
       ),
@@ -69,9 +66,11 @@ export class CipherKeyHarness {
       )
     }
 
-    const params = this.runtime.pickParams(cipherMessage)
+    const params: CipherParams = {
+      iv: cipherMessage.iv,
+    }
     const plaintext = await crypto.subtle.decrypt(
-      this.runtime.toWebCryptoParams(params),
+      getParamsByAlgCode(this.algCode, params),
       key,
       cipherMessage.ciphertext
     )

@@ -18,7 +18,7 @@
   "include": [
     "src",
     "src/CipherMessage/.core/types",
-    "src/CipherMessage/.core/validateKeyByAlgorihtmName",
+    "src/CipherMessage/.core/helpers/validateKeyByAlgCode",
     "src/CipherMessage/.core/getParamsByAlgorithmName"
   ]
 }

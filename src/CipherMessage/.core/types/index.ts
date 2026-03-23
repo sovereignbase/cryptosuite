@@ -22,8 +22,6 @@ type A256CTRKey = JsonWebKey &
     key_ops: readonly ('encrypt' | 'decrypt')[]
   }
 
-export type CipherAlgorithmName = 'AES-CTR'
-
 export type A256CTRParams = {
   iv: Uint8Array
 }
@@ -37,7 +35,3 @@ export type CipherKey = A256CTRKey
 export type CipherParams = A256CTRParams
 
 export type CipherMessage = A256CTRMessage
-
-export type CipherJWK = CipherKey
-
-export type CipherMessageArtifact = CipherMessage

@@ -1,49 +1,30 @@
 import { fromBase64UrlString } from '@sovereignbase/bytecodec'
-import { CryptosuiteError } from '../../../.errors/class.js'
-import type { CipherAlgorithmName, CipherKey } from '../types/index.js'
+import { CryptosuiteError } from '../../../../.errors/class.js'
+import type { CipherKey } from '../../types/index.js'
 
-export function getAlgorithmNameFromKey(key: Pick<JsonWebKey, 'alg'>): CipherAlgorithmName {
-  switch (key.alg) {
-    case 'A256CTR':
-      return 'AES-CTR'
-  }
-
-  throw new CryptosuiteError(
-    'ALGORITHM_UNSUPPORTED',
-    `getAlgorithmNameFromKey: unsupported cipher JWK alg "${String(key.alg)}".`
-  )
-}
-
-export function validateKeyByAlgorithmName(key: JsonWebKey): CipherKey {
+export function validateKeyByAlgCode(key: JsonWebKey): CipherKey {
   const candidate = key as JsonWebKey | null
 
   if (!candidate || typeof candidate !== 'object') {
     throw new CryptosuiteError(
       'CIPHER_KEY_INVALID',
-      'validateKeyByAlgorithmName: expected a cipher JWK object.'
+      'validateKeyByAlgCode: expected a cipher JWK object.'
     )
   }
 
-  switch (getAlgorithmNameFromKey(candidate)) {
-    case 'AES-CTR': {
-      if (candidate.alg !== 'A256CTR') {
-        throw new CryptosuiteError(
-          'ALGORITHM_UNSUPPORTED',
-          `validateKeyByAlgorithmName: unsupported AES-CTR cipher JWK alg "${String(candidate.alg)}".`
-        )
-      }
-
+  switch (candidate.alg) {
+    case 'A256CTR': {
       if (candidate.kty !== 'oct' || typeof candidate.k !== 'string') {
         throw new CryptosuiteError(
           'CIPHER_KEY_INVALID',
-          'validateKeyByAlgorithmName: expected a symmetric AES-CTR cipher JWK.'
+          'validateKeyByAlgCode: expected a symmetric cipher JWK.'
         )
       }
 
       if (candidate.use !== undefined && candidate.use !== 'enc') {
         throw new CryptosuiteError(
           'CIPHER_KEY_INVALID',
-          'validateKeyByAlgorithmName: JWK.use must be "enc" when present.'
+          'validateKeyByAlgCode: JWK.use must be "enc" when present.'
         )
       }
 
@@ -56,7 +37,7 @@ export function validateKeyByAlgorithmName(key: JsonWebKey): CipherKey {
       ) {
         throw new CryptosuiteError(
           'CIPHER_KEY_INVALID',
-          'validateKeyByAlgorithmName: JWK.key_ops must only contain encrypt/decrypt.'
+          'validateKeyByAlgCode: JWK.key_ops must only contain encrypt/decrypt.'
         )
       }
 
@@ -66,14 +47,14 @@ export function validateKeyByAlgorithmName(key: JsonWebKey): CipherKey {
       } catch {
         throw new CryptosuiteError(
           'BASE64URL_INVALID',
-          'validateKeyByAlgorithmName: invalid base64url key material.'
+          'validateKeyByAlgCode: invalid base64url key material.'
         )
       }
 
       if (keyBytes.byteLength !== 32) {
         throw new CryptosuiteError(
           'CIPHER_KEY_INVALID',
-          'validateKeyByAlgorithmName: key material must be 256 bits.'
+          'validateKeyByAlgCode: key material must be 256 bits.'
         )
       }
 
@@ -109,4 +90,9 @@ export function validateKeyByAlgorithmName(key: JsonWebKey): CipherKey {
       }
     }
   }
+
+  throw new CryptosuiteError(
+    'ALGORITHM_UNSUPPORTED',
+    `validateKeyByAlgCode: unsupported cipher JWK alg "${String(candidate.alg)}".`
+  )
 }

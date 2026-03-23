@@ -1,6 +1,6 @@
 import { CryptosuiteError } from '../../../.errors/class.js'
 import { assertSubtleAvailable } from '../../../.helpers/assertSubtleAvailable.js'
-import { normalizeCipherJWK } from '../../../CipherMessage/.core/validateKeyByAlgorihtmName/index.js'
+import { normalizeCipherJWK } from '../../../CipherMessage/.core/helpers/validateKeyByAlgCode/index.js'
 import type { CipherJWK } from '../../../CipherMessage/.core/types/index.js'
 import { normalizeEncapsulateJWK } from '../../Encapsulator/normalizeEncapsulateJWK/index.js'
 import { normalizeDecapsulateJWK } from '../normalizeDecapsulateJWK/index.js'

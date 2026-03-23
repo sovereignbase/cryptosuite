@@ -1,6 +1,6 @@
 import { CryptosuiteError } from '../../.errors/class.js'
 import type { CipherKey } from '../.core/types/index.js'
-import { validateKeyByAlgorithmName } from '../.core/validateKeyByAlgorihtmName/index.js'
+import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 
 export async function generateCipherKey(): Promise<CipherKey> {
   if (!globalThis.crypto?.subtle) {
@@ -24,7 +24,5 @@ export async function generateCipherKey(): Promise<CipherKey> {
     )
   }
 
-  return validateKeyByAlgorithmName(
-    await crypto.subtle.exportKey('jwk', cipherKey)
-  )
+  return validateKeyByAlgCode(await crypto.subtle.exportKey('jwk', cipherKey))
 }
