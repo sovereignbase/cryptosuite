@@ -1,5 +1,5 @@
 /***/
-import { deriveOID, generateOID, validateOID } from './Identifiers/index.js'
+import { deriveOID, generateOID, validateOID } from './Identifier/index.js'
 /***/
 import {
   CipherCluster,
@@ -15,11 +15,13 @@ import {
 /***/
 import {
   KeyAgreementCluster,
+  deriveKeyAgreementKeyPair,
   generateKeyAgreementKeypair,
 } from './KeyAgreement/index.js'
 /***/
 import {
   DigitalSignatureCluster,
+  deriveDigitalSignatureKeypair,
   generateDigitalSignatureKeypair,
 } from './DigitalSignature/index.js'
 /***/
@@ -49,12 +51,14 @@ export const cryptographic = {
   keyAgreement: {
     encapsulate: KeyAgreementCluster.encapsulate,
     decapsulate: KeyAgreementCluster.decapsulate,
+    deriveKeyPair: deriveKeyAgreementKeyPair,
     generateKeypair: generateKeyAgreementKeypair,
   },
   /***/
   digitalSignature: {
     sign: DigitalSignatureCluster.sign,
     verify: DigitalSignatureCluster.verify,
+    deriveKeypair: deriveDigitalSignatureKeypair,
     generateKeypair: generateDigitalSignatureKeypair,
   },
 }

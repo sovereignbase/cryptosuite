@@ -4,7 +4,12 @@ import { CryptosuiteError } from '../.errors/class.js'
 export type OpaqueIdentifier = string
 
 /**
- * Turns pads input value to a unique string presentation in a space with more options than atoms in observable universe
+ * Derives a fixed-length opaque identifier from arbitrary input.
+ *
+ * The output is intentionally non-semantic:
+ * - fixed width
+ * - base64url encoded
+ * - no embedded resource metadata
  */
 export async function deriveOID(source: Uint8Array): Promise<OpaqueIdentifier> {
   let hash: ArrayBuffer
@@ -20,14 +25,18 @@ export async function deriveOID(source: Uint8Array): Promise<OpaqueIdentifier> {
 }
 
 /**
- * Generates an unique string presentation in a space with more options than atoms in observable universe
+ * Generates a fixed-length opaque identifier with the same presentation as
+ * derived identifiers.
  */
 export async function generateOID(): Promise<OpaqueIdentifier> {
   return toBase64UrlString(crypto.getRandomValues(new Uint8Array(48)))
 }
 
 /**
- * Validates an unique strings lenght and char encoding in a space with more options than atoms in observable universe
+ * Validates the opaque identifier presentation only.
+ *
+ * Validation is intentionally structural:
+ * length and encoding only, never semantics.
  */
 export function validateOID(id: string): OpaqueIdentifier | false {
   if (typeof id !== 'string') return false
