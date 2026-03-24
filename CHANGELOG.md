@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.0.0](https://github.com/sovereignbase/cryptosuite/compare/v1.0.1...v2.0.0) (2026-03-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* public API surface changed.
+* public API surface changed.
+* public API surface changed.
+
+### Code Refactoring
+
+* change public API surface and add post-quantum protection ([74befd4](https://github.com/sovereignbase/cryptosuite/commit/74befd463b3a529d089b6be8073376a53cbdd4f0))
+* change public API surface and add post-quantum protection ([084baaf](https://github.com/sovereignbase/cryptosuite/commit/084baaf005bcba42984a438d6c210085bab9f06a))
+* change public API surface and add post-quantum protection ([62ea24a](https://github.com/sovereignbase/cryptosuite/commit/62ea24a67d83dea143460d71c24337ccad0211a0))
+
 ## [1.0.1](https://github.com/z-base/cryptosuite/compare/v1.0.0...v1.0.1) (2026-01-28)
 
 
