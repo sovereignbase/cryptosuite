@@ -1,24 +1,35 @@
 {
   "name": "@sovereignbase/cryptosuite",
   "version": "0.0.0",
-  "description": "JS/TS Runtime-Agnostic WebCrypto toolkit with declarative key-steered APIs for encryption, signing, key agreement, and identifiers.",
+  "description": "JS/TS runtime-agnostic cryptography toolkit with a post-quantum, crypto-agile, declarative API for cipher messaging, message authentication, digital signatures, key agreement, and identifiers.",
   "keywords": [
     "cryptography",
     "webcrypto",
-    "crypto",
+    "noble",
+    "cipher-messaging",
     "encryption",
     "decryption",
+    "digital-signatures",
+    "message-authentication",
     "signing",
     "verification",
-    "key-wrap",
-    "key-unwrap",
+    "key-agreement",
+    "key-encapsulation",
+    "key-decapsulation",
     "jwk",
-    "aes-gcm",
-    "hmac",
-    "ed25519",
-    "x25519",
+    "hmac-256",
+    "aes-ctr-256",
+    "ml-dsa-87",
+    "ml-kem-1024",
     "oblivious-identifier",
+    "bun",
+    "deno",
+    "node",
+    "browser",
+    "edge-runtime",
     "typescript",
+    "esm",
+    "cjs",
     "bytecodec",
     "sovereignbase"
   ],
@@ -71,8 +82,8 @@
   },
   "homepage": "https://github.com/z-base/cryptosuite#readme",
   "dependencies": {
-    "@sovereignbase/bytecodec": "^1.4.1",
-    "mlkem": "^2.7.0"
+    "@noble/post-quantum": "^0.5.4",
+    "@sovereignbase/bytecodec": "^1.4.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
@@ -86,7 +97,7 @@
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "tsup": "^8.5.1",
-    "typescript": "^5.6.3"
+    "typescript": "^6.0.2"
   },
   "engines": {
     "node": ">=20"

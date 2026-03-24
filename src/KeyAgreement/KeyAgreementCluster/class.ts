@@ -1,22 +1,22 @@
-import { DecapsulateKeyHarness } from '../Decapsulator/DecapsulateKeyHarness/class.js'
-import type { DecapsulateJWK } from '../Decapsulator/types/index.js'
-import { EncapsulateKeyHarness } from '../Encapsulator/EncapsulateKeyHarness/class.js'
-import type { EncapsulateJWK } from '../Encapsulator/types/index.js'
-import type { CipherJWK } from '../../CipherMessage/.core/types/index.js'
-import type { KeyAgreementArtifact } from '../types/index.js'
+import { DecapsulateKeyHarness } from '../.core/DecapsulateKeyHarness/class.js'
+import type { DecapsulateKey } from '../.core/types/index.js'
+import { EncapsulateKeyHarness } from '../.core/EncapsulateKeyHarness/class.js'
+import type { EncapsulateKey } from '../.core/types/index.js'
+import type { CipherKey } from '../../CipherMessage/.core/types/index.js'
+import type { KeyOffer } from '../.core/types/index.js'
 
 export class KeyAgreementCluster {
   static #encapsulators = new WeakMap<
-    EncapsulateJWK,
+    EncapsulateKey,
     WeakRef<EncapsulateKeyHarness>
   >()
   static #decapsulators = new WeakMap<
-    DecapsulateJWK,
+    DecapsulateKey,
     WeakRef<DecapsulateKeyHarness>
   >()
 
   static #loadEncapsulator(
-    encapsulateJwk: EncapsulateJWK
+    encapsulateJwk: EncapsulateKey
   ): EncapsulateKeyHarness {
     const weakRef = KeyAgreementCluster.#encapsulators.get(encapsulateJwk)
     let harness = weakRef?.deref()
@@ -31,14 +31,14 @@ export class KeyAgreementCluster {
   }
 
   static #loadDecapsulator(
-    decapsulateJwk: DecapsulateJWK
+    decapsulateKey: DecapsulateKey
   ): DecapsulateKeyHarness {
-    const weakRef = KeyAgreementCluster.#decapsulators.get(decapsulateJwk)
+    const weakRef = KeyAgreementCluster.#decapsulators.get(decapsulateKey)
     let harness = weakRef?.deref()
     if (!harness) {
-      harness = new DecapsulateKeyHarness(decapsulateJwk)
+      harness = new DecapsulateKeyHarness(decapsulateKey)
       KeyAgreementCluster.#decapsulators.set(
-        decapsulateJwk,
+        decapsulateKey,
         new WeakRef(harness)
       )
     }
@@ -46,17 +46,17 @@ export class KeyAgreementCluster {
   }
 
   static async encapsulate(
-    encapsulateJwk: EncapsulateJWK
-  ): Promise<{ artifact: KeyAgreementArtifact; cipherJwk: CipherJWK }> {
-    return KeyAgreementCluster.#loadEncapsulator(encapsulateJwk).encapsulate()
+    encapsulateKey: EncapsulateKey
+  ): Promise<{ keyOffer: KeyOffer; cipherKey: CipherKey }> {
+    return KeyAgreementCluster.#loadEncapsulator(encapsulateKey).encapsulate()
   }
 
   static async decapsulate(
-    artifact: KeyAgreementArtifact,
-    decapsulateJwk: DecapsulateJWK
-  ): Promise<{ cipherJwk: CipherJWK }> {
-    return KeyAgreementCluster.#loadDecapsulator(decapsulateJwk).decapsulate(
-      artifact
+    keyOffer: KeyOffer,
+    decapsulateKey: DecapsulateKey
+  ): Promise<{ cipherKey: CipherKey }> {
+    return KeyAgreementCluster.#loadDecapsulator(decapsulateKey).decapsulate(
+      keyOffer
     )
   }
 }
