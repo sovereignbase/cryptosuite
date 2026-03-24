@@ -15,7 +15,7 @@ import {
 /***/
 import {
   KeyAgreementCluster,
-  deriveKeyAgreementKeyPair,
+  deriveKeyAgreementKeypair,
   generateKeyAgreementKeypair,
 } from './KeyAgreement/index.js'
 /***/
@@ -75,8 +75,8 @@ export class Cryptographic {
     encapsulate: KeyAgreementCluster.encapsulate,
     /** See {@link KeyAgreementCluster.decapsulate}. */
     decapsulate: KeyAgreementCluster.decapsulate,
-    /** See {@link deriveKeyAgreementKeyPair}. */
-    deriveKeyPair: deriveKeyAgreementKeyPair,
+    /** See {@link deriveKeyAgreementKeypair}. */
+    deriveKeypair: deriveKeyAgreementKeypair,
     /** See {@link generateKeyAgreementKeypair}. */
     generateKeypair: generateKeyAgreementKeypair,
   }

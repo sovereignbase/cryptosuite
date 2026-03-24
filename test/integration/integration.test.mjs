@@ -1,155 +1,138 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { webcrypto } from 'node:crypto'
-import {
-  generateCipherKey,
-  deriveCipherKey,
-  CipherAgent,
-  CipherCluster,
-  generateHMACKey,
-  deriveHMACKey,
-  HMACAgent,
-  HMACCluster,
-  generateExchangePair,
-  WrapAgent,
-  UnwrapAgent,
-  ExchangeCluster,
-  generateVerificationPair,
-  SignAgent,
-  VerifyAgent,
-  VerificationCluster,
-  generateOID,
-  deriveOID,
-  validateOID,
-  Cryptosuite,
-} from '../../dist/index.js'
+import { ml_kem1024 } from '@noble/post-quantum/ml-kem.js'
+import { Cryptographic } from '../support/cryptographic.mjs'
+import { bytes } from '../support/fixtures.mjs'
 
 if (!globalThis.crypto) {
   globalThis.crypto = webcrypto
 }
 
-const PLAINTEXT = new Uint8Array([1, 2, 3, 4, 5, 6])
+const PLAINTEXT = new TextEncoder().encode('cryptosuite integration')
 
-test('Cryptosuite static API is wired', () => {
-  assert.equal(typeof Cryptosuite.cipher.encrypt, 'function')
-  assert.equal(typeof Cryptosuite.exchange.wrap, 'function')
-  assert.equal(typeof Cryptosuite.hmac.sign, 'function')
-  assert.equal(typeof Cryptosuite.oid.generate, 'function')
-  assert.equal(typeof Cryptosuite.verification.sign, 'function')
+test('integration: identifier generate/derive/validate', async () => {
+  const generated = await Cryptographic.identifier.generate()
+  const derived = await Cryptographic.identifier.derive(PLAINTEXT)
+  assert.equal(Cryptographic.identifier.validate(generated), generated)
+  assert.equal(Cryptographic.identifier.validate(derived), derived)
+  assert.equal(generated.length, 64)
+  assert.equal(derived.length, 64)
 })
 
-test('AES-GCM encrypt/decrypt roundtrip', async () => {
-  const cipherJwk = await generateCipherKey()
-  const agent = new CipherAgent(cipherJwk)
-  const encrypted = await agent.encrypt(PLAINTEXT)
-  const decrypted = await agent.decrypt(encrypted)
-  assert.deepEqual(Array.from(decrypted), Array.from(PLAINTEXT))
-
-  // cluster path and cache
-  const artifact1 = await CipherCluster.encrypt(cipherJwk, PLAINTEXT)
-  const artifact2 = await CipherCluster.encrypt(cipherJwk, PLAINTEXT)
-  assert.ok(artifact1.iv instanceof Uint8Array)
-  assert.ok(artifact1.ciphertext instanceof ArrayBuffer)
-  const roundtrip = await CipherCluster.decrypt(cipherJwk, artifact2)
-  assert.deepEqual(Array.from(roundtrip), Array.from(PLAINTEXT))
+test('integration: AES-CTR encrypt/decrypt roundtrip', async () => {
+  const cipherKey = await Cryptographic.cipherMessage.generateKey()
+  const cipherMessage = await Cryptographic.cipherMessage.encrypt(
+    cipherKey,
+    PLAINTEXT
+  )
+  const plaintext = await Cryptographic.cipherMessage.decrypt(
+    cipherKey,
+    cipherMessage
+  )
+  assert.deepEqual(Array.from(plaintext), Array.from(PLAINTEXT))
+  assert.equal(cipherMessage.iv.byteLength, 12)
 })
 
-test('deriveCipherKey imports raw keys deterministically', async () => {
-  const raw = new Uint8Array(32).fill(9)
-  const derived1 = await deriveCipherKey(raw)
-  const derived2 = await deriveCipherKey(raw)
-  const customSalt = new Uint8Array(32).fill(7)
-  const derived3 = await deriveCipherKey(raw, { salt: customSalt })
-  const derived4 = await deriveCipherKey(raw, { salt: customSalt })
-  assert.equal(derived1.kty, 'oct')
-  assert.equal(derived1.k, derived2.k)
-  assert.equal(derived3.k, derived4.k)
-  assert.notEqual(derived1.k, derived3.k)
+test('integration: cipher derivation is deterministic with explicit salt', async () => {
+  const salt = new Uint8Array(16).fill(9)
+  const one = await Cryptographic.cipherMessage.deriveKey(PLAINTEXT, { salt })
+  const two = await Cryptographic.cipherMessage.deriveKey(PLAINTEXT, { salt })
+  assert.equal(one.cipherKey.k, two.cipherKey.k)
+  assert.deepEqual(Array.from(one.salt), Array.from(salt))
+  assert.equal(one.salt.byteLength, 16)
 })
 
-test('HMAC sign/verify roundtrip', async () => {
-  const hmacJwk = await generateHMACKey()
-  const agent = new HMACAgent(hmacJwk)
-  const sig = await agent.sign(PLAINTEXT)
-  const ok = await agent.verify(PLAINTEXT, sig)
-  assert.equal(ok, true)
+test('integration: HMAC sign/verify roundtrip', async () => {
+  const key = await Cryptographic.messageAuthentication.generateKey()
+  const signature = await Cryptographic.messageAuthentication.sign(
+    key,
+    PLAINTEXT
+  )
+  const verified = await Cryptographic.messageAuthentication.verify(
+    key,
+    PLAINTEXT,
+    signature
+  )
+  const rejected = await Cryptographic.messageAuthentication.verify(
+    key,
+    bytes(0, ...PLAINTEXT),
+    signature
+  )
 
-  const clusterSig = await HMACCluster.sign(hmacJwk, PLAINTEXT)
-  assert.ok(clusterSig instanceof ArrayBuffer)
-  const clusterOk = await HMACCluster.verify(hmacJwk, PLAINTEXT, clusterSig)
-  assert.equal(clusterOk, true)
+  assert.equal(verified, true)
+  assert.equal(rejected, false)
 })
 
-test('deriveHMACKey imports raw keys deterministically', async () => {
-  const raw = new Uint8Array(32).fill(7)
-  const derived1 = await deriveHMACKey(raw)
-  const derived2 = await deriveHMACKey(raw)
-  assert.equal(derived1.kty, 'oct')
-  assert.equal(derived1.k, derived2.k)
+test('integration: HMAC derivation is deterministic with explicit salt', async () => {
+  const material = bytes(1, 2, 3, 4, 5, 6, 7, 8)
+  const salt = new Uint8Array(16).fill(7)
+  const one = await Cryptographic.messageAuthentication.deriveKey(material, {
+    salt,
+  })
+  const two = await Cryptographic.messageAuthentication.deriveKey(material, {
+    salt,
+  })
+  assert.equal(one.messageAuthenticationKey.k, two.messageAuthenticationKey.k)
+  assert.deepEqual(Array.from(one.salt), Array.from(salt))
+  assert.equal(one.salt.byteLength, 16)
 })
 
-test('OID generate/derive/validate', async () => {
-  const oid = await generateOID()
-  assert.equal(validateOID(oid) !== false, true)
-  assert.equal(validateOID('bad'), false)
-  assert.equal(validateOID(123), false)
+test('integration: key agreement encapsulate/decapsulate reconstructs the same cipher key', async () => {
+  const { encapsulateKey, decapsulateKey } =
+    await Cryptographic.keyAgreement.generateKeypair()
+  const { keyOffer, cipherKey: localCipherKey } =
+    await Cryptographic.keyAgreement.encapsulate(encapsulateKey)
+  const { cipherKey: remoteCipherKey } =
+    await Cryptographic.keyAgreement.decapsulate(keyOffer, decapsulateKey)
 
-  const derived = await deriveOID(PLAINTEXT)
-  assert.equal(validateOID(derived) !== false, true)
+  assert.equal(localCipherKey.k, remoteCipherKey.k)
+
+  const cipherMessage = await Cryptographic.cipherMessage.encrypt(
+    localCipherKey,
+    PLAINTEXT
+  )
+  const plaintext = await Cryptographic.cipherMessage.decrypt(
+    remoteCipherKey,
+    cipherMessage
+  )
+  assert.deepEqual(Array.from(plaintext), Array.from(PLAINTEXT))
 })
 
-test('Ed25519 sign/verify if supported', async () => {
-  try {
-    const { signJwk, verifyJwk } = await generateVerificationPair()
-    const signer = new SignAgent(signJwk)
-    const verifier = new VerifyAgent(verifyJwk)
-    const sig = await signer.sign(PLAINTEXT)
-    const ok = await verifier.verify(PLAINTEXT, sig)
-    assert.equal(ok, true)
-
-    const clusterSig = await VerificationCluster.sign(signJwk, PLAINTEXT)
-    const clusterSig2 = await VerificationCluster.sign(signJwk, PLAINTEXT)
-    const clusterOk = await VerificationCluster.verify(
-      verifyJwk,
-      PLAINTEXT,
-      clusterSig
-    )
-    const clusterOk2 = await VerificationCluster.verify(
-      verifyJwk,
-      PLAINTEXT,
-      clusterSig2
-    )
-    assert.equal(clusterOk, true)
-    assert.equal(clusterOk2, true)
-  } catch (err) {
-    assert.equal(err.code, 'ED25519_UNSUPPORTED')
-  }
+test('integration: key agreement derivation is deterministic', async () => {
+  const seed = new Uint8Array(ml_kem1024.lengths.seed).fill(11)
+  const one = await Cryptographic.keyAgreement.deriveKeypair(seed)
+  const two = await Cryptographic.keyAgreement.deriveKeypair(seed)
+  assert.equal(one.encapsulateKey.x, two.encapsulateKey.x)
+  assert.equal(one.decapsulateKey.d, two.decapsulateKey.d)
 })
 
-test('RSA wrap/unwrap if supported', async () => {
-  try {
-    const { wrapJwk, unwrapJwk } = await generateExchangePair()
-    const cipherJwk = await generateCipherKey()
-    const wrapper = new WrapAgent(wrapJwk)
-    const unwrapper = new UnwrapAgent(unwrapJwk)
+test('integration: digital signature sign/verify roundtrip', async () => {
+  const { signKey, verifyKey } =
+    await Cryptographic.digitalSignature.generateKeypair()
+  const signature = await Cryptographic.digitalSignature.sign(
+    signKey,
+    PLAINTEXT
+  )
+  const verified = await Cryptographic.digitalSignature.verify(
+    verifyKey,
+    PLAINTEXT,
+    signature
+  )
+  const rejected = await Cryptographic.digitalSignature.verify(
+    verifyKey,
+    bytes(255, ...PLAINTEXT),
+    signature
+  )
 
-    const wrapped = await wrapper.wrap(cipherJwk)
-    const unwrapped = await unwrapper.unwrap(wrapped)
-    assert.equal(unwrapped.kty, 'oct')
+  assert.equal(verified, true)
+  assert.equal(rejected, false)
+})
 
-    const clusterWrapped = await ExchangeCluster.wrap(wrapJwk, cipherJwk)
-    const clusterWrapped2 = await ExchangeCluster.wrap(wrapJwk, cipherJwk)
-    const clusterUnwrapped = await ExchangeCluster.unwrap(
-      unwrapJwk,
-      clusterWrapped
-    )
-    const clusterUnwrapped2 = await ExchangeCluster.unwrap(
-      unwrapJwk,
-      clusterWrapped2
-    )
-    assert.equal(clusterUnwrapped.k, cipherJwk.k)
-    assert.equal(clusterUnwrapped2.k, cipherJwk.k)
-  } catch (err) {
-    assert.equal(err.code, 'RSA_OAEP_UNSUPPORTED')
-  }
+test('integration: digital signature derivation is deterministic', async () => {
+  const seed = new Uint8Array(32).fill(12)
+  const one = await Cryptographic.digitalSignature.deriveKeypair(seed)
+  const two = await Cryptographic.digitalSignature.deriveKeypair(seed)
+  assert.equal(one.signKey.d, two.signKey.d)
+  assert.equal(one.verifyKey.x, two.verifyKey.x)
 })

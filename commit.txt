@@ -1,0 +1,3 @@
+rewrite!: Changed api surface, added post-quantum protection.
+
+BREAKING CHANGE: Changed public api surface.

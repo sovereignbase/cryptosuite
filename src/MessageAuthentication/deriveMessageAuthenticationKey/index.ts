@@ -8,11 +8,18 @@ import type { MessageAuthenticationKey } from '../.core/types/index.js'
  * Derives a symmetric message authentication key from source key material.
  *
  * @param sourceKeyMaterial - The source bytes to derive from.
- * @returns The derived message authentication key.
+ * @param options - Optional derivation options.
+ * @returns The derived message authentication key and the salt used.
  */
 export async function deriveMessageAuthenticationKey(
-  sourceKeyMaterial: Uint8Array
-): Promise<MessageAuthenticationKey> {
+  sourceKeyMaterial: Uint8Array,
+  options: {
+    salt?: Uint8Array
+  } = {}
+): Promise<{
+  messageAuthenticationKey: MessageAuthenticationKey
+  salt: Uint8Array
+}> {
   if (!globalThis.crypto?.subtle) {
     throw new CryptosuiteError(
       'SUBTLE_UNAVAILABLE',
@@ -32,11 +39,32 @@ export async function deriveMessageAuthenticationKey(
     )
   }
 
+  if (!options.salt && !globalThis.crypto?.getRandomValues) {
+    throw new CryptosuiteError(
+      'GET_RANDOM_VALUES_UNAVAILABLE',
+      'deriveMessageAuthenticationKey: crypto.getRandomValues is unavailable.'
+    )
+  }
+
+  const salt = options.salt ?? crypto.getRandomValues(new Uint8Array(16))
   let key: CryptoKey
+  let derived: CryptoKey
   try {
     key = await crypto.subtle.importKey(
       'raw',
       toBufferSource(sourceKeyMaterial),
+      'HKDF',
+      false,
+      ['deriveKey']
+    )
+    derived = await crypto.subtle.deriveKey(
+      {
+        name: 'HKDF',
+        hash: 'SHA-256',
+        salt: toBufferSource(salt),
+        info: new Uint8Array(0),
+      },
+      key,
       { name: 'HMAC', hash: 'SHA-256' },
       true,
       ['sign', 'verify']
@@ -44,9 +72,15 @@ export async function deriveMessageAuthenticationKey(
   } catch {
     throw new CryptosuiteError(
       'ALGORITHM_UNSUPPORTED',
-      'deriveMessageAuthenticationKey: HMAC-SHA-256 is not supported by this WebCrypto runtime.'
+      'deriveMessageAuthenticationKey: HKDF-SHA-256 to HMAC-SHA-256 is not supported by this WebCrypto runtime.'
     )
   }
 
-  return validateKeyByAlgCode(await crypto.subtle.exportKey('jwk', key))
+  const messageAuthenticationKey = validateKeyByAlgCode(
+    await crypto.subtle.exportKey('jwk', derived)
+  )
+  return {
+    messageAuthenticationKey,
+    salt,
+  }
 }

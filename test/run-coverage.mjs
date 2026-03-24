@@ -24,7 +24,7 @@ const args = [
   '--reporter=lcov',
   '--reporter=json-summary',
   '--all',
-  '--include=dist/**/*.js',
+  '--include=dist/**/*.cjs',
   '--exclude=dist/**/*.d.ts',
   '--exclude=dist/**/*.map',
   '--exclude=test/**',

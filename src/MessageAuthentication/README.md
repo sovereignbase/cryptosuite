@@ -17,7 +17,9 @@ after the default algorithm changes.
 
 ## Current default
 
-Current default generation and derivation target `HS256` / `HMAC-SHA-256`.
+Current default generation targets `HS256` / `HMAC-SHA-256`.
+
+Current default derivation targets `HKDF-SHA-256` to `HMAC-SHA-256`.
 
 ## Responsibilities
 

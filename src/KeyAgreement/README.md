@@ -5,7 +5,7 @@
 `KeyAgreement` is split into two layers:
 
 - External policy surface:
-  `generateKeyAgreementKeypair` and `deriveKeyAgreementKeyPair`
+  `generateKeyAgreementKeypair` and `deriveKeyAgreementKeypair`
 - Backwards-compatible runtime surface:
   `.core`
 
@@ -42,7 +42,7 @@ load and use it.
 
 ### External wrappers
 
-`generateKeyAgreementKeypair` and `deriveKeyAgreementKeyPair` are allowed to
+`generateKeyAgreementKeypair` and `deriveKeyAgreementKeypair` are allowed to
 switch to a newer default algorithm when the recommended standard changes.
 
 That change must not break old keys, because old keys are handled by `.core`.
@@ -65,7 +65,7 @@ When upgrading the default algorithm:
    `.core/helpers/createImportKeyAlgorithmByAlgCode`.
 4. Update `.core/EncapsulateKeyHarness` and `.core/DecapsulateKeyHarness` so
    they can use both old and new algorithms.
-5. Switch `generateKeyAgreementKeypair` and `deriveKeyAgreementKeyPair` to
+5. Switch `generateKeyAgreementKeypair` and `deriveKeyAgreementKeypair` to
    emit the new default.
 6. Keep tests for old algorithms and add tests for the new one.
 

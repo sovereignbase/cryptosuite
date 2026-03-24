@@ -12,19 +12,19 @@ import type { EncapsulateKey } from '../.core/types/index.js'
  * @param sourceKeyMaterial - The source bytes to derive from.
  * @returns The derived public and private key agreement keys.
  */
-export async function deriveKeyAgreementKeyPair(
+export async function deriveKeyAgreementKeypair(
   sourceKeyMaterial: Uint8Array
 ): Promise<{
   encapsulateKey: EncapsulateKey
   decapsulateKey: DecapsulateKey
 }> {
   if (
-    getBufferSourceLength(sourceKeyMaterial, 'deriveKeyAgreementKeyPair') !==
+    getBufferSourceLength(sourceKeyMaterial, 'deriveKeyAgreementKeypair') !==
     ml_kem1024.lengths.seed
   ) {
     throw new CryptosuiteError(
       'KEY_AGREEMENT_KEY_INVALID',
-      `deriveKeyAgreementKeyPair: source key material must be exactly ${ml_kem1024.lengths.seed} bytes.`
+      `deriveKeyAgreementKeypair: source key material must be exactly ${ml_kem1024.lengths.seed} bytes.`
     )
   }
 
@@ -47,14 +47,14 @@ export async function deriveKeyAgreementKeyPair(
   if (!('x' in encapsulateKey)) {
     throw new CryptosuiteError(
       'KEY_AGREEMENT_KEY_INVALID',
-      'deriveKeyAgreementKeyPair: internal key validation invariant failed.'
+      'deriveKeyAgreementKeypair: internal key validation invariant failed.'
     )
   }
 
   if (!('d' in decapsulateKey)) {
     throw new CryptosuiteError(
       'KEY_AGREEMENT_KEY_INVALID',
-      'deriveKeyAgreementKeyPair: internal key validation invariant failed.'
+      'deriveKeyAgreementKeypair: internal key validation invariant failed.'
     )
   }
 

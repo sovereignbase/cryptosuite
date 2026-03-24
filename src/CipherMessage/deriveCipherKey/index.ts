@@ -54,6 +54,7 @@ export async function deriveCipherKey(
         name: 'HKDF',
         hash: 'SHA-256',
         salt: toBufferSource(salt),
+        info: new Uint8Array(0),
       },
       key,
       { name: 'AES-CTR', length: 256 },

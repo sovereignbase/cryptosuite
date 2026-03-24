@@ -7,7 +7,7 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:4173',
   },
   webServer: {
-    command: 'node test/e2e/server.mjs',
+    command: 'node test/e2e/runsInBrowsers/server.mjs',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env.CI,
   },

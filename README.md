@@ -1,197 +1,239 @@
-[![npm version](https://img.shields.io/npm/v/@z-base/cryptosuite)](https://www.npmjs.com/package/@z-base/cryptosuite)
-[![CI](https://github.com/z-base/cryptosuite/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/z-base/cryptosuite/actions/workflows/ci.yaml)
-[![codecov](https://codecov.io/gh/z-base/cryptosuite/branch/master/graph/badge.svg)](https://codecov.io/gh/z-base/cryptosuite)
-[![license](https://img.shields.io/npm/l/@z-base/cryptosuite)](LICENSE)
+[![npm version](https://img.shields.io/npm/v/@sovereignbase/cryptosuite)](https://www.npmjs.com/package/@sovereignbase/cryptosuite)
+[![CI](https://github.com/sovereignbase/cryptosuite/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/sovereignbase/cryptosuite/actions/workflows/ci.yaml)
+[![codecov](https://codecov.io/gh/sovereignbase/cryptosuite/branch/master/graph/badge.svg)](https://codecov.io/gh/sovereignbase/cryptosuite)
+[![license](https://img.shields.io/npm/l/@sovereignbase/cryptosuite)](LICENSE)
 
 # cryptosuite
 
-Developer-experience-first cryptography toolkit that lets you powerfully express cryptographic intentions through a semantic and declarative API surface.
+JS/TS runtime-agnostic, post-quantum, crypto-agile cryptography toolkit with a declarative API for cipher messaging, message authentication, digital signatures, key agreement, and identifiers.
 
 ## Compatibility
 
-- Runtimes: Modern JavaScript hosts with WebCrypto.
-- Module format: ESM-only (no CJS build).
-- Required globals / APIs: `crypto`, `crypto.subtle`, `crypto.getRandomValues`.
-- TypeScript: bundled types.
+- Runtimes: Tested on browsers, bun, deno, node, edge-runtimes.
+- Module format: ESM or CJS
+- Required globals / APIs: `crypto`, `crypto.subtle`, `crypto.getRandomValues`
+- Types: bundled `.d.ts`
 
 ## Goals
 
-- Consistent JWK validation for AES-GCM, HMAC, Ed25519, and RSA-OAEP.
-- Byte-oriented APIs (`Uint8Array` and `ArrayBuffer`) to avoid ambiguous inputs.
-- No side effects on import; all work happens per call.
-- Clean separation between agents (stateful) and clusters (cached).
-- Minimal, but strict WebCrypto wrappers with explicit `CryptosuiteError` codes.
+- Runtime-agnostic across modern JavaScript and TypeScript environments
+- Post-quantum by default
+- Crypto-agile, with room to add or replace algorithms as recommendations evolve while keeping already issued keys backwards compatible
+- Declarative API surface that expresses cryptographic intent clearly
+
+## Current algorithms
+
+- Identifier: `SHA-384` or 48 random bytes, encoded as a fixed-length base64url string
+- Cipher messaging: `AES-CTR-256`
+- Message authentication: `HMAC-SHA-256`
+- Key agreement: `ML-KEM-1024`
+- Digital signatures: `ML-DSA-87`
 
 ## Installation
 
 ```sh
-npm install @z-base/cryptosuite
+npm install @sovereignbase/cryptosuite
 # or
-pnpm add @z-base/cryptosuite
+pnpm add @sovereignbase/cryptosuite
 # or
-yarn add @z-base/cryptosuite
+yarn add @sovereignbase/cryptosuite
+# or
+bun add @sovereignbase/cryptosuite
+# or
+deno add jsr:@sovereignbase/cryptosuite
+# or
+vlt install jsr:@sovereignbase/cryptosuite
 ```
 
 ## Usage
 
-### Cryptosuite wrapper
+### Identifiers
 
 ```ts
-import { Cryptosuite } from '@z-base/cryptosuite'
-// The `Cryptosuite` convenience class wraps classes and functions into an intuitive structure.
-const cipherJwk = await Cryptosuite.cipher.generateKey()
-const payload = new Uint8Array([1, 2, 3])
-const artifact = await Cryptosuite.cipher.encrypt(cipherJwk, payload)
-const roundtrip = await Cryptosuite.cipher.decrypt(cipherJwk, artifact)
+import { Cryptographic } from '@sovereignbase/cryptosuite'
+import { Bytes } from '@sovereignbase/bytecodec'
+
+const discoveryHook = Bytes.fromString('resource discovery hook') // Uint8Array
+
+const newResourceId = await Cryptographic.identifier.generate() // "64xb64urlchars..."
+const discoveryId = await Cryptographic.identifier.derive(discoveryHook) // "64xb64urlchars..."
+const ingressId = Cryptographic.identifier.validate(discoveryId) // "64xb64urlchars..." | false
 ```
 
-### OpaqueIdentifier
+### Cipher messages
 
 ```ts
-import {
-  deriveOID,
-  generateOID,
-  validateOID,
-  type OpaqueIdentifier,
-} from '@z-base/cryptosuite'
+import { Cryptographic } from '@sovereignbase/cryptosuite'
+import { Bytes } from '@sovereignbase/bytecodec'
 
-const oid = await generateOID() // 43 random base64url chars
-const derived = await deriveOID(idBytesFromSomewhere) // 43 deterministic base64url chars
-const valid = validateOID(uncontrolledOID) // 43 base64url chars | false
-if (!valid) return
+const messageBytes = Bytes.fromString('hello world') // Uint8Array
+
+const cipherKey = await Cryptographic.cipherMessage.generateKey() // JsonWebKey
+
+const sourceKeyMaterial = Bytes.fromString('deterministic key source') // Uint8Array
+const salt = Bytes.fromString('deterministic salt source') // Uint8Array
+const { cipherKey } = await Cryptographic.cipherMessage.deriveKey(
+  sourceKeyMaterial,
+  { salt }
+) // {cipherKey: JsonWebKey, salt: Uint8Array}
+
+const cipherMessage = await Cryptographic.cipherMessage.encrypt(
+  cipherKey,
+  messageBytes
+) // {ciphertext: ArrayBuffer, iv: Uint8Array}
+const roundtrip = await Cryptographic.cipherMessage.decrypt(
+  cipherKey,
+  cipherMessage
+) // Uint8Array
+
+const plainMessage = Bytes.toString(roundtrip) // 'hello world'
 ```
 
-### Cipher
+### Message authentication
 
 ```ts
-import { fromJSON, toJSON } from '@z-base/bytecodec'
-import {
-  deriveCipherKey,
-  CipherCluster,
-  CipherAgent,
-  type CipherJWK,
-} from '@z-base/cryptosuite'
+import { Cryptographic } from '@sovereignbase/cryptosuite'
+import { Bytes } from '@sovereignbase/bytecodec'
 
-const cipherJwk = await deriveCipherKey(deterministicBytes)
+const messageBytes = Bytes.fromString('authenticated payload') // Uint8Array
 
-const state = { name: 'Bob', email: 'bob@email.com' }
-const enc = await CipherCluster.encrypt(cipherJwk, fromJSON(state)) // {iv, ciphertext}
-const dec = await CipherCluster.decrypt(cipherJwk, enc)
+const generatedMessageAuthenticationKey =
+  await Cryptographic.messageAuthentication.generateKey() // JsonWebKey
 
-const restored = toJSON(dec)
-console.log(restored.name) // "Bob"
+const sourceKeyMaterial = Bytes.fromString('deterministic key source') // Uint8Array
+const salt = Bytes.fromString('deterministic salt source') // Uint8Array
+
+const { messageAuthenticationKey } =
+  await Cryptographic.messageAuthentication.deriveKey(sourceKeyMaterial, {
+    salt,
+  }) // {messageAuthenticationKey: JsonWebKey, salt: Uint8Array}
+
+const tag = await Cryptographic.messageAuthentication.sign(
+  generatedMessageAuthenticationKey,
+  messageBytes
+) // ArrayBuffer
+
+const verified = await Cryptographic.messageAuthentication.verify(
+  generatedMessageAuthenticationKey,
+  messageBytes,
+  tag
+) // boolean
 ```
 
-### Exchange
+### Key agreement
 
 ```ts
-import { fromString, toString } from '@z-base/bytecodec'
-import {
-  generateCipherKey,
-  generateExchangePair,
-  ExchangeCluster,
-  WrapAgent,
-  type WrapJWK,
-  UnwrapAgent,
-  type UnwrapJWK,
-  CipherAgent,
-  type CipherJWK,
-} from '@z-base/cryptosuite'
+import { Cryptographic } from '@sovereignbase/cryptosuite'
+import { Bytes } from '@sovereignbase/bytecodec'
 
-const { wrapJwk, unwrapJwk } = await generateExchangePair()
-const encryptJwk = await generateCipherKey()
-const encryptAgent = new CipherAgent(encryptJwk)
-const body = await encryptAgent.encrypt(fromString('Hello world!')) // {iv, ciphertext}
-const header = await ExchangeCluster.wrap(wrapJwk, encryptJwk) // ArrayBuffer
-const message = { header, body }
-const decryptJwk = (await ExchangeCluster.unwrap(
-  unwrapJwk,
-  message.header
-)) as CipherJWK
-const decryptAgent = new CipherAgent(decryptJwk)
-const decryptedBody = await decryptAgent.decrypt(message.body)
-const messageText = toString(decryptedBody) // "Hello world!"
+const sourceKeyMaterial = Bytes.fromString('k'.repeat(64)) // Uint8Array, exactly 64 bytes
+
+const { encapsulateKey, decapsulateKey } =
+  await Cryptographic.keyAgreement.generateKeypair() // {encapsulateKey: JsonWebKey, decapsulateKey: JsonWebKey}
+
+const deterministicKeypair =
+  await Cryptographic.keyAgreement.deriveKeypair(sourceKeyMaterial) // {encapsulateKey: JsonWebKey, decapsulateKey: JsonWebKey}
+
+const { keyOffer, cipherKey: senderCipherKey } =
+  await Cryptographic.keyAgreement.encapsulate(encapsulateKey) // {keyOffer: {ciphertext: ArrayBuffer}, cipherKey: JsonWebKey}
+
+const { cipherKey: receiverCipherKey } =
+  await Cryptographic.keyAgreement.decapsulate(keyOffer, decapsulateKey) // {cipherKey: JsonWebKey}
 ```
 
-### HMAC
+### Digital signatures
 
 ```ts
-import { fromString } from '@z-base/bytecodec'
-import {
-  generateHMACKey,
-  HMACCluster,
-  HMACAgent,
-  type HMACJWK,
-} from '@z-base/cryptosuite'
+import { Cryptographic } from '@sovereignbase/cryptosuite'
+import { Bytes } from '@sovereignbase/bytecodec'
 
-const hmacJwk = await generateHMACKey()
+const sourceKeyMaterial = Bytes.fromString('s'.repeat(32)) // Uint8Array, exactly 32 bytes
+const bytes = Bytes.fromString('signed payload') // Uint8Array
+const { signKey, verifyKey } =
+  await Cryptographic.digitalSignature.generateKeypair() // {signKey: JsonWebKey, verifyKey: JsonWebKey}
 
-const challenge = crypto.getRandomValues(new Uint8Array(32))
-const sig = await HMACCluster.sign(hmacJwk, challenge) // ArrayBuffer
-const ok = await HMACCluster.verify(hmacJwk, challenge, sig) // true | false
-```
+const deterministicKeypair =
+  await Cryptographic.digitalSignature.deriveKeypair(sourceKeyMaterial) // {signKey: JsonWebKey, verifyKey: JsonWebKey}
 
-### Verification
-
-```ts
-import {
-  generateVerificationPair,
-  VerificationCluster,
-  SignAgent,
-  type SignJWK,
-  VerifyAgent,
-  type VerifyJWK,
-} from '@z-base/cryptosuite'
-
-const { signJwk, verifyJwk } = await generateVerificationPair()
-const payload = new Uint8Array([9, 8, 7])
-const sig = await VerificationCluster.sign(signJwk, payload) // ArrayBuffer
-const ok = await VerificationCluster.verify(verifyJwk, payload, sig) // true | false
+const signature = await Cryptographic.digitalSignature.sign(signKey, bytes) // Uint8Array
+const verified = await Cryptographic.digitalSignature.verify(
+  verifyKey,
+  bytes,
+  signature
+) // boolean
 ```
 
 ## Runtime behavior
 
-### Node
+- `identifier.generate()` requires `crypto.getRandomValues`
+- symmetric operations use WebCrypto
+- key agreement and digital signatures use `@noble/post-quantum`
+- unsupported crypto primitives throw typed `CryptosuiteError` codes
 
-Uses Node's global WebCrypto (`globalThis.crypto`) when available. Node is not the primary target, but tests and benchmarks run on Node 18+.
+## Security notes
 
-### Browsers / Edge runtimes
-
-Uses `crypto.subtle` and `crypto.getRandomValues`. Ed25519 and RSA-OAEP support vary by engine; unsupported operations throw `CryptosuiteError` codes.
-
-### Validation & errors
-
-Validation failures throw `CryptosuiteError` with a `code` string (for example `AES_GCM_KEY_EXPECTED`, `RSA_OAEP_UNSUPPORTED`, `ED25519_ALG_INVALID`). Cryptographic failures (e.g., decrypt with the wrong key) bubble the underlying WebCrypto error.
-
-### Security considerations
-
-- Keep `{iv, ciphertext}` together and never mix IVs across messages or keys.
-- Treat all JWKs and raw key bytes as secrets; never log them and rotate on exposure.
-- Always sign a canonical byte serialization so verifiers see identical bytes.
-- Ciphertext length leaks; add padding at your protocol layer if size is sensitive.
-- Handle decrypt/verify failures uniformly; don't leak which check failed.
+- `AES-CTR` does not provide integrity on its own
+- authenticate or sign ciphertexts at the protocol layer
+- never reuse a `(key, iv)` pair
+- treat JWKs and derived key material as secrets
+- sign a canonical byte representation, not loosely structured objects
 
 ## Tests
 
-Suite: unit + integration (Node), E2E (Playwright)
-Matrix: Chromium / Firefox / WebKit + mobile emulation (Pixel 5, iPhone 12)
-Coverage: c8 — 100% statements/branches/functions/lines (Node)
+- Unit + integration tests run against the built artifact
+- Coverage targets `dist/index.cjs` and is enforced at `100%`
+- E2E runtime suites currently run in:
+  - Node ESM
+  - Node CJS
+  - Bun ESM
+  - Bun CJS
+  - Deno ESM
+  - Edge Runtime ESM
+  - Chromium
+  - Firefox
+  - WebKit
+  - Mobile Chrome emulation
+  - Mobile Safari emulation
+- The runtime suite currently exercises `20/20` public API scenarios per runtime:
+  - 1 static wiring check
+  - 19 public methods
 
 ## Benchmarks
 
-How it was run: `node benchmark/bench.js`
-Environment: Node v22.14.0 (win32 x64)
-Results:
+Latest local `npm run bench` run on 2026-03-24 with Node `v22.14.0 (win32 x64)`:
 
-| Benchmark            | Result                    |
-| -------------------- | ------------------------- |
-| AES-GCM encrypt      | 30.41ms (6575.9 ops/sec)  |
-| HMAC sign+verify     | 29.95ms (6678.1 ops/sec)  |
-| Ed25519 sign+verify  | 76.45ms (2616.0 ops/sec)  |
-| RSA-OAEP wrap+unwrap | 1224.07ms (163.4 ops/sec) |
+| Benchmark                           | Result                      |
+| ----------------------------------- | --------------------------- |
+| `identifier.generate`               | `3.50ms (57206.6 ops/sec)`  |
+| `identifier.derive`                 | `13.94ms (14349.8 ops/sec)` |
+| `identifier.validate`               | `0.33ms (609942.1 ops/sec)` |
+| `cipherMessage.generateKey`         | `23.03ms (8682.6 ops/sec)`  |
+| `cipherMessage.deriveKey`           | `49.73ms (4021.6 ops/sec)`  |
+| `cipherMessage.encrypt`             | `20.91ms (9566.5 ops/sec)`  |
+| `cipherMessage.decrypt`             | `19.18ms (10425.0 ops/sec)` |
+| `messageAuthentication.generateKey` | `24.58ms (8135.2 ops/sec)`  |
+| `messageAuthentication.deriveKey`   | `12.51ms (15987.5 ops/sec)` |
+| `messageAuthentication.sign`        | `12.94ms (15460.4 ops/sec)` |
+| `messageAuthentication.verify`      | `14.96ms (13365.2 ops/sec)` |
+| `keyAgreement.generateKeypair`      | `43.89ms (455.7 ops/sec)`   |
+| `keyAgreement.deriveKeypair`        | `35.21ms (568.1 ops/sec)`   |
+| `keyAgreement.encapsulate`          | `43.76ms (457.0 ops/sec)`   |
+| `keyAgreement.decapsulate`          | `45.16ms (442.9 ops/sec)`   |
+| `digitalSignature.generateKeypair`  | `165.49ms (120.8 ops/sec)`  |
+| `digitalSignature.deriveKeypair`    | `153.20ms (130.6 ops/sec)`  |
+| `digitalSignature.sign`             | `431.41ms (46.4 ops/sec)`   |
+| `digitalSignature.verify`           | `155.20ms (128.9 ops/sec)`  |
 
-Results vary by machine.
+Command: `npm run bench`
+
+Results vary by machine and Node version.
+
+## Credits
+
+Post-quantum primitives are built on top of [noble](https://paulmillr.com/noble/).
+
+Thanks to Paul Miller for an unusually clear, well-engineered, and genuinely awesome project.
 
 ## License
 
-MIT
+Apache-2.0

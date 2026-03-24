@@ -16,7 +16,7 @@ const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? '/', `http://127.0.0.1:${port}`)
   let pathname = decodeURIComponent(url.pathname)
 
-  if (pathname === '/') pathname = '/test/e2e/index.html'
+  if (pathname === '/') pathname = '/test/e2e/runsInBrowsers/index.html'
 
   const filePath = resolve(root, `.${pathname}`)
   const relPath = relative(root, filePath)
