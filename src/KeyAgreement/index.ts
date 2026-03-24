@@ -1,5 +1,5 @@
 /*
-Copyright 2026 z-base
+Copyright 2026 Sovereignbase
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,3 +16,4 @@ limitations under the License.
 export { KeyAgreementCluster } from './KeyAgreementCluster/class.js'
 export { deriveKeyAgreementKeypair } from './deriveKeyAgreementKeypair/index.js'
 export { generateKeyAgreementKeypair } from './generateKeyAgreementKeypair/index.js'
+export { EncapsulateKey, DecapsulateKey } from './.core/types/index.js'

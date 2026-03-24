@@ -14,30 +14,41 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /***/
-import { deriveOID, generateOID, validateOID } from './Identifier/index.js'
+import {
+  deriveOID,
+  generateOID,
+  validateOID,
+  type OpaqueIdentifier,
+} from './Identifier/index.js'
 /***/
 import {
   CipherCluster,
   deriveCipherKey,
   generateCipherKey,
+  type CipherKey,
 } from './CipherMessage/index.js'
 /***/
 import {
   MessageAuthenticationCluster,
   deriveMessageAuthenticationKey,
   generateMessageAuthenticationKey,
+  type MessageAuthenticationKey,
 } from './MessageAuthentication/index.js'
 /***/
 import {
   KeyAgreementCluster,
   deriveKeyAgreementKeypair,
   generateKeyAgreementKeypair,
+  type EncapsulateKey,
+  type DecapsulateKey,
 } from './KeyAgreement/index.js'
 /***/
 import {
   DigitalSignatureCluster,
   deriveDigitalSignatureKeypair,
   generateDigitalSignatureKeypair,
+  type SignKey,
+  type VerifyKey,
 } from './DigitalSignature/index.js'
 /***/
 
@@ -108,4 +119,14 @@ export class Cryptographic {
     /** See {@link generateDigitalSignatureKeypair}. */
     generateKeypair: generateDigitalSignatureKeypair,
   }
+}
+
+export type {
+  OpaqueIdentifier,
+  CipherKey,
+  MessageAuthenticationKey,
+  EncapsulateKey,
+  DecapsulateKey,
+  SignKey,
+  VerifyKey,
 }
