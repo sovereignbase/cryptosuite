@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/sovereignbase/cryptosuite/compare/v2.0.0...v2.0.1) (2026-03-24)
+
+
+### Bug Fixes
+
+* jsr.json include list. ([42e876a](https://github.com/sovereignbase/cryptosuite/commit/42e876a6128c37b27b3ed983a73f88c0023464ef))
+
 ## [2.0.0](https://github.com/sovereignbase/cryptosuite/compare/v1.0.1...v2.0.0) (2026-03-24)
 
 
