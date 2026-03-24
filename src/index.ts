@@ -8,10 +8,10 @@ import {
 } from './CipherMessage/index.js'
 /***/
 import {
-  HMACCluster,
-  deriveHMACKey,
-  generateHMACKey,
-} from './MessageAuthentication/types/index.js'
+  MessageAuthenticationCluster,
+  deriveMessageAuthenticationKey,
+  generateMessageAuthenticationKey,
+} from './MessageAuthentication/index.js'
 /***/
 import {
   KeyAgreementCluster,
@@ -40,10 +40,10 @@ export const cryptographic = {
   },
   /***/
   messageAuthentication: {
-    sign: HMACCluster.sign,
-    verify: HMACCluster.verify,
-    deriveKey: deriveHMACKey,
-    generateKey: generateHMACKey,
+    sign: MessageAuthenticationCluster.sign,
+    verify: MessageAuthenticationCluster.verify,
+    deriveKey: deriveMessageAuthenticationKey,
+    generateKey: generateMessageAuthenticationKey,
   },
   /***/
   keyAgreement: {
