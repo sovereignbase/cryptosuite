@@ -79,7 +79,9 @@ export class EncapsulateKeyHarness {
     }
 
     try {
-      const { cipherText, sharedSecret } = this.kem.encapsulate(params.publicKey)
+      const { cipherText, sharedSecret } = this.kem.encapsulate(
+        params.publicKey
+      )
       const ciphertext = cipherText.slice()
       return {
         keyOffer: { ciphertext: ciphertext.buffer as ArrayBuffer },
