@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.3](https://github.com/sovereignbase/cryptosuite/compare/v2.0.2...v2.0.3) (2026-03-24)
+
+
+### Bug Fixes
+
+* README description sentence clumsiness. ([5d068fe](https://github.com/sovereignbase/cryptosuite/commit/5d068fe1c8e9eddce026fe99cd9374a65366bd7d))
+* README description sentence clumsiness. ([3850769](https://github.com/sovereignbase/cryptosuite/commit/385076979ac87e4ed10a27ee8eefc0cff5bc6516))
+
 ## [2.0.2](https://github.com/sovereignbase/cryptosuite/compare/v2.0.1...v2.0.2) (2026-03-24)
 
 
