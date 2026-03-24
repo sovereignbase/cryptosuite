@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { webcrypto } from 'node:crypto'
-import { Cryptographic } from '../support/cryptographic.mjs'
+import { Cryptographic } from '../../dist/index.js'
 import {
   buildCrypto,
   expectCodeAsync,

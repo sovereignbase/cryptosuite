@@ -63,11 +63,13 @@
   },
   "c8": {
     "all": true,
-    "include": [
-      "dist/**/*.cjs"
+    "src": [
+      "src"
     ],
+    "exclude-after-remap": true,
     "exclude": [
-      "dist/**/*.d.ts",
+      "dist/**",
+      "src/**/.core/types/**",
       "test/**",
       "benchmark/**",
       "playwright.config.ts"
@@ -97,6 +99,7 @@
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "engines": {

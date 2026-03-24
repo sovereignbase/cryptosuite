@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import test from 'node:test'
-import { Cryptographic } from '../support/cryptographic.mjs'
+import { Cryptographic } from '../../dist/index.js'
 
 test('Cryptographic exposes the current static API surface', () => {
   assert.equal(typeof Cryptographic.identifier.derive, 'function')

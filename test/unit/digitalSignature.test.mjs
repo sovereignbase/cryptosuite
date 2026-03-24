@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { ml_dsa87 } from '@noble/post-quantum/ml-dsa.js'
-import { Cryptographic } from '../support/cryptographic.mjs'
+import { Cryptographic } from '../../dist/index.js'
 import { expectCodeAsync } from '../support/index.mjs'
 import {
   bytes,

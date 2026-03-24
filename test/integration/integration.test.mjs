@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { webcrypto } from 'node:crypto'
 import { ml_kem1024 } from '@noble/post-quantum/ml-kem.js'
-import { Cryptographic } from '../support/cryptographic.mjs'
+import { Cryptographic } from '../../dist/index.js'
 import { bytes } from '../support/fixtures.mjs'
 
 if (!globalThis.crypto) {

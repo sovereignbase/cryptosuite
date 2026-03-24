@@ -1,5 +1,8 @@
 ;(async () => {
-  const { Cryptographic } = require('../../../dist/index.cjs')
+  const { resolve } = require('node:path')
+  const { Cryptographic } = require(
+    resolve(__dirname, '../../../dist/index.cjs')
+  )
   const {
     assertRuntimeSummary,
     formatRuntimeSummary,

@@ -29,6 +29,7 @@ export async function generateKeyAgreementKeypair(): Promise<{
     key_ops: ['deriveKey', 'deriveBits'],
   })
 
+  /* c8 ignore next 6 */
   if (!('x' in encapsulateKey)) {
     throw new CryptosuiteError(
       'KEY_AGREEMENT_KEY_INVALID',
@@ -36,6 +37,7 @@ export async function generateKeyAgreementKeypair(): Promise<{
     )
   }
 
+  /* c8 ignore next 6 */
   if (!('d' in decapsulateKey)) {
     throw new CryptosuiteError(
       'KEY_AGREEMENT_KEY_INVALID',

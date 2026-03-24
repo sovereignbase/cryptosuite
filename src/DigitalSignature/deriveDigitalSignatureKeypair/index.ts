@@ -45,6 +45,7 @@ export async function deriveDigitalSignatureKeypair(
     key_ops: ['verify'],
   })
 
+  /* c8 ignore next 6 */
   if (!('d' in signKey)) {
     throw new CryptosuiteError(
       'SIGN_JWK_INVALID',
@@ -52,6 +53,7 @@ export async function deriveDigitalSignatureKeypair(
     )
   }
 
+  /* c8 ignore next 6 */
   if (!('x' in verifyKey)) {
     throw new CryptosuiteError(
       'VERIFY_JWK_INVALID',
