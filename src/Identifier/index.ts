@@ -1,6 +1,9 @@
 import { toBase64UrlString, toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../.errors/class.js'
 
+/**
+ * Represents a fixed-length opaque identifier string.
+ */
 export type OpaqueIdentifier = string
 
 /**
@@ -10,6 +13,9 @@ export type OpaqueIdentifier = string
  * - fixed width
  * - base64url encoded
  * - no embedded resource metadata
+ *
+ * @param source - The source bytes to map deterministically into an identifier.
+ * @returns A derived opaque identifier in normalized presentation.
  */
 export async function deriveOID(source: Uint8Array): Promise<OpaqueIdentifier> {
   let hash: ArrayBuffer
@@ -27,6 +33,8 @@ export async function deriveOID(source: Uint8Array): Promise<OpaqueIdentifier> {
 /**
  * Generates a fixed-length opaque identifier with the same presentation as
  * derived identifiers.
+ *
+ * @returns A randomly generated opaque identifier.
  */
 export async function generateOID(): Promise<OpaqueIdentifier> {
   return toBase64UrlString(crypto.getRandomValues(new Uint8Array(48)))
@@ -37,6 +45,9 @@ export async function generateOID(): Promise<OpaqueIdentifier> {
  *
  * Validation is intentionally structural:
  * length and encoding only, never semantics.
+ *
+ * @param id - The candidate identifier string to validate.
+ * @returns The normalized opaque identifier when valid; otherwise `false`.
  */
 export function validateOID(id: string): OpaqueIdentifier | false {
   if (typeof id !== 'string') return false

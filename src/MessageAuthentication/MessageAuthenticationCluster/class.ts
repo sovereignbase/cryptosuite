@@ -1,6 +1,9 @@
 import { MessageAuthenticationKeyHarness } from '../.core/MessageAuthenticationKeyHarness/class.js'
 import type { MessageAuthenticationKey } from '../.core/types/index.js'
 
+/**
+ * Routes message authentication operations through cached key harness instances.
+ */
 export class MessageAuthenticationCluster {
   static #harnesses = new WeakMap<
     MessageAuthenticationKey,
@@ -24,6 +27,13 @@ export class MessageAuthenticationCluster {
     return harness
   }
 
+  /**
+   * Produces a message authentication tag for the provided bytes.
+   *
+   * @param messageAuthenticationKey - The symmetric authentication key to use.
+   * @param bytes - The message bytes to authenticate.
+   * @returns The computed authentication tag.
+   */
   static async sign(
     messageAuthenticationKey: MessageAuthenticationKey,
     bytes: Uint8Array
@@ -34,6 +44,14 @@ export class MessageAuthenticationCluster {
     return await harness.sign(bytes)
   }
 
+  /**
+   * Verifies a message authentication tag for the provided bytes.
+   *
+   * @param messageAuthenticationKey - The symmetric authentication key to use.
+   * @param bytes - The message bytes to verify.
+   * @param signature - The authentication tag to verify.
+   * @returns `true` when the tag is valid; otherwise `false`.
+   */
   static async verify(
     messageAuthenticationKey: MessageAuthenticationKey,
     bytes: Uint8Array,

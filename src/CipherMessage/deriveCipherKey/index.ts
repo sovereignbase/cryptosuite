@@ -4,6 +4,13 @@ import { getBufferSourceLength } from '../../.helpers/getBufferSourceLength.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { CipherKey } from '../.core/types/index.js'
 
+/**
+ * Derives a symmetric cipher key from source key material.
+ *
+ * @param sourceKeyMaterial - The source bytes to derive from.
+ * @param options - Optional derivation options.
+ * @returns The derived cipher key and the salt used for derivation.
+ */
 export async function deriveCipherKey(
   sourceKeyMaterial: Uint8Array,
   options: {

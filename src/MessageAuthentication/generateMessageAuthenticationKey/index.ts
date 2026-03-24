@@ -2,6 +2,11 @@ import { CryptosuiteError } from '../../.errors/class.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { MessageAuthenticationKey } from '../.core/types/index.js'
 
+/**
+ * Generates a new symmetric message authentication key.
+ *
+ * @returns A newly generated message authentication key.
+ */
 export async function generateMessageAuthenticationKey(): Promise<MessageAuthenticationKey> {
   if (!globalThis.crypto?.subtle) {
     throw new CryptosuiteError(

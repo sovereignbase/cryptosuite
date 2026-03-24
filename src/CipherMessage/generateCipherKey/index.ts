@@ -2,6 +2,11 @@ import { CryptosuiteError } from '../../.errors/class.js'
 import type { CipherKey } from '../.core/types/index.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 
+/**
+ * Generates a new symmetric cipher key.
+ *
+ * @returns A newly generated cipher key.
+ */
 export async function generateCipherKey(): Promise<CipherKey> {
   if (!globalThis.crypto?.subtle) {
     throw new CryptosuiteError(

@@ -4,6 +4,11 @@ import { CryptosuiteError } from '../../.errors/class.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { EncapsulateKey, DecapsulateKey } from '../.core/types/index.js'
 
+/**
+ * Generates a new key agreement key pair.
+ *
+ * @returns The generated public and private key agreement keys.
+ */
 export async function generateKeyAgreementKeypair(): Promise<{
   encapsulateKey: EncapsulateKey
   decapsulateKey: DecapsulateKey

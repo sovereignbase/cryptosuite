@@ -6,6 +6,12 @@ import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/inde
 import type { DecapsulateKey } from '../.core/types/index.js'
 import type { EncapsulateKey } from '../.core/types/index.js'
 
+/**
+ * Deterministically derives a key agreement key pair from source key material.
+ *
+ * @param sourceKeyMaterial - The source bytes to derive from.
+ * @returns The derived public and private key agreement keys.
+ */
 export async function deriveKeyAgreementKeyPair(
   sourceKeyMaterial: Uint8Array
 ): Promise<{

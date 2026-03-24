@@ -4,6 +4,12 @@ import { getBufferSourceLength } from '../../.helpers/getBufferSourceLength.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { MessageAuthenticationKey } from '../.core/types/index.js'
 
+/**
+ * Derives a symmetric message authentication key from source key material.
+ *
+ * @param sourceKeyMaterial - The source bytes to derive from.
+ * @returns The derived message authentication key.
+ */
 export async function deriveMessageAuthenticationKey(
   sourceKeyMaterial: Uint8Array
 ): Promise<MessageAuthenticationKey> {

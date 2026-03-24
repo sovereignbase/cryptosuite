@@ -4,6 +4,11 @@ import { CryptosuiteError } from '../../.errors/class.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { SignKey, VerifyKey } from '../.core/types/index.js'
 
+/**
+ * Generates a new digital signature key pair.
+ *
+ * @returns The generated private signing key and public verification key.
+ */
 export async function generateDigitalSignatureKeypair(): Promise<{
   signKey: SignKey
   verifyKey: VerifyKey

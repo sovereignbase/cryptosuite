@@ -5,6 +5,12 @@ import { getBufferSourceLength } from '../../.helpers/getBufferSourceLength.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { SignKey, VerifyKey } from '../.core/types/index.js'
 
+/**
+ * Deterministically derives a digital signature key pair from source key material.
+ *
+ * @param sourceKeyMaterial - The source bytes to derive from.
+ * @returns The derived private signing key and public verification key.
+ */
 export async function deriveDigitalSignatureKeypair(
   sourceKeyMaterial: Uint8Array
 ): Promise<{

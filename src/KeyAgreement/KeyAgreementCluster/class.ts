@@ -5,6 +5,9 @@ import type { EncapsulateKey } from '../.core/types/index.js'
 import type { CipherKey } from '../../CipherMessage/.core/types/index.js'
 import type { KeyOffer } from '../.core/types/index.js'
 
+/**
+ * Routes key agreement operations through cached harness instances.
+ */
 export class KeyAgreementCluster {
   static #encapsulators = new WeakMap<
     EncapsulateKey,
@@ -45,12 +48,25 @@ export class KeyAgreementCluster {
     return harness
   }
 
+  /**
+   * Encapsulates a shared cipher key for the provided public key agreement key.
+   *
+   * @param encapsulateKey - The public key agreement key.
+   * @returns The key offer and the locally reconstructed cipher key.
+   */
   static async encapsulate(
     encapsulateKey: EncapsulateKey
   ): Promise<{ keyOffer: KeyOffer; cipherKey: CipherKey }> {
     return KeyAgreementCluster.#loadEncapsulator(encapsulateKey).encapsulate()
   }
 
+  /**
+   * Decapsulates a shared cipher key from the provided key offer.
+   *
+   * @param keyOffer - The encapsulated key offer artifact.
+   * @param decapsulateKey - The private key agreement key.
+   * @returns The reconstructed cipher key.
+   */
   static async decapsulate(
     keyOffer: KeyOffer,
     decapsulateKey: DecapsulateKey
