@@ -5,7 +5,7 @@
 
 # cryptosuite
 
-JS/TS runtime-agnostic, post-quantum, crypto-agile cryptography toolkit with a declarative API for cipher messaging, message authentication, digital signatures, key agreement, and identifiers.
+JS/TS runtime-agnostic, quantum-safe, and agile cryptography toolkit with a declarative API for cipher messaging, message authentication, digital signatures, key agreement, and identifiers.
 
 ## Compatibility
 
