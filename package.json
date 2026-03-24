@@ -75,12 +75,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/z-base/cryptosuite.git"
+    "url": "git+https://github.com/sovereignbase/cryptosuite.git"
   },
   "bugs": {
-    "url": "https://github.com/z-base/cryptosuite/issues"
+    "url": "https://github.com/sovereignbase/cryptosuite/issues"
   },
-  "homepage": "https://github.com/z-base/cryptosuite#readme",
+  "homepage": "https://github.com/sovereignbase/cryptosuite#readme",
   "dependencies": {
     "@noble/post-quantum": "^0.5.4",
     "@sovereignbase/bytecodec": "^1.4.1"
