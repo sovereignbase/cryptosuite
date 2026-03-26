@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.4](https://github.com/sovereignbase/cryptosuite/compare/v2.0.3...v2.0.4) (2026-03-26)
+
+
+### Bug Fixes
+
+* Export key types. ([4a10a83](https://github.com/sovereignbase/cryptosuite/commit/4a10a83ddae1b14cba7dec21e8f8886dcd58f9de))
+* JSDoc etc ([a84a6c0](https://github.com/sovereignbase/cryptosuite/commit/a84a6c08cf24c1ede607b141e977161621fe8c94))
+
 ## [2.0.3](https://github.com/sovereignbase/cryptosuite/compare/v2.0.2...v2.0.3) (2026-03-24)
 
 
