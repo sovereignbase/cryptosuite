@@ -1,5 +1,5 @@
 /*
-Copyright 2026 z-base
+Copyright 2026 Sovereignbase
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ limitations under the License.
 */
 import { toBase64UrlString } from '@sovereignbase/bytecodec'
 import { ml_dsa87 } from '@noble/post-quantum/ml-dsa.js'
-import { CryptosuiteError } from '../../.errors/class.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { SignKey, VerifyKey } from '../.core/types/index.js'
 
@@ -43,22 +42,6 @@ export async function generateDigitalSignatureKeypair(): Promise<{
     use: 'sig',
     key_ops: ['verify'],
   })
-
-  /* c8 ignore next 6 */
-  if (!('d' in signKey)) {
-    throw new CryptosuiteError(
-      'SIGN_JWK_INVALID',
-      'generateDigitalSignatureKeypair: internal sign key invariant failed.'
-    )
-  }
-
-  /* c8 ignore next 6 */
-  if (!('x' in verifyKey)) {
-    throw new CryptosuiteError(
-      'VERIFY_JWK_INVALID',
-      'generateDigitalSignatureKeypair: internal verify key invariant failed.'
-    )
-  }
 
   return {
     signKey: signKey as SignKey,

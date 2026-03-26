@@ -16,4 +16,4 @@ limitations under the License.
 export { KeyAgreementCluster } from './KeyAgreementCluster/class.js'
 export { deriveKeyAgreementKeypair } from './deriveKeyAgreementKeypair/index.js'
 export { generateKeyAgreementKeypair } from './generateKeyAgreementKeypair/index.js'
-export { EncapsulateKey, DecapsulateKey } from './.core/types/index.js'
+export type { EncapsulateKey, DecapsulateKey } from './.core/types/index.js'

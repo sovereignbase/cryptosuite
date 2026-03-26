@@ -59,27 +59,8 @@ export async function deriveKeyAgreementKeypair(
     key_ops: ['deriveKey', 'deriveBits'],
   })
 
-  /* c8 ignore next 6 */
-  if (!('x' in encapsulateKey)) {
-    throw new CryptosuiteError(
-      'KEY_AGREEMENT_KEY_INVALID',
-      'deriveKeyAgreementKeypair: internal key validation invariant failed.'
-    )
-  }
-
-  /* c8 ignore next 6 */
-  if (!('d' in decapsulateKey)) {
-    throw new CryptosuiteError(
-      'KEY_AGREEMENT_KEY_INVALID',
-      'deriveKeyAgreementKeypair: internal key validation invariant failed.'
-    )
-  }
-
-  const normalizedEncapsulateKey = encapsulateKey as EncapsulateKey
-  const normalizedDecapsulateKey = decapsulateKey as DecapsulateKey
-
   return {
-    encapsulateKey: normalizedEncapsulateKey,
-    decapsulateKey: normalizedDecapsulateKey,
+    encapsulateKey: encapsulateKey as EncapsulateKey,
+    decapsulateKey: decapsulateKey as DecapsulateKey,
   }
 }
