@@ -1,5 +1,5 @@
 /*
-Copyright 2026 z-base
+Copyright 2026 Sovereignbase
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -59,22 +59,6 @@ export async function deriveDigitalSignatureKeypair(
     use: 'sig',
     key_ops: ['verify'],
   })
-
-  /* c8 ignore next 6 */
-  if (!('d' in signKey)) {
-    throw new CryptosuiteError(
-      'SIGN_JWK_INVALID',
-      'deriveDigitalSignatureKeypair: internal sign key invariant failed.'
-    )
-  }
-
-  /* c8 ignore next 6 */
-  if (!('x' in verifyKey)) {
-    throw new CryptosuiteError(
-      'VERIFY_JWK_INVALID',
-      'deriveDigitalSignatureKeypair: internal verify key invariant failed.'
-    )
-  }
 
   return {
     signKey: signKey as SignKey,

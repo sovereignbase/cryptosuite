@@ -1,5 +1,5 @@
 /*
-Copyright 2026 z-base
+Copyright 2026 Sovereignbase
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,16 +37,30 @@ type A256CTRKey = JsonWebKey &
     key_ops: readonly ('encrypt' | 'decrypt')[]
   }
 
+/**
+ * Algorithm parameters serialized alongside an AES-CTR cipher message.
+ */
 export type A256CTRParams = {
+  /** The 96-bit initialization vector used for encryption. */
   iv: Uint8Array
 }
 
 type A256CTRMessage = {
+  /** The encrypted payload bytes. */
   ciphertext: ArrayBuffer
 } & A256CTRParams
 
+/**
+ * Symmetric AES-CTR-256 JWK used for cipher messaging operations.
+ */
 export type CipherKey = A256CTRKey
 
+/**
+ * Serialized parameters required to decrypt a cipher message.
+ */
 export type CipherParams = A256CTRParams
 
+/**
+ * Cipher message artifact returned by cipher encryption operations.
+ */
 export type CipherMessage = A256CTRMessage

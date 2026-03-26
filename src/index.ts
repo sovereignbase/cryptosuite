@@ -13,42 +13,38 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Runtime-agnostic public API for the Sovereignbase cryptography toolkit.
+ *
+ * The package exposes opaque identifiers, symmetric encryption, message
+ * authentication, key agreement, and digital signatures through a declarative
+ * static API surface.
+ */
 /***/
-import {
-  deriveOID,
-  generateOID,
-  validateOID,
-  type OpaqueIdentifier,
-} from './Identifier/index.js'
+import { deriveOID, generateOID, validateOID } from './Identifier/index.js'
 /***/
 import {
   CipherCluster,
   deriveCipherKey,
   generateCipherKey,
-  type CipherKey,
 } from './CipherMessage/index.js'
 /***/
 import {
   MessageAuthenticationCluster,
   deriveMessageAuthenticationKey,
   generateMessageAuthenticationKey,
-  type MessageAuthenticationKey,
 } from './MessageAuthentication/index.js'
 /***/
 import {
   KeyAgreementCluster,
   deriveKeyAgreementKeypair,
   generateKeyAgreementKeypair,
-  type EncapsulateKey,
-  type DecapsulateKey,
 } from './KeyAgreement/index.js'
 /***/
 import {
   DigitalSignatureCluster,
   deriveDigitalSignatureKeypair,
   generateDigitalSignatureKeypair,
-  type SignKey,
-  type VerifyKey,
 } from './DigitalSignature/index.js'
 /***/
 
@@ -121,12 +117,8 @@ export class Cryptographic {
   }
 }
 
-export type {
-  OpaqueIdentifier,
-  CipherKey,
-  MessageAuthenticationKey,
-  EncapsulateKey,
-  DecapsulateKey,
-  SignKey,
-  VerifyKey,
-}
+export type { OpaqueIdentifier } from './Identifier/index.js'
+export type { CipherKey } from './CipherMessage/index.js'
+export type { MessageAuthenticationKey } from './MessageAuthentication/index.js'
+export type { EncapsulateKey, DecapsulateKey } from './KeyAgreement/index.js'
+export type { SignKey, VerifyKey } from './DigitalSignature/index.js'

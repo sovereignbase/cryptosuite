@@ -47,23 +47,38 @@ type MLKEM1024DecapsulateKey = JsonWebKey &
   }
 
 type MLKEM1024KeyOffer = {
+  /** The encapsulated shared-secret artifact emitted by ML-KEM-1024. */
   ciphertext: ArrayBuffer
 }
 
 type MLKEM1024EncapsulateParams = {
+  /** The raw ML-KEM-1024 public key bytes. */
   publicKey: Uint8Array
 }
 
 type MLKEM1024DecapsulateParams = {
+  /** The raw ML-KEM-1024 secret key bytes. */
   secretKey: Uint8Array
 }
 
+/**
+ * Public ML-KEM-1024 JWK used to encapsulate a shared cipher key.
+ */
 export type EncapsulateKey = MLKEM1024EncapsulateKey
 
+/**
+ * Private ML-KEM-1024 JWK used to decapsulate a shared cipher key.
+ */
 export type DecapsulateKey = MLKEM1024DecapsulateKey
 
+/**
+ * Encapsulated key agreement artifact exchanged with the counterparty.
+ */
 export type KeyOffer = MLKEM1024KeyOffer
 
+/**
+ * Runtime ML-KEM-1024 parameters used internally by key agreement harnesses.
+ */
 export type KeyAgreementParams =
   | MLKEM1024EncapsulateParams
   | MLKEM1024DecapsulateParams

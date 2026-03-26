@@ -1,5 +1,5 @@
 /*
-Copyright 2026 z-base
+Copyright 2026 Sovereignbase
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -50,15 +50,26 @@ type MLDSA87SignKey = JsonWebKey &
   }
 
 type MLDSA87VerifyParams = {
+  /** The raw ML-DSA-87 public key bytes. */
   publicKey: Uint8Array
 }
 
 type MLDSA87SignParams = {
+  /** The raw ML-DSA-87 secret key bytes. */
   secretKey: Uint8Array
 }
 
+/**
+ * Public ML-DSA-87 JWK used to verify signatures.
+ */
 export type VerifyKey = MLDSA87VerifyKey
 
+/**
+ * Private ML-DSA-87 JWK used to produce signatures.
+ */
 export type SignKey = MLDSA87SignKey
 
+/**
+ * Runtime ML-DSA-87 key material used internally by signing and verification harnesses.
+ */
 export type DigitalSignatureParams = MLDSA87VerifyParams | MLDSA87SignParams

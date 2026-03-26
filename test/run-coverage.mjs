@@ -19,7 +19,7 @@ if (testFiles.length === 0) {
 
 const args = [
   '--check-coverage',
-  '--99',
+  '--100',
   '--reporter=text',
   '--reporter=lcov',
   '--reporter=json-summary',
