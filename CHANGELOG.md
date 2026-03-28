@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.5](https://github.com/sovereignbase/cryptosuite/compare/v2.0.4...v2.0.5) (2026-03-28)
+
+
+### Bug Fixes
+
+* Export error code type union to enable typesense in error handling and add CloudflareWorkers test runner. ([45f27bd](https://github.com/sovereignbase/cryptosuite/commit/45f27bd8219a2b49ba2168d4b344b970bd564513))
+
 ## [2.0.4](https://github.com/sovereignbase/cryptosuite/compare/v2.0.3...v2.0.4) (2026-03-26)
 
 
