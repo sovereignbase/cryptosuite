@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import process from 'node:process'
 
@@ -26,6 +27,7 @@ function run(command, args) {
 }
 
 const edgeCli = resolve('node_modules/edge-runtime/dist/cli/index.js')
+const wranglerCli = resolve('node_modules/wrangler/bin/wrangler.js')
 const sections = [
   {
     title: 'Node E2E',
@@ -82,6 +84,21 @@ const sections = [
         args: ['test/e2e/runsInEdgeRuntimes/run.mjs'],
       },
     ],
+  },
+  {
+    title: 'Cloudflare Workers E2E',
+    tasks: existsSync(wranglerCli)
+      ? [
+          {
+            command: process.execPath,
+            args: ['test/e2e/runsInCloudflareWorkers/run.mjs'],
+          },
+        ]
+      : [
+          {
+            skipped: 'wrangler not found',
+          },
+        ],
   },
   {
     title: 'Browsers E2E',

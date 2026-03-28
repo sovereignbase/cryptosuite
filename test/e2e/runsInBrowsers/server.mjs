@@ -1,43 +1,66 @@
-import { createServer } from 'node:http'
+import http from 'node:http'
 import { readFile } from 'node:fs/promises'
-import { extname, isAbsolute, resolve, relative } from 'node:path'
+import { extname, resolve } from 'node:path'
 
 const root = resolve(process.cwd())
-const port = 4173
-
+const testRoot = resolve(root, 'test', 'e2e')
 const mimeTypes = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'application/javascript; charset=utf-8',
-  '.mjs': 'application/javascript; charset=utf-8',
-  '.map': 'application/json; charset=utf-8',
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.mjs': 'text/javascript',
+  '.json': 'application/json',
+  '.map': 'application/json',
+  '.css': 'text/css',
 }
 
-const server = createServer(async (req, res) => {
-  const url = new URL(req.url ?? '/', `http://127.0.0.1:${port}`)
-  let pathname = decodeURIComponent(url.pathname)
+function safeResolve(base, pathname) {
+  const resolved = resolve(base, `.${pathname}`)
+  if (!resolved.startsWith(base)) return null
+  return resolved
+}
 
-  if (pathname === '/') pathname = '/test/e2e/runsInBrowsers/index.html'
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url ?? '/', 'http://127.0.0.1')
+  let pathname = url.pathname
+  if (pathname === '/') pathname = '/runsInBrowsers/index.html'
 
-  const filePath = resolve(root, `.${pathname}`)
-  const relPath = relative(root, filePath)
-  if (relPath.startsWith('..') || isAbsolute(relPath)) {
-    res.statusCode = 403
-    res.end('forbidden')
+  let filePath
+  if (pathname.startsWith('/dist/') || pathname.startsWith('/node_modules/')) {
+    filePath = safeResolve(root, pathname)
+  } else filePath = safeResolve(testRoot, pathname)
+
+  if (!filePath) {
+    res.statusCode = 400
+    res.end('Bad request')
     return
   }
 
   try {
     const data = await readFile(filePath)
-    const ext = extname(filePath).toLowerCase()
-    res.setHeader('Content-Type', mimeTypes[ext] ?? 'application/octet-stream')
     res.statusCode = 200
+    res.setHeader(
+      'Content-Type',
+      mimeTypes[extname(filePath)] || 'application/octet-stream'
+    )
     res.end(data)
   } catch {
     res.statusCode = 404
-    res.end('not found')
+    res.end('Not found')
   }
 })
 
+const port = Number.parseInt(process.env.PORT || '', 10)
+if (!Number.isInteger(port) || port <= 0) {
+  throw new Error('PORT is required for the browser E2E server.')
+}
+
 server.listen(port, '127.0.0.1', () => {
-  console.log(`E2E server running at http://127.0.0.1:${port}`)
+  console.log(`cryptosuite test server running at http://127.0.0.1:${port}`)
 })
+
+function shutdown() {
+  server.close(() => process.exit(0))
+}
+
+process.on('SIGINT', shutdown)
+process.on('SIGTERM', shutdown)

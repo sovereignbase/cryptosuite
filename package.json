@@ -85,7 +85,7 @@
   "homepage": "https://github.com/sovereignbase/cryptosuite#readme",
   "dependencies": {
     "@noble/post-quantum": "^0.5.4",
-    "@sovereignbase/bytecodec": "^1.4.1"
+    "@sovereignbase/bytecodec": "^1.5.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
@@ -100,7 +100,8 @@
     "prettier": "^3.8.1",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.78.0"
   },
   "engines": {
     "node": ">=20"

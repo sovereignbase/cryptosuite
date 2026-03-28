@@ -4,8 +4,7 @@ test('cryptosuite browser suite', async ({ page }) => {
   await page.goto('/')
   const summary = await page.evaluate(async () => {
     const { Cryptographic } = await import('/dist/index.js')
-    const { runCryptosuiteRuntimeSuite } =
-      await import('/test/e2e/runtime-suite.mjs')
+    const { runCryptosuiteRuntimeSuite } = await import('/runtime-suite.mjs')
     return await runCryptosuiteRuntimeSuite(Cryptographic)
   })
 

@@ -1,15 +1,18 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const baseURL = process.env.PLAYWRIGHT_BASE_URL
+
+if (!baseURL) {
+  throw new Error(
+    'PLAYWRIGHT_BASE_URL is required. Run node test/e2e/runsInBrowsers/run.mjs.'
+  )
+}
+
 export default defineConfig({
-  testDir: 'test/e2e',
+  testDir: 'test/e2e/runsInBrowsers',
   timeout: 30000,
   use: {
-    baseURL: 'http://127.0.0.1:4173',
-  },
-  webServer: {
-    command: 'node test/e2e/runsInBrowsers/server.mjs',
-    url: 'http://127.0.0.1:4173',
-    reuseExistingServer: !process.env.CI,
+    baseURL,
   },
   projects: [
     {
