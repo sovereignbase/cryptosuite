@@ -26,6 +26,7 @@ export function getParamsByAlgCode(
 ): KeyAgreementParams {
   switch (algCode) {
     case 'ML-KEM-1024':
+    case 'X25519-ML-KEM-768':
       return params
   }
 

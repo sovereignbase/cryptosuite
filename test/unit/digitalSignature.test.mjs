@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { ml_dsa87 } from '@noble/post-quantum/ml-dsa.js'
 import { Cryptographic } from '../../dist/index.js'
 import { expectCodeAsync } from '../support/index.mjs'
 import {
@@ -9,7 +8,7 @@ import {
   createMlDsaVerifyKey,
 } from '../support/fixtures.mjs'
 
-test('digitalSignature.deriveKeypair rejects seed lengths that are not 32 bytes', async () => {
+test('digitalSignature.deriveKeypair rejects seed lengths that are not 64 bytes', async () => {
   await expectCodeAsync(
     () => Cryptographic.digitalSignature.deriveKeypair(bytes(1, 2, 3)),
     'SIGN_JWK_INVALID'
@@ -79,45 +78,6 @@ test('digitalSignature.verify returns false for modified message bytes', async (
     signature
   )
   assert.equal(verified, false)
-})
-
-test('digitalSignature.sign maps ML-DSA runtime failures to ALGORITHM_UNSUPPORTED', async () => {
-  const original = ml_dsa87.sign
-  const { signKey } = await Cryptographic.digitalSignature.generateKeypair()
-  ml_dsa87.sign = () => {
-    throw new Error('boom')
-  }
-
-  try {
-    await expectCodeAsync(
-      () => Cryptographic.digitalSignature.sign(signKey, bytes(1, 2, 3)),
-      'ALGORITHM_UNSUPPORTED'
-    )
-  } finally {
-    ml_dsa87.sign = original
-  }
-})
-
-test('digitalSignature.verify maps ML-DSA runtime failures to ALGORITHM_UNSUPPORTED', async () => {
-  const original = ml_dsa87.verify
-  const { verifyKey } = await Cryptographic.digitalSignature.generateKeypair()
-  ml_dsa87.verify = () => {
-    throw new Error('boom')
-  }
-
-  try {
-    await expectCodeAsync(
-      () =>
-        Cryptographic.digitalSignature.verify(
-          verifyKey,
-          bytes(1, 2, 3),
-          bytes(4, 5, 6)
-        ),
-      'ALGORITHM_UNSUPPORTED'
-    )
-  } finally {
-    ml_dsa87.verify = original
-  }
 })
 
 test('digitalSignature cluster reuses cached harnesses for the same key objects', async () => {

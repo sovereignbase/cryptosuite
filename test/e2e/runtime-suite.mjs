@@ -44,10 +44,10 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
   const plaintext = new TextEncoder().encode('cryptosuite runtime')
   const cipherSalt = new Uint8Array(16).fill(9)
   const messageAuthenticationSalt = new Uint8Array(16).fill(7)
-  const keyAgreementSeed = Uint8Array.from({ length: 64 }, (_, index) => {
+  const keyAgreementSeed = Uint8Array.from({ length: 32 }, (_, index) => {
     return (index + 11) % 256
   })
-  const digitalSignatureSeed = Uint8Array.from({ length: 32 }, (_, index) => {
+  const digitalSignatureSeed = Uint8Array.from({ length: 64 }, (_, index) => {
     return (index + 17) % 256
   })
 
@@ -315,14 +315,14 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
   )
 
   await run(
-    'keyAgreement.generateKeypair returns ML-KEM-1024 keys',
+    'keyAgreement.generateKeypair returns X25519-ML-KEM-768 keys',
     async () => {
       const { encapsulateKey, decapsulateKey } =
         await Cryptographic.keyAgreement.generateKeypair()
       assertEqual(encapsulateKey.kty, 'AKP', 'encapsulate key must be AKP')
       assertEqual(
         encapsulateKey.alg,
-        'ML-KEM-1024',
+        'X25519-ML-KEM-768',
         'encapsulate key alg mismatch'
       )
       assert(
@@ -332,7 +332,7 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
       assertEqual(decapsulateKey.kty, 'AKP', 'decapsulate key must be AKP')
       assertEqual(
         decapsulateKey.alg,
-        'ML-KEM-1024',
+        'X25519-ML-KEM-768',
         'decapsulate key alg mismatch'
       )
       assert(
@@ -409,15 +409,15 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
   )
 
   await run(
-    'digitalSignature.generateKeypair returns ML-DSA-87 keys',
+    'digitalSignature.generateKeypair returns Ed25519-ML-DSA-65 keys',
     async () => {
       const { signKey, verifyKey } =
         await Cryptographic.digitalSignature.generateKeypair()
       assertEqual(signKey.kty, 'AKP', 'sign key must be AKP')
-      assertEqual(signKey.alg, 'ML-DSA-87', 'sign key alg mismatch')
+      assertEqual(signKey.alg, 'Ed25519-ML-DSA-65', 'sign key alg mismatch')
       assert(typeof signKey.d === 'string', 'sign key d must exist')
       assertEqual(verifyKey.kty, 'AKP', 'verify key must be AKP')
-      assertEqual(verifyKey.alg, 'ML-DSA-87', 'verify key alg mismatch')
+      assertEqual(verifyKey.alg, 'Ed25519-ML-DSA-65', 'verify key alg mismatch')
       assert(typeof verifyKey.x === 'string', 'verify key x must exist')
     }
   )

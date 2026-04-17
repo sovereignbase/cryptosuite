@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import { toBase64UrlString } from '@sovereignbase/bytecodec'
-import { ml_kem1024 } from '@noble/post-quantum/ml-kem.js'
+import { createImportKeyAlgorithmByAlgCode } from '../.core/helpers/createImportKeyAlgorithmByAlgCode/index.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { EncapsulateKey, DecapsulateKey } from '../.core/types/index.js'
 
@@ -27,17 +27,18 @@ export async function generateKeyAgreementKeypair(): Promise<{
   encapsulateKey: EncapsulateKey
   decapsulateKey: DecapsulateKey
 }> {
-  const { publicKey, secretKey } = ml_kem1024.keygen()
+  const { publicKey, secretKey } =
+    createImportKeyAlgorithmByAlgCode('X25519-ML-KEM-768').keygen()
   const encapsulateKey = validateKeyByAlgCode({
     kty: 'AKP',
-    alg: 'ML-KEM-1024',
+    alg: 'X25519-ML-KEM-768',
     x: toBase64UrlString(publicKey),
     use: 'enc',
     key_ops: [],
   })
   const decapsulateKey = validateKeyByAlgCode({
     kty: 'AKP',
-    alg: 'ML-KEM-1024',
+    alg: 'X25519-ML-KEM-768',
     d: toBase64UrlString(secretKey),
     use: 'enc',
     key_ops: ['deriveKey', 'deriveBits'],

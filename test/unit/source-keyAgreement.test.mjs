@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { webcrypto } from 'node:crypto'
+import { ml_kem768_x25519 } from '@noble/post-quantum/hybrid.js'
 import { ml_kem1024 } from '@noble/post-quantum/ml-kem.js'
 import { createImportKeyAlgorithmByAlgCode } from '../../src/KeyAgreement/.core/helpers/createImportKeyAlgorithmByAlgCode/index.ts'
 import { createParamsByAlgCode } from '../../src/KeyAgreement/.core/helpers/createParamsByAlgCode/index.ts'
@@ -19,6 +20,8 @@ import {
   createA256CtrKey,
   createMlKemPrivateKey,
   createMlKemPublicKey,
+  createX25519MlKem768PrivateKey,
+  createX25519MlKem768PublicKey,
   filledBytes,
 } from '../support/fixtures.mjs'
 
@@ -26,13 +29,8 @@ if (!globalThis.crypto) {
   globalThis.crypto = webcrypto
 }
 
-const ORIGINAL_ENCAPSULATE = ml_kem1024.encapsulate
-const ORIGINAL_DECAPSULATE = ml_kem1024.decapsulate
-
 test.afterEach(() => {
   restoreCrypto()
-  ml_kem1024.encapsulate = ORIGINAL_ENCAPSULATE
-  ml_kem1024.decapsulate = ORIGINAL_DECAPSULATE
 })
 
 test('source key agreement helpers cover validation and unsupported branches', () => {
@@ -88,6 +86,28 @@ test('source key agreement helpers cover validation and unsupported branches', (
     () => validateKeyByAlgCode(createMlKemPublicKey({ alg: 'ML-KEM-768' })),
     'ALGORITHM_UNSUPPORTED'
   )
+  expectCodeSync(
+    () => validateKeyByAlgCode(createX25519MlKem768PublicKey({ kty: 'oct' })),
+    'KEY_AGREEMENT_KEY_INVALID'
+  )
+  expectCodeSync(
+    () =>
+      validateKeyByAlgCode(
+        createX25519MlKem768PrivateKey({
+          d: Buffer.from([1]).toString('base64url'),
+        })
+      ),
+    'KEY_AGREEMENT_KEY_INVALID'
+  )
+  expectCodeSync(
+    () =>
+      validateKeyByAlgCode(
+        createX25519MlKem768PublicKey({
+          x: Buffer.from([1]).toString('base64url'),
+        })
+      ),
+    'KEY_AGREEMENT_KEY_INVALID'
+  )
 
   const normalizedPrivate = validateKeyByAlgCode(
     createMlKemPrivateKey({ key_ops: undefined, extra: 'ok' })
@@ -104,6 +124,10 @@ test('source key agreement helpers cover validation and unsupported branches', (
   assert.equal(normalizedPublic.extra, 'ok')
 
   assert.equal(createImportKeyAlgorithmByAlgCode('ML-KEM-1024'), ml_kem1024)
+  assert.equal(
+    createImportKeyAlgorithmByAlgCode('X25519-ML-KEM-768'),
+    ml_kem768_x25519
+  )
   expectCodeSync(
     () => createImportKeyAlgorithmByAlgCode('ML-KEM-768'),
     'ALGORITHM_UNSUPPORTED'
@@ -119,6 +143,24 @@ test('source key agreement helpers cover validation and unsupported branches', (
   expectCodeSync(
     () => getParamsByAlgCode('ML-KEM-768', publicParams),
     'ALGORITHM_UNSUPPORTED'
+  )
+  const hybridPublicParams = createParamsByAlgCode(
+    createX25519MlKem768PublicKey()
+  )
+  assert.equal(
+    hybridPublicParams.publicKey.byteLength,
+    ml_kem768_x25519.lengths.publicKey
+  )
+  const hybridSecretParams = createParamsByAlgCode(
+    createX25519MlKem768PrivateKey()
+  )
+  assert.equal(
+    hybridSecretParams.secretKey.byteLength,
+    ml_kem768_x25519.lengths.secretKey
+  )
+  assert.equal(
+    getParamsByAlgCode('X25519-ML-KEM-768', hybridPublicParams),
+    hybridPublicParams
   )
 })
 
@@ -245,28 +287,64 @@ test('source key agreement harnesses cover constructor, invariant, and export br
     'KEY_AGREEMENT_KEY_INVALID'
   )
 
-  ml_kem1024.encapsulate = () => {
-    throw new Error('boom')
-  }
   const encapsulateFailHarness = new EncapsulateKeyHarness(
     createMlKemPublicKey()
   )
+  encapsulateFailHarness.kem = {
+    ...createImportKeyAlgorithmByAlgCode('ML-KEM-1024'),
+    encapsulate() {
+      throw new Error('boom')
+    },
+  }
   await expectCodeAsync(
     () => encapsulateFailHarness.encapsulate(),
     'ENCAPSULATION_FAILED'
   )
 
-  ml_kem1024.encapsulate = ORIGINAL_ENCAPSULATE
-  ml_kem1024.decapsulate = () => {
-    throw new Error('boom')
-  }
   const decapsulateFailHarness = new DecapsulateKeyHarness(
     createMlKemPrivateKey()
   )
+  decapsulateFailHarness.kem = {
+    ...createImportKeyAlgorithmByAlgCode('ML-KEM-1024'),
+    decapsulate() {
+      throw new Error('boom')
+    },
+  }
   await expectCodeAsync(
     () =>
       decapsulateFailHarness.decapsulate({
         ciphertext: new ArrayBuffer(ml_kem1024.lengths.cipherText),
+      }),
+    'DECAPSULATION_FAILED'
+  )
+
+  const hybridEncapsulateFailHarness = new EncapsulateKeyHarness(
+    createX25519MlKem768PublicKey()
+  )
+  hybridEncapsulateFailHarness.kem = {
+    ...createImportKeyAlgorithmByAlgCode('X25519-ML-KEM-768'),
+    encapsulate() {
+      throw new Error('boom')
+    },
+  }
+  await expectCodeAsync(
+    () => hybridEncapsulateFailHarness.encapsulate(),
+    'ENCAPSULATION_FAILED'
+  )
+
+  const hybridDecapsulateFailHarness = new DecapsulateKeyHarness(
+    createX25519MlKem768PrivateKey()
+  )
+  hybridDecapsulateFailHarness.kem = {
+    ...createImportKeyAlgorithmByAlgCode('X25519-ML-KEM-768'),
+    decapsulate() {
+      throw new Error('boom')
+    },
+  }
+  await expectCodeAsync(
+    () =>
+      hybridDecapsulateFailHarness.decapsulate({
+        ciphertext: new ArrayBuffer(ml_kem768_x25519.lengths.cipherText),
       }),
     'DECAPSULATION_FAILED'
   )

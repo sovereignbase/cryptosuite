@@ -23,10 +23,12 @@ type NoPrivate = {
   k?: never
 }
 
-type MLDSA87VerifyKey = JsonWebKey &
+type DigitalSignatureAlg = 'ML-DSA-87' | 'Ed25519-ML-DSA-65'
+
+type VerifyKeyByAlg<Alg extends DigitalSignatureAlg> = JsonWebKey &
   NoPrivate & {
     kty: 'AKP'
-    alg: 'ML-DSA-87'
+    alg: Alg
     x: string
     use: 'sig'
     key_ops: readonly 'verify'[]
@@ -40,36 +42,40 @@ type HasPrivate = {
   d: string
 }
 
-type MLDSA87SignKey = JsonWebKey &
+type SignKeyByAlg<Alg extends DigitalSignatureAlg> = JsonWebKey &
   NoSymmetric &
   HasPrivate & {
     kty: 'AKP'
-    alg: 'ML-DSA-87'
+    alg: Alg
     use: 'sig'
     key_ops: readonly 'sign'[]
   }
 
-type MLDSA87VerifyParams = {
-  /** The raw ML-DSA-87 public key bytes. */
+type VerifyParams = {
+  /** The raw supported digital signature public key bytes. */
   publicKey: Uint8Array
 }
 
-type MLDSA87SignParams = {
-  /** The raw ML-DSA-87 secret key bytes. */
+type SignParams = {
+  /** The raw supported digital signature private key bytes. */
   secretKey: Uint8Array
 }
 
 /**
- * Public ML-DSA-87 JWK used to verify signatures.
+ * Public supported digital signature JWK used to verify signatures.
  */
-export type VerifyKey = MLDSA87VerifyKey
+export type VerifyKey =
+  | VerifyKeyByAlg<'ML-DSA-87'>
+  | VerifyKeyByAlg<'Ed25519-ML-DSA-65'>
 
 /**
- * Private ML-DSA-87 JWK used to produce signatures.
+ * Private supported digital signature JWK used to produce signatures.
  */
-export type SignKey = MLDSA87SignKey
+export type SignKey =
+  | SignKeyByAlg<'ML-DSA-87'>
+  | SignKeyByAlg<'Ed25519-ML-DSA-65'>
 
 /**
- * Runtime ML-DSA-87 key material used internally by signing and verification harnesses.
+ * Runtime key material used internally by signing and verification harnesses.
  */
-export type DigitalSignatureParams = MLDSA87VerifyParams | MLDSA87SignParams
+export type DigitalSignatureParams = VerifyParams | SignParams

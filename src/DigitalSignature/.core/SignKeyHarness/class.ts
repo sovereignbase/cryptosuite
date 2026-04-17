@@ -57,7 +57,7 @@ export class SignKeyHarness {
     } catch {
       throw new CryptosuiteError(
         'ALGORITHM_UNSUPPORTED',
-        'SignKeyHarness.sign: failed to sign with ML-DSA-87.'
+        `SignKeyHarness.sign: failed to sign with ${this.algCode}.`
       )
     }
   }

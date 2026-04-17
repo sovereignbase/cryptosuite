@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import { toBase64UrlString } from '@sovereignbase/bytecodec'
-import { ml_dsa87 } from '@noble/post-quantum/ml-dsa.js'
+import { createImportKeyAlgorithmByAlgCode } from '../.core/helpers/createImportKeyAlgorithmByAlgCode/index.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { SignKey, VerifyKey } from '../.core/types/index.js'
 
@@ -27,17 +27,18 @@ export async function generateDigitalSignatureKeypair(): Promise<{
   signKey: SignKey
   verifyKey: VerifyKey
 }> {
-  const { publicKey, secretKey } = ml_dsa87.keygen()
+  const { publicKey, secretKey } =
+    createImportKeyAlgorithmByAlgCode('Ed25519-ML-DSA-65').keygen()
   const signKey = validateKeyByAlgCode({
     kty: 'AKP',
-    alg: 'ML-DSA-87',
+    alg: 'Ed25519-ML-DSA-65',
     d: toBase64UrlString(secretKey),
     use: 'sig',
     key_ops: ['sign'],
   })
   const verifyKey = validateKeyByAlgCode({
     kty: 'AKP',
-    alg: 'ML-DSA-87',
+    alg: 'Ed25519-ML-DSA-65',
     x: toBase64UrlString(publicKey),
     use: 'sig',
     key_ops: ['verify'],

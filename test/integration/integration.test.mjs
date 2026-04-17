@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { webcrypto } from 'node:crypto'
-import { ml_kem1024 } from '@noble/post-quantum/ml-kem.js'
+import { ml_kem768_x25519 } from '@noble/post-quantum/hybrid.js'
 import { Cryptographic } from '../../dist/index.js'
 import { bytes } from '../support/fixtures.mjs'
 
@@ -100,7 +100,7 @@ test('integration: key agreement encapsulate/decapsulate reconstructs the same c
 })
 
 test('integration: key agreement derivation is deterministic', async () => {
-  const seed = new Uint8Array(ml_kem1024.lengths.seed).fill(11)
+  const seed = new Uint8Array(ml_kem768_x25519.lengths.seed).fill(11)
   const one = await Cryptographic.keyAgreement.deriveKeypair(seed)
   const two = await Cryptographic.keyAgreement.deriveKeypair(seed)
   assert.equal(one.encapsulateKey.x, two.encapsulateKey.x)
@@ -130,7 +130,7 @@ test('integration: digital signature sign/verify roundtrip', async () => {
 })
 
 test('integration: digital signature derivation is deterministic', async () => {
-  const seed = new Uint8Array(32).fill(12)
+  const seed = new Uint8Array(64).fill(12)
   const one = await Cryptographic.digitalSignature.deriveKeypair(seed)
   const two = await Cryptographic.digitalSignature.deriveKeypair(seed)
   assert.equal(one.signKey.d, two.signKey.d)

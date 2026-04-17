@@ -26,6 +26,7 @@ export function getParamsByAlgCode(
 ): DigitalSignatureParams {
   switch (algCode) {
     case 'ML-DSA-87':
+    case 'Ed25519-ML-DSA-65':
       return params
   }
 
