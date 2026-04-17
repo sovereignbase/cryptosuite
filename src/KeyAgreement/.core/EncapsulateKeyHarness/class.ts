@@ -60,14 +60,14 @@ export class EncapsulateKeyHarness {
       cipherKey = await crypto.subtle.importKey(
         'raw',
         toBufferSource(sharedSecret),
-        { name: 'AES-CTR', length: 256 },
+        { name: 'AES-GCM', length: 256 },
         true,
         ['encrypt', 'decrypt']
       )
     } catch {
       throw new CryptosuiteError(
         'ALGORITHM_UNSUPPORTED',
-        'EncapsulateKeyHarness: AES-CTR-256 is not supported by this WebCrypto runtime.'
+        'EncapsulateKeyHarness: AES-GCM-256 is not supported by this WebCrypto runtime.'
       )
     }
 

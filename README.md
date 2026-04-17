@@ -24,7 +24,7 @@ JS/TS runtime-agnostic, quantum-safe, and agile cryptography toolkit with a decl
 ## Current algorithms
 
 - Identifier: `SHA-384` or 48 random bytes, encoded as a fixed-length base64url string
-- Cipher messaging: `AES-CTR-256`
+- Cipher messaging: `AES-GCM-256`
 - Message authentication: `HMAC-SHA-256`
 - Key agreement: `X25519-ML-KEM-768`
 - Digital signatures: `Ed25519-ML-DSA-65`
@@ -172,8 +172,8 @@ const verified = await Cryptographic.digitalSignature.verify(
 
 ## Security notes
 
-- `AES-CTR` does not provide integrity on its own
-- authenticate or sign ciphertexts at the protocol layer
+- `AES-GCM` provides confidentiality and message integrity for each ciphertext
+- authenticate peers and session setup at the protocol layer
 - never reuse a `(key, iv)` pair
 - treat JWKs and derived key material as secrets
 - sign a canonical byte representation, not loosely structured objects
@@ -182,7 +182,7 @@ const verified = await Cryptographic.digitalSignature.verify(
 
 Latest local `npm run test` run on `2026-04-17` with Node `v22.14.0 (win32 x64)`:
 
-- `63/63` tests passed
+- `65/65` tests passed
 - Coverage passed at `100%` for statements, branches, functions, and lines
 - End-to-end runtime suites all passed in:
   - Node ESM
@@ -207,25 +207,25 @@ Latest local `npm run bench` run on `2026-04-17` with Node `v22.14.0 (win32 x64)
 
 | Benchmark                           | ops |      ms |   ms/op |   ops/sec |
 | ----------------------------------- | --: | ------: | ------: | --------: |
-| `identifier.generate`               | 100 |    3.76 |  0.0376 |  26617.69 |
-| `identifier.derive`                 | 100 |   32.60 |  0.3260 |   3067.77 |
-| `identifier.validate`               | 100 |    0.43 |  0.0043 | 232883.09 |
-| `cipherMessage.generateKey`         | 100 |   43.36 |  0.4336 |   2306.01 |
-| `cipherMessage.deriveKey`           | 100 |   75.53 |  0.7553 |   1324.01 |
-| `cipherMessage.encrypt`             | 100 |   38.18 |  0.3818 |   2619.10 |
-| `cipherMessage.decrypt`             | 100 |   30.86 |  0.3086 |   3240.51 |
-| `messageAuthentication.generateKey` | 100 |   42.06 |  0.4206 |   2377.45 |
-| `messageAuthentication.deriveKey`   | 100 |   67.14 |  0.6714 |   1489.35 |
-| `messageAuthentication.sign`        | 100 |   26.91 |  0.2691 |   3716.46 |
-| `messageAuthentication.verify`      | 100 |   28.26 |  0.2826 |   3538.58 |
-| `keyAgreement.generateKeypair`      | 100 |  877.66 |  8.7766 |    113.94 |
-| `keyAgreement.deriveKeypair`        | 100 |  728.01 |  7.2801 |    137.36 |
-| `keyAgreement.encapsulate`          | 100 | 1649.16 | 16.4916 |     60.64 |
-| `keyAgreement.decapsulate`          | 100 | 1093.07 | 10.9307 |     91.49 |
-| `digitalSignature.generateKeypair`  | 100 |  849.80 |  8.4980 |    117.67 |
-| `digitalSignature.deriveKeypair`    | 100 |  714.64 |  7.1464 |    139.93 |
-| `digitalSignature.sign`             | 100 | 3293.13 | 32.9313 |     30.37 |
-| `digitalSignature.verify`           | 100 | 1195.09 | 11.9509 |     83.68 |
+| `identifier.generate`               | 100 |    2.91 |  0.0291 |  34389.08 |
+| `identifier.derive`                 | 100 |   34.97 |  0.3497 |   2859.53 |
+| `identifier.validate`               | 100 |    0.41 |  0.0041 | 243961.94 |
+| `cipherMessage.generateKey`         | 100 |   48.77 |  0.4877 |   2050.38 |
+| `cipherMessage.deriveKey`           | 100 |   67.84 |  0.6784 |   1474.02 |
+| `cipherMessage.encrypt`             | 100 |   36.80 |  0.3680 |   2717.03 |
+| `cipherMessage.decrypt`             | 100 |   36.02 |  0.3602 |   2776.57 |
+| `messageAuthentication.generateKey` | 100 |   44.84 |  0.4484 |   2230.24 |
+| `messageAuthentication.deriveKey`   | 100 |   75.64 |  0.7564 |   1322.07 |
+| `messageAuthentication.sign`        | 100 |   29.09 |  0.2909 |   3437.31 |
+| `messageAuthentication.verify`      | 100 |   25.33 |  0.2533 |   3947.69 |
+| `keyAgreement.generateKeypair`      | 100 |  827.02 |  8.2702 |    120.92 |
+| `keyAgreement.deriveKeypair`        | 100 |  842.11 |  8.4211 |    118.75 |
+| `keyAgreement.encapsulate`          | 100 | 1669.17 | 16.6917 |     59.91 |
+| `keyAgreement.decapsulate`          | 100 | 1240.95 | 12.4095 |     80.58 |
+| `digitalSignature.generateKeypair`  | 100 |  808.57 |  8.0857 |    123.67 |
+| `digitalSignature.deriveKeypair`    | 100 |  612.56 |  6.1256 |    163.25 |
+| `digitalSignature.sign`             | 100 | 3478.93 | 34.7893 |     28.74 |
+| `digitalSignature.verify`           | 100 | 2574.33 | 25.7433 |     38.85 |
 
 Results vary by machine and Node version.
 

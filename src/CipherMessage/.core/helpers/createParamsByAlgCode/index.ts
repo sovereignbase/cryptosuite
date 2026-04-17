@@ -19,6 +19,7 @@ import type { CipherKey, CipherParams } from '../../types/index.js'
 export function createParamsByAlgCode(algCode: CipherKey['alg']): CipherParams {
   switch (algCode) {
     case 'A256CTR':
+    case 'A256GCM':
       if (!globalThis.crypto?.getRandomValues) {
         throw new CryptosuiteError(
           'GET_RANDOM_VALUES_UNAVAILABLE',

@@ -33,9 +33,19 @@ export type OpaqueIdentifier = string
  * @returns A derived opaque identifier in normalized presentation.
  */
 export async function deriveOID(source: Uint8Array): Promise<OpaqueIdentifier> {
+  if (!globalThis.crypto?.subtle) {
+    throw new CryptosuiteError(
+      'SUBTLE_UNAVAILABLE',
+      'deriveOID: crypto.subtle is unavailable.'
+    )
+  }
+
   let hash: ArrayBuffer
   try {
-    hash = await crypto.subtle.digest('SHA-384', toBufferSource(source))
+    hash = await globalThis.crypto.subtle.digest(
+      'SHA-384',
+      toBufferSource(source)
+    )
   } catch {
     throw new CryptosuiteError(
       'SHA384_UNSUPPORTED',
@@ -52,7 +62,14 @@ export async function deriveOID(source: Uint8Array): Promise<OpaqueIdentifier> {
  * @returns A randomly generated opaque identifier.
  */
 export async function generateOID(): Promise<OpaqueIdentifier> {
-  return toBase64UrlString(crypto.getRandomValues(new Uint8Array(48)))
+  if (!globalThis.crypto?.getRandomValues) {
+    throw new CryptosuiteError(
+      'GET_RANDOM_VALUES_UNAVAILABLE',
+      'generateOID: crypto.getRandomValues is unavailable.'
+    )
+  }
+
+  return toBase64UrlString(globalThis.crypto.getRandomValues(new Uint8Array(48)))
 }
 
 /**

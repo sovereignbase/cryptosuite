@@ -33,14 +33,14 @@ export async function generateCipherKey(): Promise<CipherKey> {
   let cipherKey: CryptoKey
   try {
     cipherKey = await crypto.subtle.generateKey(
-      { name: 'AES-CTR', length: 256 },
+      { name: 'AES-GCM', length: 256 },
       true,
       ['encrypt', 'decrypt']
     )
   } catch {
     throw new CryptosuiteError(
       'ALGORITHM_UNSUPPORTED',
-      'generateCipherKey: AES-CTR-256 is not supported by this WebCrypto runtime.'
+      'generateCipherKey: AES-GCM-256 is not supported by this WebCrypto runtime.'
     )
   }
 

@@ -17,10 +17,7 @@ after the default algorithm changes.
 
 ## Current default
 
-Current default generation and derivation target `A256CTR` / `AES-CTR`.
-
-Integrity is intentionally not provided here. Integrity is expected to be
-handled at the message/signature layer.
+Current default generation and derivation target `A256GCM` / `AES-GCM`.
 
 ## Responsibilities
 
@@ -67,7 +64,7 @@ When upgrading the default algorithm:
 ## Naming rule
 
 Inside `.core`, use standard WebCrypto algorithm names when dealing with
-`CryptoKey.algorithm`, for example `AES-CTR`.
+`CryptoKey.algorithm`, for example `AES-GCM`.
 
-JWK `alg` values such as `A256CTR` are the external key identifiers. Do not
+JWK `alg` values such as `A256GCM` are the external key identifiers. Do not
 confuse them with WebCrypto `algorithm.name`.

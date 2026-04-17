@@ -84,11 +84,20 @@ export class CipherKeyHarness {
     const params: CipherParams = {
       iv: cipherMessage.iv,
     }
-    const plaintext = await crypto.subtle.decrypt(
-      getParamsByAlgCode(this.algCode, params),
-      key,
-      cipherMessage.ciphertext
-    )
+    let plaintext: ArrayBuffer
+    try {
+      plaintext = await crypto.subtle.decrypt(
+        getParamsByAlgCode(this.algCode, params),
+        key,
+        cipherMessage.ciphertext
+      )
+    } catch (error) {
+      if (error instanceof CryptosuiteError) throw error
+      throw new CryptosuiteError(
+        'CIPHER_ARTIFACT_INVALID',
+        'CipherKeyHarness.decrypt: failed to decrypt or authenticate the cipher message.'
+      )
+    }
     return new Uint8Array(plaintext)
   }
 }

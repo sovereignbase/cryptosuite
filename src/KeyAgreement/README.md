@@ -23,7 +23,7 @@ Encapsulation returns a `KeyOffer` and a symmetric `CipherKey`.
 
 Decapsulation takes that `KeyOffer` and reconstructs the same `CipherKey`.
 
-The shared secret is used directly as raw `AES-CTR-256` key material and is
+The shared secret is used directly as raw `AES-GCM-256` key material and is
 then normalized through `CipherMessage` key validation.
 
 ## Responsibilities

@@ -18,12 +18,13 @@ import type {
   CipherKey,
   CipherParams,
   A256CTRParams,
+  A256GCMParams,
 } from '../../types/index.js'
 
 export function getParamsByAlgCode(
   algCode: CipherKey['alg'],
   params: CipherParams
-): AesCtrParams {
+): AesCtrParams | AesGcmParams {
   switch (algCode) {
     case 'A256CTR': {
       const { iv } = params as A256CTRParams
@@ -48,6 +49,29 @@ export function getParamsByAlgCode(
         name: 'AES-CTR',
         counter,
         length: 32,
+      }
+    }
+    case 'A256GCM': {
+      const { iv } = params as A256GCMParams
+
+      if (!(iv instanceof Uint8Array)) {
+        throw new CryptosuiteError(
+          'CIPHER_MESSAGE_INVALID',
+          'getParamsByAlgCode: expected a Uint8Array iv for AES-GCM.'
+        )
+      }
+
+      if (iv.byteLength !== 12) {
+        throw new CryptosuiteError(
+          'CIPHER_MESSAGE_INVALID',
+          'getParamsByAlgCode: expected a 96-bit IV for AES-GCM.'
+        )
+      }
+
+      return {
+        name: 'AES-GCM',
+        iv,
+        tagLength: 128,
       }
     }
   }

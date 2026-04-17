@@ -120,6 +120,19 @@ test('messageAuthentication.sign rejects malformed HMAC key material', async () 
   )
 })
 
+test('messageAuthentication.sign rejects weak HMAC key material', async () => {
+  await expectCodeAsync(
+    () =>
+      Cryptographic.messageAuthentication.sign(
+        createHs256Key({
+          k: 'AQID',
+        }),
+        bytes(1)
+      ),
+    'HMAC_JWK_INVALID'
+  )
+})
+
 test('messageAuthentication.sign rejects unsupported alg codes', async () => {
   await expectCodeAsync(
     () =>

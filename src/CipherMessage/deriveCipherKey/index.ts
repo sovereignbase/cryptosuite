@@ -72,14 +72,14 @@ export async function deriveCipherKey(
         info: new Uint8Array(0),
       },
       key,
-      { name: 'AES-CTR', length: 256 },
+      { name: 'AES-GCM', length: 256 },
       true,
       ['encrypt', 'decrypt']
     )
   } catch {
     throw new CryptosuiteError(
       'ALGORITHM_UNSUPPORTED',
-      'deriveCipherKey: HKDF-SHA-256 to AES-CTR-256 is not supported by this WebCrypto runtime.'
+      'deriveCipherKey: HKDF-SHA-256 to AES-GCM-256 is not supported by this WebCrypto runtime.'
     )
   }
 

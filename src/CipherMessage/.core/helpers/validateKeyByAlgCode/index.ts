@@ -28,7 +28,8 @@ export function validateKeyByAlgCode(key: JsonWebKey): CipherKey {
   }
 
   switch (candidate.alg) {
-    case 'A256CTR': {
+    case 'A256CTR':
+    case 'A256GCM': {
       if (candidate.kty !== 'oct' || typeof candidate.k !== 'string') {
         throw new CryptosuiteError(
           'CIPHER_KEY_INVALID',
@@ -96,7 +97,7 @@ export function validateKeyByAlgCode(key: JsonWebKey): CipherKey {
         ...rest,
         kty: 'oct',
         k: candidate.k,
-        alg: 'A256CTR',
+        alg: candidate.alg,
         use: 'enc',
         key_ops:
           candidate.key_ops === undefined

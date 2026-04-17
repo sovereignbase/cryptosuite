@@ -182,10 +182,10 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
     }
   )
 
-  await run('cipherMessage.generateKey returns an AES-CTR key', async () => {
+  await run('cipherMessage.generateKey returns an AES-GCM key', async () => {
     const cipherKey = await Cryptographic.cipherMessage.generateKey()
     assertEqual(cipherKey.kty, 'oct', 'cipher key must be symmetric')
-    assertEqual(cipherKey.alg, 'A256CTR', 'cipher key alg must be A256CTR')
+    assertEqual(cipherKey.alg, 'A256GCM', 'cipher key alg must be A256GCM')
     assert(typeof cipherKey.k === 'string', 'cipher key material must exist')
   })
 
@@ -370,7 +370,7 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
       )
       assertEqual(
         cipherKey.alg,
-        'A256CTR',
+        'A256GCM',
         'encapsulated cipher key alg mismatch'
       )
     }
