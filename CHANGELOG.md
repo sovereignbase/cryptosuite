@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/sovereignbase/cryptosuite/compare/v2.1.2...v2.2.0) (2026-04-17)
+
+
+### Features
+
+* switch cipher messaging to AES-GCM ([bfe2955](https://github.com/sovereignbase/cryptosuite/commit/bfe295579b76d60a335cec08a4b0170992ab4205))
+
 ## [2.1.2](https://github.com/sovereignbase/cryptosuite/compare/v2.1.1...v2.1.2) (2026-04-17)
 
 
