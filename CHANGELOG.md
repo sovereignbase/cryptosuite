@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/sovereignbase/cryptosuite/compare/v2.0.5...v2.1.0) (2026-04-17)
+
+
+### Features
+
+* add hybrid Ed25519-ML-DSA-65 signatures and X25519-ML-KEM-768 key agreement ([feb61af](https://github.com/sovereignbase/cryptosuite/commit/feb61af099cc640dbbab966fa843ffa156008974))
+
 ## [2.0.5](https://github.com/sovereignbase/cryptosuite/compare/v2.0.4...v2.0.5) (2026-03-28)
 
 
