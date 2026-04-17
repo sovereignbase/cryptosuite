@@ -10,18 +10,12 @@ import { VerifyKeyHarness } from '../../src/DigitalSignature/.core/VerifyKeyHarn
 import { expectCodeAsync, expectCodeSync } from '../support/index.mjs'
 import {
   bytes,
+  createEd25519MlDsa65SignKey,
+  createEd25519MlDsa65VerifyKey,
   createMlDsaSignKey,
   createMlDsaVerifyKey,
   filledBytes,
 } from '../support/fixtures.mjs'
-
-const ORIGINAL_SIGN = ml_dsa87.sign
-const ORIGINAL_VERIFY = ml_dsa87.verify
-
-test.afterEach(() => {
-  ml_dsa87.sign = ORIGINAL_SIGN
-  ml_dsa87.verify = ORIGINAL_VERIFY
-})
 
 test('source digital signature helpers cover validation and unsupported branches', () => {
   expectCodeSync(() => validateKeyByAlgCode(null), 'SIGN_JWK_INVALID')
@@ -75,6 +69,28 @@ test('source digital signature helpers cover validation and unsupported branches
     () => validateKeyByAlgCode(createMlDsaSignKey({ alg: 'ML-DSA-65' })),
     'ALGORITHM_UNSUPPORTED'
   )
+  expectCodeSync(
+    () => validateKeyByAlgCode(createEd25519MlDsa65SignKey({ kty: 'oct' })),
+    'SIGN_JWK_INVALID'
+  )
+  expectCodeSync(
+    () =>
+      validateKeyByAlgCode(
+        createEd25519MlDsa65SignKey({
+          d: Buffer.from([1]).toString('base64url'),
+        })
+      ),
+    'SIGN_JWK_INVALID'
+  )
+  expectCodeSync(
+    () =>
+      validateKeyByAlgCode(
+        createEd25519MlDsa65VerifyKey({
+          x: Buffer.from([1]).toString('base64url'),
+        })
+      ),
+    'VERIFY_JWK_INVALID'
+  )
 
   const normalizedSign = validateKeyByAlgCode(
     createMlDsaSignKey({ key_ops: undefined, extra: 'ok' })
@@ -91,6 +107,8 @@ test('source digital signature helpers cover validation and unsupported branches
   assert.equal(normalizedVerify.extra, 'ok')
 
   assert.equal(createImportKeyAlgorithmByAlgCode('ML-DSA-87'), ml_dsa87)
+  const hybridAlgorithm = createImportKeyAlgorithmByAlgCode('Ed25519-ML-DSA-65')
+  assert.equal(hybridAlgorithm.lengths.secretKey, 64)
   expectCodeSync(
     () => createImportKeyAlgorithmByAlgCode('ML-DSA-65'),
     'ALGORITHM_UNSUPPORTED'
@@ -106,6 +124,22 @@ test('source digital signature helpers cover validation and unsupported branches
   expectCodeSync(
     () => getParamsByAlgCode('ML-DSA-65', signParams),
     'ALGORITHM_UNSUPPORTED'
+  )
+  const hybridSignParams = createParamsByAlgCode(createEd25519MlDsa65SignKey())
+  assert.equal(
+    hybridSignParams.secretKey.byteLength,
+    hybridAlgorithm.lengths.secretKey
+  )
+  const hybridVerifyParams = createParamsByAlgCode(
+    createEd25519MlDsa65VerifyKey()
+  )
+  assert.equal(
+    hybridVerifyParams.publicKey.byteLength,
+    hybridAlgorithm.lengths.publicKey
+  )
+  assert.equal(
+    getParamsByAlgCode('Ed25519-ML-DSA-65', hybridSignParams),
+    hybridSignParams
   )
 })
 
@@ -130,24 +164,53 @@ test('source digital signature harnesses cover constructor, invariant, and catch
     'VERIFY_JWK_INVALID'
   )
 
-  ml_dsa87.sign = () => {
-    throw new Error('boom')
+  const failingMlDsaSigner = new SignKeyHarness(createMlDsaSignKey())
+  failingMlDsaSigner.signer = {
+    ...createImportKeyAlgorithmByAlgCode('ML-DSA-87'),
+    sign() {
+      throw new Error('boom')
+    },
   }
   await expectCodeAsync(
-    () => new SignKeyHarness(createMlDsaSignKey()).sign(bytes(1, 2, 3)),
+    () => failingMlDsaSigner.sign(bytes(1, 2, 3)),
     'ALGORITHM_UNSUPPORTED'
   )
 
-  ml_dsa87.sign = ORIGINAL_SIGN
-  ml_dsa87.verify = () => {
-    throw new Error('boom')
+  const failingMlDsaVerifier = new VerifyKeyHarness(createMlDsaVerifyKey())
+  failingMlDsaVerifier.verifier = {
+    ...createImportKeyAlgorithmByAlgCode('ML-DSA-87'),
+    verify() {
+      throw new Error('boom')
+    },
   }
   await expectCodeAsync(
-    () =>
-      new VerifyKeyHarness(createMlDsaVerifyKey()).verify(
-        bytes(1, 2, 3),
-        bytes(4, 5, 6)
-      ),
+    () => failingMlDsaVerifier.verify(bytes(1, 2, 3), bytes(4, 5, 6)),
+    'ALGORITHM_UNSUPPORTED'
+  )
+
+  const failingHybridSigner = new SignKeyHarness(createEd25519MlDsa65SignKey())
+  failingHybridSigner.signer = {
+    ...createImportKeyAlgorithmByAlgCode('Ed25519-ML-DSA-65'),
+    sign() {
+      throw new Error('boom')
+    },
+  }
+  await expectCodeAsync(
+    () => failingHybridSigner.sign(bytes(1, 2, 3)),
+    'ALGORITHM_UNSUPPORTED'
+  )
+
+  const failingHybridVerifier = new VerifyKeyHarness(
+    createEd25519MlDsa65VerifyKey()
+  )
+  failingHybridVerifier.verifier = {
+    ...createImportKeyAlgorithmByAlgCode('Ed25519-ML-DSA-65'),
+    verify() {
+      throw new Error('boom')
+    },
+  }
+  await expectCodeAsync(
+    () => failingHybridVerifier.verify(bytes(1, 2, 3), bytes(4, 5, 6)),
     'ALGORITHM_UNSUPPORTED'
   )
 })

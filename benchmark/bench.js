@@ -1,22 +1,29 @@
 import { performance } from 'node:perf_hooks'
-import { ml_dsa87 } from '@noble/post-quantum/ml-dsa.js'
-import { ml_kem1024 } from '@noble/post-quantum/ml-kem.js'
+import { ed25519 } from '@noble/curves/ed25519.js'
+import {
+  combineSigners,
+  ecSigner,
+  ml_kem768_x25519,
+} from '@noble/post-quantum/hybrid.js'
+import { ml_dsa65 } from '@noble/post-quantum/ml-dsa.js'
 import { Cryptographic } from '../dist/index.js'
 
 const encoder = new TextEncoder()
-const fastIterationsArg = process.argv.find((arg) =>
+const iterationsArg = process.argv.find((arg) =>
   arg.startsWith('--iterations=')
 )
-const slowIterationsArg = process.argv.find((arg) =>
-  arg.startsWith('--slow-iterations=')
-)
+const iterations = iterationsArg ? Number(iterationsArg.split('=')[1]) : 100
 
-const fastIterations = fastIterationsArg
-  ? Number(fastIterationsArg.split('=')[1])
-  : 200
-const slowIterations = slowIterationsArg
-  ? Number(slowIterationsArg.split('=')[1])
-  : Math.max(10, Math.floor(fastIterations / 10))
+if (!Number.isInteger(iterations) || iterations <= 0) {
+  throw new Error('benchmark iterations must be a positive integer.')
+}
+
+const ed25519MlDsa65 = combineSigners(
+  undefined,
+  (seed) => seed,
+  ecSigner(ed25519),
+  ml_dsa65
+)
 
 function createBytes(length, offset = 0) {
   const bytes = new Uint8Array(length)
@@ -26,21 +33,39 @@ function createBytes(length, offset = 0) {
   return bytes
 }
 
-function formatOps(durationMs, count) {
-  const opsPerSec = count / (durationMs / 1000)
-  return `${durationMs.toFixed(2)}ms (${opsPerSec.toFixed(1)} ops/sec)`
+function formatNumber(value, fractionDigits) {
+  return value.toFixed(fractionDigits)
 }
 
-async function runBenchmark(label, count, fn) {
+async function measure(label, ops, fn) {
   await fn()
 
   const startedAt = performance.now()
-  for (let index = 0; index < count; index += 1) {
+  for (let index = 0; index < ops; index += 1) {
     await fn()
   }
   const durationMs = performance.now() - startedAt
 
-  console.log(`${label}: ${formatOps(durationMs, count)}`)
+  return {
+    label,
+    ops,
+    ms: durationMs,
+    msPerOp: durationMs / ops,
+    opsPerSec: ops / (durationMs / 1000),
+  }
+}
+
+function printTable(results) {
+  console.log(`Iterations: ${iterations}`)
+  console.log('')
+  console.log('| Benchmark | ops | ms | ms/op | ops/sec |')
+  console.log('| --- | ---: | ---: | ---: | ---: |')
+
+  for (const result of results) {
+    console.log(
+      `| \`${result.label}\` | ${result.ops} | ${formatNumber(result.ms, 2)} | ${formatNumber(result.msPerOp, 4)} | ${formatNumber(result.opsPerSec, 2)} |`
+    )
+  }
 }
 
 const identifierBytes = encoder.encode('cryptosuite benchmark identifier')
@@ -57,37 +82,49 @@ const messageAuthenticationSalt = createBytes(16, 19)
 const messageAuthenticationBytes = encoder.encode(
   'cryptosuite benchmark authentication payload'
 )
-const keyAgreementSeed = createBytes(ml_kem1024.lengths.seed, 29)
-const digitalSignatureSeed = createBytes(ml_dsa87.lengths.seed, 43)
+const keyAgreementSeed = createBytes(ml_kem768_x25519.lengths.seed, 29)
+const digitalSignatureSeed = createBytes(ed25519MlDsa65.lengths.seed, 43)
 const digitalSignatureBytes = encoder.encode(
   'cryptosuite benchmark signature payload'
 )
 
-console.log(`Iterations: fast=${fastIterations}, slow=${slowIterations}`)
+const results = []
 
-await runBenchmark('identifier.generate', fastIterations, async () => {
-  await Cryptographic.identifier.generate()
-})
-
-await runBenchmark('identifier.derive', fastIterations, async () => {
-  await Cryptographic.identifier.derive(identifierBytes)
-})
-
-await runBenchmark('identifier.validate', fastIterations, () => {
-  if (Cryptographic.identifier.validate(validIdentifier) !== validIdentifier) {
-    throw new Error('identifier.validate failed its benchmark invariant.')
-  }
-})
-
-await runBenchmark('cipherMessage.generateKey', fastIterations, async () => {
-  await Cryptographic.cipherMessage.generateKey()
-})
-
-await runBenchmark('cipherMessage.deriveKey', fastIterations, async () => {
-  await Cryptographic.cipherMessage.deriveKey(cipherDerivationSource, {
-    salt: cipherDerivationSalt,
+results.push(
+  await measure('identifier.generate', iterations, async () => {
+    await Cryptographic.identifier.generate()
   })
-})
+)
+
+results.push(
+  await measure('identifier.derive', iterations, async () => {
+    await Cryptographic.identifier.derive(identifierBytes)
+  })
+)
+
+results.push(
+  await measure('identifier.validate', iterations, () => {
+    if (
+      Cryptographic.identifier.validate(validIdentifier) !== validIdentifier
+    ) {
+      throw new Error('identifier.validate failed its benchmark invariant.')
+    }
+  })
+)
+
+results.push(
+  await measure('cipherMessage.generateKey', iterations, async () => {
+    await Cryptographic.cipherMessage.generateKey()
+  })
+)
+
+results.push(
+  await measure('cipherMessage.deriveKey', iterations, async () => {
+    await Cryptographic.cipherMessage.deriveKey(cipherDerivationSource, {
+      salt: cipherDerivationSalt,
+    })
+  })
+)
 
 {
   const cipherKey = await Cryptographic.cipherMessage.generateKey()
@@ -96,32 +133,32 @@ await runBenchmark('cipherMessage.deriveKey', fastIterations, async () => {
     cipherPlaintext
   )
 
-  await runBenchmark('cipherMessage.encrypt', fastIterations, async () => {
-    await Cryptographic.cipherMessage.encrypt(cipherKey, cipherPlaintext)
-  })
+  results.push(
+    await measure('cipherMessage.encrypt', iterations, async () => {
+      await Cryptographic.cipherMessage.encrypt(cipherKey, cipherPlaintext)
+    })
+  )
 
-  await runBenchmark('cipherMessage.decrypt', fastIterations, async () => {
-    await Cryptographic.cipherMessage.decrypt(cipherKey, cipherMessage)
-  })
+  results.push(
+    await measure('cipherMessage.decrypt', iterations, async () => {
+      await Cryptographic.cipherMessage.decrypt(cipherKey, cipherMessage)
+    })
+  )
 }
 
-await runBenchmark(
-  'messageAuthentication.generateKey',
-  fastIterations,
-  async () => {
+results.push(
+  await measure('messageAuthentication.generateKey', iterations, async () => {
     await Cryptographic.messageAuthentication.generateKey()
-  }
+  })
 )
 
-await runBenchmark(
-  'messageAuthentication.deriveKey',
-  fastIterations,
-  async () => {
+results.push(
+  await measure('messageAuthentication.deriveKey', iterations, async () => {
     await Cryptographic.messageAuthentication.deriveKey(
       messageAuthenticationSource,
       { salt: messageAuthenticationSalt }
     )
-  }
+  })
 )
 
 {
@@ -133,17 +170,17 @@ await runBenchmark(
       messageAuthenticationBytes
     )
 
-  await runBenchmark('messageAuthentication.sign', fastIterations, async () => {
-    await Cryptographic.messageAuthentication.sign(
-      messageAuthenticationKey,
-      messageAuthenticationBytes
-    )
-  })
+  results.push(
+    await measure('messageAuthentication.sign', iterations, async () => {
+      await Cryptographic.messageAuthentication.sign(
+        messageAuthenticationKey,
+        messageAuthenticationBytes
+      )
+    })
+  )
 
-  await runBenchmark(
-    'messageAuthentication.verify',
-    fastIterations,
-    async () => {
+  results.push(
+    await measure('messageAuthentication.verify', iterations, async () => {
       const verified = await Cryptographic.messageAuthentication.verify(
         messageAuthenticationKey,
         messageAuthenticationBytes,
@@ -154,17 +191,21 @@ await runBenchmark(
           'messageAuthentication.verify failed its benchmark invariant.'
         )
       }
-    }
+    })
   )
 }
 
-await runBenchmark('keyAgreement.generateKeypair', slowIterations, async () => {
-  await Cryptographic.keyAgreement.generateKeypair()
-})
+results.push(
+  await measure('keyAgreement.generateKeypair', iterations, async () => {
+    await Cryptographic.keyAgreement.generateKeypair()
+  })
+)
 
-await runBenchmark('keyAgreement.deriveKeypair', slowIterations, async () => {
-  await Cryptographic.keyAgreement.deriveKeypair(keyAgreementSeed)
-})
+results.push(
+  await measure('keyAgreement.deriveKeypair', iterations, async () => {
+    await Cryptographic.keyAgreement.deriveKeypair(keyAgreementSeed)
+  })
+)
 
 {
   const { encapsulateKey, decapsulateKey } =
@@ -172,29 +213,29 @@ await runBenchmark('keyAgreement.deriveKeypair', slowIterations, async () => {
   const { keyOffer } =
     await Cryptographic.keyAgreement.encapsulate(encapsulateKey)
 
-  await runBenchmark('keyAgreement.encapsulate', slowIterations, async () => {
-    await Cryptographic.keyAgreement.encapsulate(encapsulateKey)
-  })
+  results.push(
+    await measure('keyAgreement.encapsulate', iterations, async () => {
+      await Cryptographic.keyAgreement.encapsulate(encapsulateKey)
+    })
+  )
 
-  await runBenchmark('keyAgreement.decapsulate', slowIterations, async () => {
-    await Cryptographic.keyAgreement.decapsulate(keyOffer, decapsulateKey)
-  })
+  results.push(
+    await measure('keyAgreement.decapsulate', iterations, async () => {
+      await Cryptographic.keyAgreement.decapsulate(keyOffer, decapsulateKey)
+    })
+  )
 }
 
-await runBenchmark(
-  'digitalSignature.generateKeypair',
-  slowIterations,
-  async () => {
+results.push(
+  await measure('digitalSignature.generateKeypair', iterations, async () => {
     await Cryptographic.digitalSignature.generateKeypair()
-  }
+  })
 )
 
-await runBenchmark(
-  'digitalSignature.deriveKeypair',
-  slowIterations,
-  async () => {
+results.push(
+  await measure('digitalSignature.deriveKeypair', iterations, async () => {
     await Cryptographic.digitalSignature.deriveKeypair(digitalSignatureSeed)
-  }
+  })
 )
 
 {
@@ -205,18 +246,26 @@ await runBenchmark(
     digitalSignatureBytes
   )
 
-  await runBenchmark('digitalSignature.sign', slowIterations, async () => {
-    await Cryptographic.digitalSignature.sign(signKey, digitalSignatureBytes)
-  })
+  results.push(
+    await measure('digitalSignature.sign', iterations, async () => {
+      await Cryptographic.digitalSignature.sign(signKey, digitalSignatureBytes)
+    })
+  )
 
-  await runBenchmark('digitalSignature.verify', slowIterations, async () => {
-    const verified = await Cryptographic.digitalSignature.verify(
-      verifyKey,
-      digitalSignatureBytes,
-      signature
-    )
-    if (verified !== true) {
-      throw new Error('digitalSignature.verify failed its benchmark invariant.')
-    }
-  })
+  results.push(
+    await measure('digitalSignature.verify', iterations, async () => {
+      const verified = await Cryptographic.digitalSignature.verify(
+        verifyKey,
+        digitalSignatureBytes,
+        signature
+      )
+      if (verified !== true) {
+        throw new Error(
+          'digitalSignature.verify failed its benchmark invariant.'
+        )
+      }
+    })
+  )
 }
+
+printTable(results)

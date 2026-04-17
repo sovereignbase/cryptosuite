@@ -22,7 +22,7 @@ test.afterEach(() => {
   restoreCrypto()
 })
 
-test('keyAgreement.deriveKeypair rejects seed lengths that do not match ML-KEM-1024', async () => {
+test('keyAgreement.deriveKeypair rejects seed lengths that do not match X25519-ML-KEM-768', async () => {
   await expectCodeAsync(
     () => Cryptographic.keyAgreement.deriveKeypair(bytes(1, 2, 3)),
     'KEY_AGREEMENT_KEY_INVALID'

@@ -26,8 +26,8 @@ JS/TS runtime-agnostic, quantum-safe, and agile cryptography toolkit with a decl
 - Identifier: `SHA-384` or 48 random bytes, encoded as a fixed-length base64url string
 - Cipher messaging: `AES-CTR-256`
 - Message authentication: `HMAC-SHA-256`
-- Key agreement: `ML-KEM-1024`
-- Digital signatures: `ML-DSA-87`
+- Key agreement: `X25519-ML-KEM-768`
+- Digital signatures: `Ed25519-ML-DSA-65`
 
 ## Installation
 
@@ -126,7 +126,7 @@ const verified = await Cryptographic.messageAuthentication.verify(
 import { Cryptographic } from '@sovereignbase/cryptosuite'
 import { Bytes } from '@sovereignbase/bytecodec'
 
-const sourceKeyMaterial = Bytes.fromString('k'.repeat(64)) // Uint8Array, exactly 64 bytes
+const sourceKeyMaterial = Bytes.fromString('k'.repeat(32)) // Uint8Array, exactly 32 bytes
 
 const { encapsulateKey, decapsulateKey } =
   await Cryptographic.keyAgreement.generateKeypair() // {encapsulateKey: JsonWebKey, decapsulateKey: JsonWebKey}
@@ -147,7 +147,7 @@ const { cipherKey: receiverCipherKey } =
 import { Cryptographic } from '@sovereignbase/cryptosuite'
 import { Bytes } from '@sovereignbase/bytecodec'
 
-const sourceKeyMaterial = Bytes.fromString('s'.repeat(32)) // Uint8Array, exactly 32 bytes
+const sourceKeyMaterial = Bytes.fromString('s'.repeat(64)) // Uint8Array, exactly 64 bytes
 const bytes = Bytes.fromString('signed payload') // Uint8Array
 const { signKey, verifyKey } =
   await Cryptographic.digitalSignature.generateKeypair() // {signKey: JsonWebKey, verifyKey: JsonWebKey}
@@ -167,7 +167,7 @@ const verified = await Cryptographic.digitalSignature.verify(
 
 - `identifier.generate()` requires `crypto.getRandomValues`
 - symmetric operations use WebCrypto
-- key agreement and digital signatures use `@noble/post-quantum`
+- key agreement and digital signatures use `noble` hybrid primitives
 - unsupported crypto primitives throw typed `CryptosuiteError` codes
 
 ## Security notes
@@ -180,15 +180,18 @@ const verified = await Cryptographic.digitalSignature.verify(
 
 ## Tests
 
-- Unit + integration tests run against the built artifact
-- Coverage targets `dist/index.cjs` and is enforced at `100%`
-- E2E runtime suites currently run in:
+Latest local `npm run test` run on `2026-04-17` with Node `v22.14.0 (win32 x64)`:
+
+- `63/63` tests passed
+- Coverage passed at `100%` for statements, branches, functions, and lines
+- End-to-end runtime suites all passed in:
   - Node ESM
   - Node CJS
   - Bun ESM
   - Bun CJS
   - Deno ESM
   - Edge Runtime ESM
+  - Cloudflare Workers ESM
   - Chromium
   - Firefox
   - WebKit
@@ -200,31 +203,29 @@ const verified = await Cryptographic.digitalSignature.verify(
 
 ## Benchmarks
 
-Latest local `npm run bench` run on 2026-03-24 with Node `v22.14.0 (win32 x64)`:
+Latest local `npm run bench` run on `2026-04-17` with Node `v22.14.0 (win32 x64)`.
 
-| Benchmark                           | Result                      |
-| ----------------------------------- | --------------------------- |
-| `identifier.generate`               | `3.50ms (57206.6 ops/sec)`  |
-| `identifier.derive`                 | `13.94ms (14349.8 ops/sec)` |
-| `identifier.validate`               | `0.33ms (609942.1 ops/sec)` |
-| `cipherMessage.generateKey`         | `23.03ms (8682.6 ops/sec)`  |
-| `cipherMessage.deriveKey`           | `49.73ms (4021.6 ops/sec)`  |
-| `cipherMessage.encrypt`             | `20.91ms (9566.5 ops/sec)`  |
-| `cipherMessage.decrypt`             | `19.18ms (10425.0 ops/sec)` |
-| `messageAuthentication.generateKey` | `24.58ms (8135.2 ops/sec)`  |
-| `messageAuthentication.deriveKey`   | `12.51ms (15987.5 ops/sec)` |
-| `messageAuthentication.sign`        | `12.94ms (15460.4 ops/sec)` |
-| `messageAuthentication.verify`      | `14.96ms (13365.2 ops/sec)` |
-| `keyAgreement.generateKeypair`      | `43.89ms (455.7 ops/sec)`   |
-| `keyAgreement.deriveKeypair`        | `35.21ms (568.1 ops/sec)`   |
-| `keyAgreement.encapsulate`          | `43.76ms (457.0 ops/sec)`   |
-| `keyAgreement.decapsulate`          | `45.16ms (442.9 ops/sec)`   |
-| `digitalSignature.generateKeypair`  | `165.49ms (120.8 ops/sec)`  |
-| `digitalSignature.deriveKeypair`    | `153.20ms (130.6 ops/sec)`  |
-| `digitalSignature.sign`             | `431.41ms (46.4 ops/sec)`   |
-| `digitalSignature.verify`           | `155.20ms (128.9 ops/sec)`  |
-
-Command: `npm run bench`
+| Benchmark                           | ops |      ms |   ms/op |   ops/sec |
+| ----------------------------------- | --: | ------: | ------: | --------: |
+| `identifier.generate`               | 100 |    3.76 |  0.0376 |  26617.69 |
+| `identifier.derive`                 | 100 |   32.60 |  0.3260 |   3067.77 |
+| `identifier.validate`               | 100 |    0.43 |  0.0043 | 232883.09 |
+| `cipherMessage.generateKey`         | 100 |   43.36 |  0.4336 |   2306.01 |
+| `cipherMessage.deriveKey`           | 100 |   75.53 |  0.7553 |   1324.01 |
+| `cipherMessage.encrypt`             | 100 |   38.18 |  0.3818 |   2619.10 |
+| `cipherMessage.decrypt`             | 100 |   30.86 |  0.3086 |   3240.51 |
+| `messageAuthentication.generateKey` | 100 |   42.06 |  0.4206 |   2377.45 |
+| `messageAuthentication.deriveKey`   | 100 |   67.14 |  0.6714 |   1489.35 |
+| `messageAuthentication.sign`        | 100 |   26.91 |  0.2691 |   3716.46 |
+| `messageAuthentication.verify`      | 100 |   28.26 |  0.2826 |   3538.58 |
+| `keyAgreement.generateKeypair`      | 100 |  877.66 |  8.7766 |    113.94 |
+| `keyAgreement.deriveKeypair`        | 100 |  728.01 |  7.2801 |    137.36 |
+| `keyAgreement.encapsulate`          | 100 | 1649.16 | 16.4916 |     60.64 |
+| `keyAgreement.decapsulate`          | 100 | 1093.07 | 10.9307 |     91.49 |
+| `digitalSignature.generateKeypair`  | 100 |  849.80 |  8.4980 |    117.67 |
+| `digitalSignature.deriveKeypair`    | 100 |  714.64 |  7.1464 |    139.93 |
+| `digitalSignature.sign`             | 100 | 3293.13 | 32.9313 |     30.37 |
+| `digitalSignature.verify`           | 100 | 1195.09 | 11.9509 |     83.68 |
 
 Results vary by machine and Node version.
 

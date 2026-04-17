@@ -17,7 +17,7 @@ after the default algorithm changes.
 
 ## Current default
 
-Current default generation and derivation target `ML-KEM-1024`.
+Current default generation and derivation target `X25519-ML-KEM-768`.
 
 Encapsulation returns a `KeyOffer` and a symmetric `CipherKey`.
 
@@ -71,7 +71,8 @@ When upgrading the default algorithm:
 
 ## Naming rule
 
-Inside `.core`, JWK `alg` values such as `ML-KEM-1024` are the external key
+Inside `.core`, JWK `alg` values such as `ML-KEM-1024` or
+`X25519-ML-KEM-768` are the external key
 identifiers and the routing source of truth.
 
 Do not add extra algorithm-name translation layers unless the runtime actually

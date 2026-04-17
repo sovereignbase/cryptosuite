@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import { toBase64UrlString } from '@sovereignbase/bytecodec'
-import { ml_dsa87 } from '@noble/post-quantum/ml-dsa.js'
 import { CryptosuiteError } from '../../.errors/class.js'
 import { getBufferSourceLength } from '../../.helpers/getBufferSourceLength.js'
+import { createImportKeyAlgorithmByAlgCode } from '../.core/helpers/createImportKeyAlgorithmByAlgCode/index.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { SignKey, VerifyKey } from '../.core/types/index.js'
 
@@ -32,29 +32,30 @@ export async function deriveDigitalSignatureKeypair(
   signKey: SignKey
   verifyKey: VerifyKey
 }> {
+  const algorithm = createImportKeyAlgorithmByAlgCode('Ed25519-ML-DSA-65')
   if (
     getBufferSourceLength(
       sourceKeyMaterial,
       'deriveDigitalSignatureKeypair'
-    ) !== ml_dsa87.lengths.seed
+    ) !== algorithm.lengths.seed
   ) {
     throw new CryptosuiteError(
       'SIGN_JWK_INVALID',
-      `deriveDigitalSignatureKeypair: source key material must be exactly ${ml_dsa87.lengths.seed} bytes.`
+      `deriveDigitalSignatureKeypair: source key material must be exactly ${algorithm.lengths.seed} bytes.`
     )
   }
 
-  const { publicKey, secretKey } = ml_dsa87.keygen(sourceKeyMaterial)
+  const { publicKey, secretKey } = algorithm.keygen(sourceKeyMaterial)
   const signKey = validateKeyByAlgCode({
     kty: 'AKP',
-    alg: 'ML-DSA-87',
+    alg: 'Ed25519-ML-DSA-65',
     d: toBase64UrlString(secretKey),
     use: 'sig',
     key_ops: ['sign'],
   })
   const verifyKey = validateKeyByAlgCode({
     kty: 'AKP',
-    alg: 'ML-DSA-87',
+    alg: 'Ed25519-ML-DSA-65',
     x: toBase64UrlString(publicKey),
     use: 'sig',
     key_ops: ['verify'],

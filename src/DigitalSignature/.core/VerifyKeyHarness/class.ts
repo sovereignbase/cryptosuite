@@ -59,7 +59,7 @@ export class VerifyKeyHarness {
     } catch {
       throw new CryptosuiteError(
         'ALGORITHM_UNSUPPORTED',
-        'VerifyKeyHarness.verify: failed to verify with ML-DSA-87.'
+        `VerifyKeyHarness.verify: failed to verify with ${this.algCode}.`
       )
     }
   }

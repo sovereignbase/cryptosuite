@@ -27,58 +27,62 @@ type NoPrivate = {
   oth?: never
 }
 
-type MLKEM1024EncapsulateKey = JsonWebKey &
+type KeyAgreementAlg = 'ML-KEM-1024' | 'X25519-ML-KEM-768'
+
+type EncapsulateKeyByAlg<Alg extends KeyAgreementAlg> = JsonWebKey &
   NoSymmetric &
   NoPrivate & {
     kty: 'AKP'
-    alg: 'ML-KEM-1024'
+    alg: Alg
     x: string
     use: 'enc'
     key_ops: readonly []
   }
 
-type MLKEM1024DecapsulateKey = JsonWebKey &
+type DecapsulateKeyByAlg<Alg extends KeyAgreementAlg> = JsonWebKey &
   NoSymmetric & {
     kty: 'AKP'
-    alg: 'ML-KEM-1024'
+    alg: Alg
     d: string
     use: 'enc'
     key_ops: readonly ('deriveKey' | 'deriveBits')[]
   }
 
-type MLKEM1024KeyOffer = {
-  /** The encapsulated shared-secret artifact emitted by ML-KEM-1024. */
+type KeyAgreementOffer = {
+  /** The encapsulated shared-secret artifact emitted by a supported key agreement algorithm. */
   ciphertext: ArrayBuffer
 }
 
-type MLKEM1024EncapsulateParams = {
-  /** The raw ML-KEM-1024 public key bytes. */
+type EncapsulateParams = {
+  /** The raw supported key agreement public key bytes. */
   publicKey: Uint8Array
 }
 
-type MLKEM1024DecapsulateParams = {
-  /** The raw ML-KEM-1024 secret key bytes. */
+type DecapsulateParams = {
+  /** The raw supported key agreement private key bytes. */
   secretKey: Uint8Array
 }
 
 /**
- * Public ML-KEM-1024 JWK used to encapsulate a shared cipher key.
+ * Public supported key agreement JWK used to encapsulate a shared cipher key.
  */
-export type EncapsulateKey = MLKEM1024EncapsulateKey
+export type EncapsulateKey =
+  | EncapsulateKeyByAlg<'ML-KEM-1024'>
+  | EncapsulateKeyByAlg<'X25519-ML-KEM-768'>
 
 /**
- * Private ML-KEM-1024 JWK used to decapsulate a shared cipher key.
+ * Private supported key agreement JWK used to decapsulate a shared cipher key.
  */
-export type DecapsulateKey = MLKEM1024DecapsulateKey
+export type DecapsulateKey =
+  | DecapsulateKeyByAlg<'ML-KEM-1024'>
+  | DecapsulateKeyByAlg<'X25519-ML-KEM-768'>
 
 /**
  * Encapsulated key agreement artifact exchanged with the counterparty.
  */
-export type KeyOffer = MLKEM1024KeyOffer
+export type KeyOffer = KeyAgreementOffer
 
 /**
- * Runtime ML-KEM-1024 parameters used internally by key agreement harnesses.
+ * Runtime key agreement parameters used internally by key agreement harnesses.
  */
-export type KeyAgreementParams =
-  | MLKEM1024EncapsulateParams
-  | MLKEM1024DecapsulateParams
+export type KeyAgreementParams = EncapsulateParams | DecapsulateParams

@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import { fromBase64UrlString } from '@sovereignbase/bytecodec'
-import { ml_kem1024 } from '@noble/post-quantum/ml-kem.js'
 import { CryptosuiteError } from '../../../../.errors/class.js'
+import { createImportKeyAlgorithmByAlgCode } from '../createImportKeyAlgorithmByAlgCode/index.js'
 import type { DecapsulateKey, EncapsulateKey } from '../../types/index.js'
 
 export function validateKeyByAlgCode(
@@ -31,11 +31,13 @@ export function validateKeyByAlgCode(
   }
 
   switch (candidate.alg) {
-    case 'ML-KEM-1024': {
+    case 'ML-KEM-1024':
+    case 'X25519-ML-KEM-768': {
+      const algorithm = createImportKeyAlgorithmByAlgCode(candidate.alg)
       if (candidate.kty !== 'AKP') {
         throw new CryptosuiteError(
           'KEY_AGREEMENT_KEY_INVALID',
-          'validateKeyByAlgCode: expected an ML-KEM-1024 key agreement JWK.'
+          `validateKeyByAlgCode: expected an ${candidate.alg} key agreement JWK.`
         )
       }
 
@@ -70,7 +72,7 @@ export function validateKeyByAlgCode(
           )
         }
 
-        if (secretKey.byteLength !== ml_kem1024.lengths.secretKey) {
+        if (secretKey.byteLength !== algorithm.lengths.secretKey) {
           throw new CryptosuiteError(
             'KEY_AGREEMENT_KEY_INVALID',
             'validateKeyByAlgCode: private key material has invalid length.'
@@ -95,7 +97,7 @@ export function validateKeyByAlgCode(
         return {
           ...rest,
           kty: 'AKP',
-          alg: 'ML-KEM-1024',
+          alg: candidate.alg,
           d: candidate.d,
           use: 'enc',
           key_ops:
@@ -126,7 +128,7 @@ export function validateKeyByAlgCode(
           )
         }
 
-        if (publicKey.byteLength !== ml_kem1024.lengths.publicKey) {
+        if (publicKey.byteLength !== algorithm.lengths.publicKey) {
           throw new CryptosuiteError(
             'KEY_AGREEMENT_KEY_INVALID',
             'validateKeyByAlgCode: public key material has invalid length.'
@@ -151,7 +153,7 @@ export function validateKeyByAlgCode(
         return {
           ...rest,
           kty: 'AKP',
-          alg: 'ML-KEM-1024',
+          alg: candidate.alg,
           x: candidate.x,
           use: 'enc',
           key_ops: [] as const,

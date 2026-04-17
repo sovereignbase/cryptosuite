@@ -17,7 +17,7 @@ after the default algorithm changes.
 
 ## Current default
 
-Current default generation and derivation target `ML-DSA-87`.
+Current default generation and derivation target `Ed25519-ML-DSA-65`.
 
 ## Responsibilities
 

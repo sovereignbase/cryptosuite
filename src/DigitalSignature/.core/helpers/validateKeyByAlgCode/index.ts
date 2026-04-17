@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import { fromBase64UrlString } from '@sovereignbase/bytecodec'
-import { ml_dsa87 } from '@noble/post-quantum/ml-dsa.js'
 import { CryptosuiteError } from '../../../../.errors/class.js'
+import { createImportKeyAlgorithmByAlgCode } from '../createImportKeyAlgorithmByAlgCode/index.js'
 import type { SignKey, VerifyKey } from '../../types/index.js'
 
 export function validateKeyByAlgCode(key: JsonWebKey): SignKey | VerifyKey {
@@ -29,11 +29,13 @@ export function validateKeyByAlgCode(key: JsonWebKey): SignKey | VerifyKey {
   }
 
   switch (candidate.alg) {
-    case 'ML-DSA-87': {
+    case 'ML-DSA-87':
+    case 'Ed25519-ML-DSA-65': {
+      const algorithm = createImportKeyAlgorithmByAlgCode(candidate.alg)
       if (candidate.kty !== 'AKP') {
         throw new CryptosuiteError(
           'SIGN_JWK_INVALID',
-          'validateKeyByAlgCode: expected an ML-DSA-87 digital signature JWK.'
+          `validateKeyByAlgCode: expected an ${candidate.alg} digital signature JWK.`
         )
       }
 
@@ -67,7 +69,7 @@ export function validateKeyByAlgCode(key: JsonWebKey): SignKey | VerifyKey {
           )
         }
 
-        if (secretKey.byteLength !== ml_dsa87.lengths.secretKey) {
+        if (secretKey.byteLength !== algorithm.lengths.secretKey) {
           throw new CryptosuiteError(
             'SIGN_JWK_INVALID',
             'validateKeyByAlgCode: private key material has invalid length.'
@@ -91,7 +93,7 @@ export function validateKeyByAlgCode(key: JsonWebKey): SignKey | VerifyKey {
         return {
           ...rest,
           kty: 'AKP',
-          alg: 'ML-DSA-87',
+          alg: candidate.alg,
           d: candidate.d,
           use: 'sig',
           key_ops: ['sign'] as const,
@@ -121,7 +123,7 @@ export function validateKeyByAlgCode(key: JsonWebKey): SignKey | VerifyKey {
           )
         }
 
-        if (publicKey.byteLength !== ml_dsa87.lengths.publicKey) {
+        if (publicKey.byteLength !== algorithm.lengths.publicKey) {
           throw new CryptosuiteError(
             'VERIFY_JWK_INVALID',
             'validateKeyByAlgCode: public key material has invalid length.'
@@ -145,7 +147,7 @@ export function validateKeyByAlgCode(key: JsonWebKey): SignKey | VerifyKey {
         return {
           ...rest,
           kty: 'AKP',
-          alg: 'ML-DSA-87',
+          alg: candidate.alg,
           x: candidate.x,
           use: 'sig',
           key_ops: ['verify'] as const,
