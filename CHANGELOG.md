@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.2](https://github.com/sovereignbase/cryptosuite/compare/v2.1.1...v2.1.2) (2026-04-17)
+
+
+### Bug Fixes
+
+* missing depency ([bef5cf2](https://github.com/sovereignbase/cryptosuite/commit/bef5cf24f38691ff62d5d9a33a7bdb8ad770eb07))
+
 ## [2.1.1](https://github.com/sovereignbase/cryptosuite/compare/v2.1.0...v2.1.1) (2026-04-17)
 
 
