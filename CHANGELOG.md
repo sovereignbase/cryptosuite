@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/sovereignbase/cryptosuite/compare/v2.1.0...v2.1.1) (2026-04-17)
+
+
+### Bug Fixes
+
+* jsr issue ([7013c5b](https://github.com/sovereignbase/cryptosuite/commit/7013c5b3918c7b183e2553831f5884fc8d432b84))
+
 ## [2.1.0](https://github.com/sovereignbase/cryptosuite/compare/v2.0.5...v2.1.0) (2026-04-17)
 
 
