@@ -1,6 +1,6 @@
 {
   "name": "@sovereignbase/cryptosuite",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "JS/TS runtime-agnostic, post-quantum, crypto-agile cryptography toolkit with a declarative API for cipher messaging, message authentication, digital signatures, key agreement, and identifiers.",
   "keywords": [
     "cryptography",
