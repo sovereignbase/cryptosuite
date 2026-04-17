@@ -43,6 +43,10 @@ test('source message authentication helpers cover validation and unsupported bra
     'BASE64URL_INVALID'
   )
   expectCodeSync(
+    () => validateKeyByAlgCode(createHs256Key({ k: 'AQID' })),
+    'HMAC_JWK_INVALID'
+  )
+  expectCodeSync(
     () => validateKeyByAlgCode(createHs256Key({ alg: 'HS512' })),
     'ALGORITHM_UNSUPPORTED'
   )

@@ -34,6 +34,17 @@ export function createA256CtrKey(overrides = {}) {
   }
 }
 
+export function createA256GcmKey(overrides = {}) {
+  return {
+    kty: 'oct',
+    k: toBase64UrlString(filledBytes(32, 11)),
+    alg: 'A256GCM',
+    use: 'enc',
+    key_ops: ['encrypt', 'decrypt'],
+    ...overrides,
+  }
+}
+
 export function createHs256Key(overrides = {}) {
   return {
     kty: 'oct',

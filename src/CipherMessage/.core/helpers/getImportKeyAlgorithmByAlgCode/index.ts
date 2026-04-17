@@ -23,6 +23,10 @@ export function getImportKeyAlgorithmByAlgCode(
       return {
         name: 'AES-CTR',
       }
+    case 'A256GCM':
+      return {
+        name: 'AES-GCM',
+      }
   }
 
   throw new CryptosuiteError(

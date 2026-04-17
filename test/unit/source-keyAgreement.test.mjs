@@ -18,6 +18,7 @@ import {
 } from '../support/index.mjs'
 import {
   createA256CtrKey,
+  createA256GcmKey,
   createMlKemPrivateKey,
   createMlKemPublicKey,
   createX25519MlKem768PrivateKey,
@@ -261,7 +262,7 @@ test('source key agreement harnesses cover constructor, invariant, and export br
     buildCrypto({
       subtle: {
         importKey: async () => ({}),
-        exportKey: async () => createA256CtrKey(),
+        exportKey: async () => createA256GcmKey(),
       },
     })
   )

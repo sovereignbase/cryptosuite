@@ -58,12 +58,20 @@ export function validateKeyByAlgCode(
         )
       }
 
+      let keyBytes: Uint8Array
       try {
-        fromBase64UrlString(candidate.k)
+        keyBytes = fromBase64UrlString(candidate.k)
       } catch {
         throw new CryptosuiteError(
           'BASE64URL_INVALID',
           'validateKeyByAlgCode: invalid base64url key material.'
+        )
+      }
+
+      if (keyBytes.byteLength < 32) {
+        throw new CryptosuiteError(
+          'HMAC_JWK_INVALID',
+          'validateKeyByAlgCode: key material must be at least 256 bits.'
         )
       }
 

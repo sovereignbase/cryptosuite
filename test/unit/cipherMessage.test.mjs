@@ -8,7 +8,11 @@ import {
   restoreCrypto,
   setCrypto,
 } from '../support/index.mjs'
-import { bytes, createA256CtrKey } from '../support/fixtures.mjs'
+import {
+  bytes,
+  createA256CtrKey,
+  createA256GcmKey,
+} from '../support/fixtures.mjs'
 
 if (!globalThis.crypto) {
   globalThis.crypto = webcrypto
@@ -26,7 +30,7 @@ test('cipherMessage.generateKey throws when crypto.subtle is unavailable', async
   )
 })
 
-test('cipherMessage.generateKey maps unsupported AES-CTR to ALGORITHM_UNSUPPORTED', async () => {
+test('cipherMessage.generateKey maps unsupported AES-GCM to ALGORITHM_UNSUPPORTED', async () => {
   setCrypto(
     buildCrypto({
       subtle: {
@@ -63,7 +67,7 @@ test('cipherMessage.deriveKey requires getRandomValues when salt is omitted', as
   )
 })
 
-test('cipherMessage.deriveKey maps unsupported HKDF or AES-CTR to ALGORITHM_UNSUPPORTED', async () => {
+test('cipherMessage.deriveKey maps unsupported HKDF or AES-GCM to ALGORITHM_UNSUPPORTED', async () => {
   setCrypto(
     buildCrypto({
       subtle: {
@@ -95,7 +99,7 @@ test('cipherMessage encrypt/decrypt accepts a minimal valid JWK without optional
     })
   )
 
-  const cipherKey = createA256CtrKey({
+  const cipherKey = createA256GcmKey({
     use: undefined,
     key_ops: undefined,
   })
@@ -118,6 +122,20 @@ test('cipherMessage.encrypt rejects malformed cipher keys', async () => {
     () =>
       Cryptographic.cipherMessage.encrypt(
         createA256CtrKey({
+          alg: 'A256GCM',
+          k: 'A',
+        }),
+        bytes(1)
+      ),
+    'BASE64URL_INVALID'
+  )
+})
+
+test('cipherMessage.encrypt still accepts malformed historical AES-CTR keys as validation failures', async () => {
+  await expectCodeAsync(
+    () =>
+      Cryptographic.cipherMessage.encrypt(
+        createA256CtrKey({
           k: 'A',
         }),
         bytes(1)
@@ -130,8 +148,8 @@ test('cipherMessage.encrypt rejects unsupported cipher alg codes', async () => {
   await expectCodeAsync(
     () =>
       Cryptographic.cipherMessage.encrypt(
-        createA256CtrKey({
-          alg: 'A128CTR',
+        createA256GcmKey({
+          alg: 'A128GCM',
         }),
         bytes(1)
       ),
@@ -142,14 +160,33 @@ test('cipherMessage.encrypt rejects unsupported cipher alg codes', async () => {
 test('cipherMessage.decrypt rejects malformed cipher message artifacts', async () => {
   await expectCodeAsync(
     () =>
-      Cryptographic.cipherMessage.decrypt(createA256CtrKey(), {
+      Cryptographic.cipherMessage.decrypt(createA256GcmKey(), {
         iv: new Uint8Array(12),
       }),
     'CIPHER_MESSAGE_INVALID'
   )
 })
 
-test('cipherMessage.decrypt rejects invalid AES-CTR iv lengths', async () => {
+test('cipherMessage.decrypt rejects invalid AES-GCM iv lengths', async () => {
+  setCrypto(
+    buildCrypto({
+      subtle: {
+        importKey: async () => ({}),
+      },
+    })
+  )
+
+  await expectCodeAsync(
+    () =>
+      Cryptographic.cipherMessage.decrypt(createA256GcmKey(), {
+        ciphertext: new ArrayBuffer(1),
+        iv: new Uint8Array(11),
+      }),
+    'CIPHER_MESSAGE_INVALID'
+  )
+})
+
+test('cipherMessage.decrypt still rejects invalid historical AES-CTR iv lengths', async () => {
   setCrypto(
     buildCrypto({
       subtle: {

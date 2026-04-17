@@ -10,7 +10,7 @@ import {
 } from '../support/index.mjs'
 import {
   bytes,
-  createA256CtrKey,
+  createA256GcmKey,
   createMlKemPublicKey,
 } from '../support/fixtures.mjs'
 
@@ -47,7 +47,7 @@ test('keyAgreement.encapsulate accepts a minimal public key without key_ops', as
     buildCrypto({
       subtle: {
         importKey: async () => ({}),
-        exportKey: async () => createA256CtrKey(),
+        exportKey: async () => createA256GcmKey(),
       },
     })
   )
@@ -57,7 +57,7 @@ test('keyAgreement.encapsulate accepts a minimal public key without key_ops', as
     key_ops: undefined,
   })
   assert.ok(result.keyOffer.ciphertext instanceof ArrayBuffer)
-  assert.equal(result.cipherKey.alg, 'A256CTR')
+  assert.equal(result.cipherKey.alg, 'A256GCM')
 })
 
 test('keyAgreement.encapsulate maps shared-secret export failures to ENCAPSULATION_FAILED', async () => {
@@ -92,7 +92,7 @@ test('keyAgreement.decapsulate rejects ciphertexts with invalid lengths', async 
     buildCrypto({
       subtle: {
         importKey: async () => ({}),
-        exportKey: async () => createA256CtrKey(),
+        exportKey: async () => createA256GcmKey(),
       },
     })
   )
@@ -116,7 +116,7 @@ test('keyAgreement.decapsulate accepts a minimal private key without key_ops', a
     buildCrypto({
       subtle: {
         importKey: async () => ({}),
-        exportKey: async () => createA256CtrKey(),
+        exportKey: async () => createA256GcmKey(),
       },
     })
   )
@@ -127,7 +127,7 @@ test('keyAgreement.decapsulate accepts a minimal private key without key_ops', a
     ...decapsulateKey,
     key_ops: undefined,
   })
-  assert.equal(result.cipherKey.alg, 'A256CTR')
+  assert.equal(result.cipherKey.alg, 'A256GCM')
 })
 
 test('keyAgreement cluster reuses cached harnesses for the same key objects', async () => {
@@ -137,15 +137,15 @@ test('keyAgreement cluster reuses cached harnesses for the same key objects', as
     buildCrypto({
       subtle: {
         importKey: async () => ({}),
-        exportKey: async () => createA256CtrKey(),
+        exportKey: async () => createA256GcmKey(),
       },
     })
   )
 
   const first = await Cryptographic.keyAgreement.encapsulate(encapsulateKey)
   const second = await Cryptographic.keyAgreement.encapsulate(encapsulateKey)
-  assert.equal(first.cipherKey.alg, 'A256CTR')
-  assert.equal(second.cipherKey.alg, 'A256CTR')
+  assert.equal(first.cipherKey.alg, 'A256GCM')
+  assert.equal(second.cipherKey.alg, 'A256GCM')
 
   const third = await Cryptographic.keyAgreement.decapsulate(
     first.keyOffer,
@@ -155,6 +155,6 @@ test('keyAgreement cluster reuses cached harnesses for the same key objects', as
     second.keyOffer,
     decapsulateKey
   )
-  assert.equal(third.cipherKey.alg, 'A256CTR')
-  assert.equal(fourth.cipherKey.alg, 'A256CTR')
+  assert.equal(third.cipherKey.alg, 'A256GCM')
+  assert.equal(fourth.cipherKey.alg, 'A256GCM')
 })

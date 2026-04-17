@@ -24,12 +24,34 @@ test('identifier.generate returns a fixed-length opaque identifier', async () =>
   assert.equal(Cryptographic.identifier.validate(identifier), identifier)
 })
 
+test('identifier.generate throws when crypto.getRandomValues is unavailable', async () => {
+  setCrypto({
+    subtle: globalThis.crypto.subtle,
+  })
+
+  await expectCodeAsync(
+    () => Cryptographic.identifier.generate(),
+    'GET_RANDOM_VALUES_UNAVAILABLE'
+  )
+})
+
 test('identifier.derive returns a deterministic opaque identifier', async () => {
   const source = bytes(1, 2, 3, 4)
   const one = await Cryptographic.identifier.derive(source)
   const two = await Cryptographic.identifier.derive(source)
   assert.equal(one, two)
   assert.equal(one.length, 64)
+})
+
+test('identifier.derive throws when crypto.subtle is unavailable', async () => {
+  setCrypto({
+    getRandomValues: globalThis.crypto.getRandomValues,
+  })
+
+  await expectCodeAsync(
+    () => Cryptographic.identifier.derive(bytes(1, 2, 3)),
+    'SUBTLE_UNAVAILABLE'
+  )
 })
 
 test('identifier.validate accepts only 64-char base64url strings', () => {

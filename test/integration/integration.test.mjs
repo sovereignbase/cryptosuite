@@ -20,7 +20,7 @@ test('integration: identifier generate/derive/validate', async () => {
   assert.equal(derived.length, 64)
 })
 
-test('integration: AES-CTR encrypt/decrypt roundtrip', async () => {
+test('integration: AES-GCM encrypt/decrypt roundtrip', async () => {
   const cipherKey = await Cryptographic.cipherMessage.generateKey()
   const cipherMessage = await Cryptographic.cipherMessage.encrypt(
     cipherKey,
