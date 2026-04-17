@@ -1,15 +1,13 @@
 {
   "$schema": "https://jsr.io/schema/config-file.v1.json",
   "name": "@sovereignbase/cryptosuite",
-  "version": "2.0.5",
+  "version": "0.0.0",
   "exports": "./src/index.ts",
   "publish": {
     "include": [
       "package.json",
       "src/**/*.ts",
-      "src/.errors/**/*.ts",
-      "src/.helpers/**/*.ts",
-      "src/**/.core/**/*.ts",
+      "src/**/.*/**/*.ts",
       "README.md",
       "LICENSE"
     ]
