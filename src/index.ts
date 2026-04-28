@@ -118,8 +118,12 @@ export class Cryptographic {
 }
 
 export type { OpaqueIdentifier } from './Identifier/index.js'
-export type { CipherKey } from './CipherMessage/index.js'
+export type { CipherKey, CipherMessage } from './CipherMessage/index.js'
 export type { MessageAuthenticationKey } from './MessageAuthentication/index.js'
-export type { EncapsulateKey, DecapsulateKey } from './KeyAgreement/index.js'
+export type {
+  EncapsulateKey,
+  DecapsulateKey,
+  KeyOffer,
+} from './KeyAgreement/index.js'
 export type { SignKey, VerifyKey } from './DigitalSignature/index.js'
-export type { CryptosuiteErrorCode } from './.errors/class.js'
+export type { CryptosuiteError, CryptosuiteErrorCode } from './.errors/class.js'
