@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1](https://github.com/sovereignbase/cryptosuite/compare/v2.2.0...v2.2.1) (2026-04-28)
+
+
+### Bug Fixes
+
+* export return types for enc operations ([12c303d](https://github.com/sovereignbase/cryptosuite/commit/12c303dacfe5adb97c703328d09a4ae0ad351fa7))
+
 ## [2.2.0](https://github.com/sovereignbase/cryptosuite/compare/v2.1.2...v2.2.0) (2026-04-17)
 
 
