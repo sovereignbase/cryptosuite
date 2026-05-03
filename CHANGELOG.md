@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.2.2](https://github.com/sovereignbase/cryptosuite/compare/v2.2.1...v2.2.2) (2026-05-03)
+
+
+### Bug Fixes
+
+* make identifier generation synchronous ([920eeaa](https://github.com/sovereignbase/cryptosuite/commit/920eeaa804381b9c67c8e1dd7b7eecad805ce0a4))
+* make identifier generation synchronous ([4b76f76](https://github.com/sovereignbase/cryptosuite/commit/4b76f76175af76c284676424218e2bfd96892314))
+* make identifier generation synchronous ([af29e7c](https://github.com/sovereignbase/cryptosuite/commit/af29e7c83018bdcb433fd25b8ee2d44d4797be05))
+
 ## [2.2.1](https://github.com/sovereignbase/cryptosuite/compare/v2.2.0...v2.2.1) (2026-04-28)
 
 
