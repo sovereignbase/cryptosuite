@@ -103,7 +103,7 @@
     "tsx": "^4.21.0",
     "typedoc": "^0.28.19",
     "typescript": "^5.9.3",
-    "wrangler": "^4.86.0"
+    "wrangler": "4.86.0"
   },
   "engines": {
     "node": ">=20"
