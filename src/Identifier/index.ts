@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+import { randomBytes } from '@noble/ciphers/utils.js'
 import { toBase64UrlString, toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../.errors/class.js'
 
@@ -61,7 +63,7 @@ export async function deriveOID(source: Uint8Array): Promise<OpaqueIdentifier> {
  *
  * @returns A randomly generated opaque identifier.
  */
-export async function generateOID(): Promise<OpaqueIdentifier> {
+export function generateOID(): OpaqueIdentifier {
   if (!globalThis.crypto?.getRandomValues) {
     throw new CryptosuiteError(
       'GET_RANDOM_VALUES_UNAVAILABLE',
@@ -69,7 +71,9 @@ export async function generateOID(): Promise<OpaqueIdentifier> {
     )
   }
 
-  return toBase64UrlString(globalThis.crypto.getRandomValues(new Uint8Array(48)))
+  return toBase64UrlString(
+    globalThis.crypto.getRandomValues(new Uint8Array(48))
+  )
 }
 
 /**
