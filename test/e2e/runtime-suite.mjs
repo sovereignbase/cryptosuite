@@ -150,7 +150,7 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
   })
 
   await run('identifier.generate returns an opaque identifier', async () => {
-    const generated = await Cryptographic.identifier.generate()
+    const generated = Cryptographic.identifier.generate()
     assert(generated.length === 64, 'generated identifier must be 64 chars')
     assertEqual(
       Cryptographic.identifier.validate(generated),
