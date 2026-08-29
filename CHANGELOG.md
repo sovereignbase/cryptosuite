@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/sovereignbase/cryptosuite/compare/v3.0.0...v3.1.0) (2026-08-29)
+
+
+### Features
+
+* standardize byte values as Uint8Array ([1631468](https://github.com/sovereignbase/cryptosuite/commit/1631468ea8061460146c2ef8b17c12b3bf94518b))
+
 ## [3.0.0](https://github.com/sovereignbase/cryptosuite/compare/v2.2.2...v3.0.0) (2026-08-29)
 
 
