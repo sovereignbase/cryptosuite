@@ -1,6 +1,6 @@
 import { fromString, toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
-import { getBufferSourceLength } from '../../.helpers/getBufferSourceLength.js'
+import { normalizeBytes } from '../../.helpers/normalizeBytes.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { MessageAuthenticationKey } from '../.core/types/index.js'
 
@@ -24,12 +24,16 @@ export async function deriveMessageAuthenticationKey(
     )
   }
 
-  if (
-    getBufferSourceLength(
-      sourceKeyMaterial,
-      'deriveMessageAuthenticationKey'
-    ) === 0
-  ) {
+  const sourceBytes = normalizeBytes(
+    sourceKeyMaterial,
+    'deriveMessageAuthenticationKey sourceKeyMaterial'
+  )
+  const saltBytes =
+    salt === undefined
+      ? new Uint8Array()
+      : normalizeBytes(salt, 'deriveMessageAuthenticationKey salt')
+
+  if (sourceBytes.byteLength === 0) {
     throw new CryptosuiteError(
       'HMAC_JWK_INVALID',
       'deriveMessageAuthenticationKey: source key material must not be empty.'
@@ -41,7 +45,7 @@ export async function deriveMessageAuthenticationKey(
   try {
     key = await crypto.subtle.importKey(
       'raw',
-      toBufferSource(sourceKeyMaterial),
+      toBufferSource(sourceBytes),
       'HKDF',
       false,
       ['deriveKey']
@@ -50,7 +54,7 @@ export async function deriveMessageAuthenticationKey(
       {
         name: 'HKDF',
         hash: 'SHA-256',
-        salt: toBufferSource(salt ?? new Uint8Array()),
+        salt: toBufferSource(saltBytes),
         info: toBufferSource(INFO),
       },
       key,

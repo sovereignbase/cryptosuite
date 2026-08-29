@@ -1,5 +1,6 @@
 import { toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../../.errors/class.js'
+import { normalizeBytes } from '../../../../.helpers/normalizeBytes.js'
 import type {
   CipherKey,
   CipherParams,
@@ -14,15 +15,13 @@ export function getParamsByAlgCode(
   switch (algCode) {
     case 'A256CTR': {
       const { iv } = params as A256CTRParams
+      const normalizedIv = normalizeBytes(
+        iv,
+        'getParamsByAlgCode AES-CTR iv',
+        'CIPHER_MESSAGE_INVALID'
+      )
 
-      if (!(iv instanceof Uint8Array)) {
-        throw new CryptosuiteError(
-          'CIPHER_MESSAGE_INVALID',
-          'getParamsByAlgCode: expected a Uint8Array iv for AES-CTR.'
-        )
-      }
-
-      if (iv.byteLength !== 12) {
+      if (normalizedIv.byteLength !== 12) {
         throw new CryptosuiteError(
           'CIPHER_MESSAGE_INVALID',
           'getParamsByAlgCode: expected a 96-bit IV for AES-CTR.'
@@ -30,7 +29,7 @@ export function getParamsByAlgCode(
       }
 
       const counter = new Uint8Array(16)
-      counter.set(iv)
+      counter.set(normalizedIv)
       return {
         name: 'AES-CTR',
         counter,
@@ -39,15 +38,13 @@ export function getParamsByAlgCode(
     }
     case 'A256GCM': {
       const { iv } = params as A256GCMParams
+      const normalizedIv = normalizeBytes(
+        iv,
+        'getParamsByAlgCode AES-GCM iv',
+        'CIPHER_MESSAGE_INVALID'
+      )
 
-      if (!(iv instanceof Uint8Array)) {
-        throw new CryptosuiteError(
-          'CIPHER_MESSAGE_INVALID',
-          'getParamsByAlgCode: expected a Uint8Array iv for AES-GCM.'
-        )
-      }
-
-      if (iv.byteLength !== 12) {
+      if (normalizedIv.byteLength !== 12) {
         throw new CryptosuiteError(
           'CIPHER_MESSAGE_INVALID',
           'getParamsByAlgCode: expected a 96-bit IV for AES-GCM.'
@@ -56,7 +53,7 @@ export function getParamsByAlgCode(
 
       return {
         name: 'AES-GCM',
-        iv: toBufferSource(iv),
+        iv: toBufferSource(normalizedIv),
         tagLength: 128,
       }
     }

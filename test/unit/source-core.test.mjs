@@ -4,7 +4,7 @@ import { Cryptographic as SourceCryptographic } from '../../src/index.ts'
 import * as cipherMessage from '../../src/CipherMessage/index.ts'
 import * as digitalSignature from '../../src/DigitalSignature/index.ts'
 import { CryptosuiteError } from '../../src/.errors/class.ts'
-import { getBufferSourceLength } from '../../src/.helpers/getBufferSourceLength.ts'
+import { normalizeBytes } from '../../src/.helpers/normalizeBytes.ts'
 import * as keyAgreement from '../../src/KeyAgreement/index.ts'
 import * as messageAuthentication from '../../src/MessageAuthentication/index.ts'
 import {
@@ -73,11 +73,16 @@ test('CryptosuiteError uses the default code detail when no message is provided'
   )
 })
 
-test('getBufferSourceLength handles both supported inputs and rejects others', () => {
-  assert.equal(getBufferSourceLength(new ArrayBuffer(7), 'x'), 7)
-  assert.equal(getBufferSourceLength(new Uint8Array(9), 'x'), 9)
+test('normalizeBytes returns independent Uint8Array values and rejects invalid input', () => {
+  const source = new Uint8Array([1, 2, 3])
+  const normalized = normalizeBytes(source, 'x')
+  assert.ok(normalized instanceof Uint8Array)
+  assert.deepEqual(Array.from(normalized), [1, 2, 3])
+  assert.notEqual(normalized, source)
+  assert.ok(normalizeBytes(new ArrayBuffer(7), 'x') instanceof Uint8Array)
+  expectCodeSync(() => normalizeBytes('x', 'boom'), 'BUFFER_SOURCE_EXPECTED')
   expectCodeSync(
-    () => getBufferSourceLength('x', 'boom'),
-    'BUFFER_SOURCE_EXPECTED'
+    () => normalizeBytes('x', 'boom', 'CIPHER_MESSAGE_INVALID'),
+    'CIPHER_MESSAGE_INVALID'
   )
 })

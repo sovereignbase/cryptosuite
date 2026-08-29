@@ -68,7 +68,7 @@ const cipherKey = await Cryptographic.cipherMessage.deriveKey(
 const cipherMessage = await Cryptographic.cipherMessage.encrypt(
   cipherKey,
   messageBytes
-) // {ciphertext: ArrayBuffer, iv: Uint8Array}
+) // {ciphertext: Uint8Array, iv: Uint8Array}
 const roundtrip = await Cryptographic.cipherMessage.decrypt(
   cipherKey,
   cipherMessage
@@ -97,7 +97,7 @@ const messageAuthenticationKey =
 const tag = await Cryptographic.messageAuthentication.sign(
   generatedMessageAuthenticationKey,
   messageBytes
-) // ArrayBuffer
+) // Uint8Array
 
 const verified = await Cryptographic.messageAuthentication.verify(
   generatedMessageAuthenticationKey,
@@ -121,7 +121,7 @@ const deterministicKeypair =
   await Cryptographic.keyAgreement.deriveKeypair(sourceKeyMaterial) // {encapsulateKey: JsonWebKey, decapsulateKey: JsonWebKey}
 
 const { keyOffer, cipherKey: senderCipherKey } =
-  await Cryptographic.keyAgreement.encapsulate(encapsulateKey) // {keyOffer: {ciphertext: ArrayBuffer}, cipherKey: JsonWebKey}
+  await Cryptographic.keyAgreement.encapsulate(encapsulateKey) // {keyOffer: {ciphertext: Uint8Array}, cipherKey: JsonWebKey}
 
 const { cipherKey: receiverCipherKey } =
   await Cryptographic.keyAgreement.decapsulate(keyOffer, decapsulateKey) // {cipherKey: JsonWebKey}
@@ -155,6 +155,7 @@ const verified = await Cryptographic.digitalSignature.verify(
 - symmetric key derivation accepts an optional salt and always uses a
   key-type-specific HKDF `info` value for domain separation
 - key agreement and digital signatures use `noble` hybrid primitives
+- all byte inputs and outputs are normalized to `Uint8Array`
 - unsupported crypto primitives throw typed `CryptosuiteError` codes
 
 ## Security notes

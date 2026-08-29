@@ -124,14 +124,14 @@ test('source cipher param helpers cover supported and unsupported branches', () 
   assert.equal(gcmWebCryptoParams.iv.byteLength, 12)
   assert.equal(gcmWebCryptoParams.tagLength, 128)
 
-  expectCodeSync(
-    () => getParamsByAlgCode('A256CTR', { iv: new ArrayBuffer(12) }),
-    'CIPHER_MESSAGE_INVALID'
-  )
-  expectCodeSync(
-    () => getParamsByAlgCode('A256GCM', { iv: new ArrayBuffer(12) }),
-    'CIPHER_MESSAGE_INVALID'
-  )
+  const normalizedCtrParams = getParamsByAlgCode('A256CTR', {
+    iv: new ArrayBuffer(12),
+  })
+  assert.ok(normalizedCtrParams.counter instanceof Uint8Array)
+  const normalizedGcmParams = getParamsByAlgCode('A256GCM', {
+    iv: new ArrayBuffer(12),
+  })
+  assert.equal(normalizedGcmParams.iv.byteLength, 12)
   expectCodeSync(
     () => getParamsByAlgCode('A256CTR', { iv: new Uint8Array(11) }),
     'CIPHER_MESSAGE_INVALID'
@@ -181,11 +181,11 @@ test('source CipherKeyHarness covers constructor, import failure, and decrypt va
 
   const harness = new CipherKeyHarness(createA256GcmKey())
   const encrypted = await harness.encrypt(bytes(1, 2, 3))
-  assert.ok(encrypted.ciphertext instanceof ArrayBuffer)
+  assert.ok(encrypted.ciphertext instanceof Uint8Array)
   assert.equal(encrypted.iv.byteLength, 12)
 
   const decrypted = await harness.decrypt({
-    ciphertext: new ArrayBuffer(3),
+    ciphertext: new Uint8Array(3),
     iv: new Uint8Array(12).fill(4),
   })
   assert.deepEqual(Array.from(decrypted), [7, 8, 9])
@@ -194,6 +194,8 @@ test('source CipherKeyHarness covers constructor, import failure, and decrypt va
     () => harness.decrypt({ iv: new Uint8Array(12) }),
     'CIPHER_MESSAGE_INVALID'
   )
+  await expectCodeAsync(() => harness.decrypt(null), 'CIPHER_MESSAGE_INVALID')
+  await expectCodeAsync(() => harness.decrypt(1), 'CIPHER_MESSAGE_INVALID')
 
   setCrypto(
     buildCrypto({
@@ -210,7 +212,7 @@ test('source CipherKeyHarness covers constructor, import failure, and decrypt va
   await expectCodeAsync(
     () =>
       decryptFailHarness.decrypt({
-        ciphertext: new ArrayBuffer(3),
+        ciphertext: new Uint8Array(3),
         iv: new Uint8Array(12).fill(4),
       }),
     'CIPHER_ARTIFACT_INVALID'

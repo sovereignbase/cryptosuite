@@ -1,3 +1,4 @@
+/** @inline */
 type NoAsymmetric = {
   d?: never
   p?: never
@@ -13,19 +14,30 @@ type NoAsymmetric = {
   crv?: never
 }
 
-type CipherAlg = 'A256CTR' | 'A256GCM'
-
-type CipherKeyByAlg<Alg extends CipherAlg> = JsonWebKey &
+/** @inline */
+type A256CTRKey = JsonWebKey &
   NoAsymmetric & {
     kty: 'oct'
     k: string
-    alg: Alg
+    alg: 'A256CTR'
+    use: 'enc'
+    key_ops: readonly ('encrypt' | 'decrypt')[]
+  }
+
+/** @inline */
+type A256GCMKey = JsonWebKey &
+  NoAsymmetric & {
+    kty: 'oct'
+    k: string
+    alg: 'A256GCM'
     use: 'enc'
     key_ops: readonly ('encrypt' | 'decrypt')[]
   }
 
 /**
  * Algorithm parameters serialized alongside an AES-CTR cipher message.
+ *
+ * @inline
  */
 export type A256CTRParams = {
   /** The 96-bit initialization vector used for encryption. */
@@ -34,26 +46,32 @@ export type A256CTRParams = {
 
 /**
  * Algorithm parameters serialized alongside an AES-GCM cipher message.
+ *
+ * @inline
  */
 export type A256GCMParams = {
   /** The 96-bit initialization vector used for encryption. */
   iv: Uint8Array
 }
 
+/** @inline */
 type A256CTRMessage = {
   /** The encrypted payload bytes. */
-  ciphertext: ArrayBuffer
+  ciphertext: Uint8Array
 } & A256CTRParams
 
+/** @inline */
 type A256GCMMessage = {
   /** The encrypted payload bytes. */
-  ciphertext: ArrayBuffer
+  ciphertext: Uint8Array
 } & A256GCMParams
 
 /**
  * Symmetric AES-CTR-256 JWK used for cipher messaging operations.
+ *
+ * @expand
  */
-export type CipherKey = CipherKeyByAlg<'A256CTR'> | CipherKeyByAlg<'A256GCM'>
+export type CipherKey = A256CTRKey | A256GCMKey
 
 /**
  * Serialized parameters required to decrypt a cipher message.

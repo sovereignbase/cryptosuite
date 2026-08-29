@@ -92,13 +92,13 @@ test('cipherMessage encrypt/decrypt accepts a minimal valid JWK without optional
     cipherKey,
     bytes(1, 2, 3)
   )
-  assert.ok(cipherMessage.ciphertext instanceof ArrayBuffer)
+  assert.ok(cipherMessage.ciphertext instanceof Uint8Array)
   assert.equal(cipherMessage.iv.byteLength, 12)
 
-  const plaintext = await Cryptographic.cipherMessage.decrypt(
-    cipherKey,
-    cipherMessage
-  )
+  const plaintext = await Cryptographic.cipherMessage.decrypt(cipherKey, {
+    ...cipherMessage,
+    ciphertext: cipherMessage.ciphertext.buffer,
+  })
   assert.deepEqual(Array.from(plaintext), [1, 2, 3])
 })
 
@@ -164,7 +164,7 @@ test('cipherMessage.decrypt rejects invalid AES-GCM iv lengths', async () => {
   await expectCodeAsync(
     () =>
       Cryptographic.cipherMessage.decrypt(createA256GcmKey(), {
-        ciphertext: new ArrayBuffer(1),
+        ciphertext: new Uint8Array(1),
         iv: new Uint8Array(11),
       }),
     'CIPHER_MESSAGE_INVALID'
@@ -183,7 +183,7 @@ test('cipherMessage.decrypt still rejects invalid historical AES-CTR iv lengths'
   await expectCodeAsync(
     () =>
       Cryptographic.cipherMessage.decrypt(createA256CtrKey(), {
-        ciphertext: new ArrayBuffer(1),
+        ciphertext: new Uint8Array(1),
         iv: new Uint8Array(11),
       }),
     'CIPHER_MESSAGE_INVALID'

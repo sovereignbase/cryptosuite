@@ -1,4 +1,6 @@
+import { toUint8Array } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../.errors/class.js'
+import { normalizeBytes } from '../../../.helpers/normalizeBytes.js'
 import { createImportKeyAlgorithmByAlgCode } from '../helpers/createImportKeyAlgorithmByAlgCode/index.js'
 import { createParamsByAlgCode } from '../helpers/createParamsByAlgCode/index.js'
 import { getParamsByAlgCode } from '../helpers/getParamsByAlgCode/index.js'
@@ -29,6 +31,7 @@ export class SignKeyHarness {
   }
 
   async sign(bytes: Uint8Array): Promise<Uint8Array> {
+    const message = normalizeBytes(bytes, 'SignKeyHarness.sign bytes')
     const params = getParamsByAlgCode(this.algCode, this.params)
     if (!('secretKey' in params)) {
       throw new CryptosuiteError(
@@ -38,7 +41,7 @@ export class SignKeyHarness {
     }
 
     try {
-      return this.signer.sign(bytes, params.secretKey)
+      return toUint8Array(this.signer.sign(message, params.secretKey))
     } catch {
       throw new CryptosuiteError(
         'ALGORITHM_UNSUPPORTED',

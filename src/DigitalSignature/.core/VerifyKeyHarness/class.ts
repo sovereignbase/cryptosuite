@@ -1,4 +1,5 @@
 import { CryptosuiteError } from '../../../.errors/class.js'
+import { normalizeBytes } from '../../../.helpers/normalizeBytes.js'
 import { createImportKeyAlgorithmByAlgCode } from '../helpers/createImportKeyAlgorithmByAlgCode/index.js'
 import { createParamsByAlgCode } from '../helpers/createParamsByAlgCode/index.js'
 import { getParamsByAlgCode } from '../helpers/getParamsByAlgCode/index.js'
@@ -31,6 +32,11 @@ export class VerifyKeyHarness {
   }
 
   async verify(bytes: Uint8Array, signature: Uint8Array): Promise<boolean> {
+    const message = normalizeBytes(bytes, 'VerifyKeyHarness.verify bytes')
+    const signatureBytes = normalizeBytes(
+      signature,
+      'VerifyKeyHarness.verify signature'
+    )
     const params = getParamsByAlgCode(this.algCode, this.params)
     if (!('publicKey' in params)) {
       throw new CryptosuiteError(
@@ -40,7 +46,7 @@ export class VerifyKeyHarness {
     }
 
     try {
-      return this.verifier.verify(signature, bytes, params.publicKey)
+      return this.verifier.verify(signatureBytes, message, params.publicKey)
     } catch {
       throw new CryptosuiteError(
         'ALGORITHM_UNSUPPORTED',

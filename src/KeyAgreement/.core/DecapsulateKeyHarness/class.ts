@@ -1,5 +1,6 @@
 import { toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../.errors/class.js'
+import { normalizeBytes } from '../../../.helpers/normalizeBytes.js'
 import { validateKeyByAlgCode } from '../helpers/validateKeyByAlgCode/index.js'
 import { createImportKeyAlgorithmByAlgCode } from '../helpers/createImportKeyAlgorithmByAlgCode/index.js'
 import { createParamsByAlgCode } from '../helpers/createParamsByAlgCode/index.js'
@@ -70,16 +71,18 @@ export class DecapsulateKeyHarness {
   }
 
   async decapsulate(keyOffer: KeyOffer): Promise<{ cipherKey: CipherKey }> {
-    if (
-      !keyOffer ||
-      typeof keyOffer !== 'object' ||
-      !(keyOffer.ciphertext instanceof ArrayBuffer)
-    ) {
+    if (!keyOffer || typeof keyOffer !== 'object') {
       throw new CryptosuiteError(
         'KEY_AGREEMENT_ARTIFACT_INVALID',
         'DecapsulateKeyHarness.decapsulate: expected a key offer with ciphertext.'
       )
     }
+
+    const ciphertext = normalizeBytes(
+      keyOffer.ciphertext,
+      'DecapsulateKeyHarness.decapsulate ciphertext',
+      'KEY_AGREEMENT_ARTIFACT_INVALID'
+    )
 
     const params = getParamsByAlgCode(this.algCode, this.params)
     if (!('secretKey' in params)) {
@@ -89,7 +92,7 @@ export class DecapsulateKeyHarness {
       )
     }
 
-    if (keyOffer.ciphertext.byteLength !== this.kem.lengths.cipherText) {
+    if (ciphertext.byteLength !== this.kem.lengths.cipherText) {
       throw new CryptosuiteError(
         'KEY_AGREEMENT_ARTIFACT_INVALID',
         'DecapsulateKeyHarness.decapsulate: key offer ciphertext has invalid length.'
@@ -97,10 +100,7 @@ export class DecapsulateKeyHarness {
     }
 
     try {
-      const sharedSecret = this.kem.decapsulate(
-        new Uint8Array(keyOffer.ciphertext),
-        params.secretKey
-      )
+      const sharedSecret = this.kem.decapsulate(ciphertext, params.secretKey)
       return {
         cipherKey: await this.exportCipherKey(sharedSecret),
       }

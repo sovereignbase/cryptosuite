@@ -1,4 +1,4 @@
-import { toBufferSource } from '@sovereignbase/bytecodec'
+import { toBufferSource, toUint8Array } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../.errors/class.js'
 import { validateKeyByAlgCode } from '../helpers/validateKeyByAlgCode/index.js'
 import { createImportKeyAlgorithmByAlgCode } from '../helpers/createImportKeyAlgorithmByAlgCode/index.js'
@@ -82,9 +82,8 @@ export class EncapsulateKeyHarness {
       const { cipherText, sharedSecret } = this.kem.encapsulate(
         params.publicKey
       )
-      const ciphertext = cipherText.slice()
       return {
-        keyOffer: { ciphertext: ciphertext.buffer as ArrayBuffer },
+        keyOffer: { ciphertext: toUint8Array(cipherText) },
         cipherKey: await this.exportCipherKey(sharedSecret),
       }
     } catch {

@@ -1,5 +1,6 @@
-import { toBufferSource } from '@sovereignbase/bytecodec'
+import { toBufferSource, toUint8Array } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../.errors/class.js'
+import { normalizeBytes } from '../../../.helpers/normalizeBytes.js'
 import { validateKeyByAlgCode } from '../helpers/validateKeyByAlgCode/index.js'
 import { createImportKeyAlgorithmByAlgCode } from '../helpers/createImportKeyAlgorithmByAlgCode/index.js'
 import { createParamsByAlgCode } from '../helpers/createParamsByAlgCode/index.js'
@@ -43,28 +44,42 @@ export class MessageAuthenticationKeyHarness {
     })()
   }
 
-  async sign(bytes: Uint8Array): Promise<ArrayBuffer> {
+  async sign(bytes: Uint8Array): Promise<Uint8Array> {
     const key = await this.keyPromise
+    const message = normalizeBytes(
+      bytes,
+      'MessageAuthenticationKeyHarness.sign bytes'
+    )
     const params: MessageAuthenticationParams = createParamsByAlgCode(
       this.algCode
     )
-    return await crypto.subtle.sign(
-      getParamsByAlgCode(this.algCode, params),
-      key,
-      toBufferSource(bytes)
+    return toUint8Array(
+      await crypto.subtle.sign(
+        getParamsByAlgCode(this.algCode, params),
+        key,
+        toBufferSource(message)
+      )
     )
   }
 
-  async verify(bytes: Uint8Array, signature: ArrayBuffer): Promise<boolean> {
+  async verify(bytes: Uint8Array, signature: Uint8Array): Promise<boolean> {
     const key = await this.keyPromise
+    const message = normalizeBytes(
+      bytes,
+      'MessageAuthenticationKeyHarness.verify bytes'
+    )
+    const tag = normalizeBytes(
+      signature,
+      'MessageAuthenticationKeyHarness.verify signature'
+    )
     const params: MessageAuthenticationParams = createParamsByAlgCode(
       this.algCode
     )
     return await crypto.subtle.verify(
       getParamsByAlgCode(this.algCode, params),
       key,
-      signature,
-      toBufferSource(bytes)
+      toBufferSource(tag),
+      toBufferSource(message)
     )
   }
 }

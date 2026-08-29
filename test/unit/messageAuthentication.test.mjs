@@ -86,12 +86,12 @@ test('messageAuthentication sign/verify accepts a minimal valid JWK without opti
     key,
     bytes(1, 2, 3)
   )
-  assert.ok(signature instanceof ArrayBuffer)
+  assert.ok(signature instanceof Uint8Array)
 
   const verified = await Cryptographic.messageAuthentication.verify(
     key,
     bytes(1, 2, 3),
-    signature
+    signature.buffer
   )
   assert.equal(verified, true)
 })

@@ -1,3 +1,4 @@
+/** @inline */
 type NoPrivate = {
   d?: never
   p?: never
@@ -8,30 +9,52 @@ type NoPrivate = {
   k?: never
 }
 
-type DigitalSignatureAlg = 'ML-DSA-87' | 'Ed25519-ML-DSA-65'
-
-type VerifyKeyByAlg<Alg extends DigitalSignatureAlg> = JsonWebKey &
+/** @inline */
+type MlDsa87VerifyKey = JsonWebKey &
   NoPrivate & {
     kty: 'AKP'
-    alg: Alg
+    alg: 'ML-DSA-87'
     x: string
     use: 'sig'
     key_ops: readonly 'verify'[]
   }
 
+/** @inline */
+type HybridVerifyKey = JsonWebKey &
+  NoPrivate & {
+    kty: 'AKP'
+    alg: 'Ed25519-ML-DSA-65'
+    x: string
+    use: 'sig'
+    key_ops: readonly 'verify'[]
+  }
+
+/** @inline */
 type NoSymmetric = {
   k?: never
 }
 
+/** @inline */
 type HasPrivate = {
   d: string
 }
 
-type SignKeyByAlg<Alg extends DigitalSignatureAlg> = JsonWebKey &
+/** @inline */
+type MlDsa87SignKey = JsonWebKey &
   NoSymmetric &
   HasPrivate & {
     kty: 'AKP'
-    alg: Alg
+    alg: 'ML-DSA-87'
+    use: 'sig'
+    key_ops: readonly 'sign'[]
+  }
+
+/** @inline */
+type HybridSignKey = JsonWebKey &
+  NoSymmetric &
+  HasPrivate & {
+    kty: 'AKP'
+    alg: 'Ed25519-ML-DSA-65'
     use: 'sig'
     key_ops: readonly 'sign'[]
   }
@@ -48,15 +71,17 @@ type SignParams = {
 
 /**
  * Public supported digital signature JWK used to verify signatures.
+ *
+ * @expand
  */
-export type VerifyKey =
-  VerifyKeyByAlg<'ML-DSA-87'> | VerifyKeyByAlg<'Ed25519-ML-DSA-65'>
+export type VerifyKey = MlDsa87VerifyKey | HybridVerifyKey
 
 /**
  * Private supported digital signature JWK used to produce signatures.
+ *
+ * @expand
  */
-export type SignKey =
-  SignKeyByAlg<'ML-DSA-87'> | SignKeyByAlg<'Ed25519-ML-DSA-65'>
+export type SignKey = MlDsa87SignKey | HybridSignKey
 
 /**
  * Runtime key material used internally by signing and verification harnesses.

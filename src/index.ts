@@ -38,52 +38,52 @@ export class Cryptographic {
    * Symmetric cipher operations.
    */
   static readonly cipherMessage = {
-    /** See {@link CipherCluster.encrypt}. */
+    /** Encrypts plaintext bytes with a symmetric cipher key. */
     encrypt: CipherCluster.encrypt,
-    /** See {@link CipherCluster.decrypt}. */
+    /** Decrypts a cipher message into plaintext bytes. */
     decrypt: CipherCluster.decrypt,
-    /** See {@link deriveCipherKey}. */
+    /** Derives a symmetric cipher key from source key material. */
     deriveKey: deriveCipherKey,
-    /** See {@link generateCipherKey}. */
+    /** Generates a symmetric cipher key. */
     generateKey: generateCipherKey,
   }
   /**
    * Symmetric message authentication operations.
    */
   static readonly messageAuthentication = {
-    /** See {@link MessageAuthenticationCluster.sign}. */
+    /** Produces an authentication tag for message bytes. */
     sign: MessageAuthenticationCluster.sign,
-    /** See {@link MessageAuthenticationCluster.verify}. */
+    /** Verifies an authentication tag for message bytes. */
     verify: MessageAuthenticationCluster.verify,
-    /** See {@link deriveMessageAuthenticationKey}. */
+    /** Derives a message authentication key from source key material. */
     deriveKey: deriveMessageAuthenticationKey,
-    /** See {@link generateMessageAuthenticationKey}. */
+    /** Generates a message authentication key. */
     generateKey: generateMessageAuthenticationKey,
   }
   /**
    * Key agreement operations.
    */
   static readonly keyAgreement = {
-    /** See {@link KeyAgreementCluster.encapsulate}. */
+    /** Encapsulates a shared cipher key for a recipient. */
     encapsulate: KeyAgreementCluster.encapsulate,
-    /** See {@link KeyAgreementCluster.decapsulate}. */
+    /** Decapsulates a shared cipher key from a key offer. */
     decapsulate: KeyAgreementCluster.decapsulate,
-    /** See {@link deriveKeyAgreementKeypair}. */
+    /** Derives a key agreement key pair from source key material. */
     deriveKeypair: deriveKeyAgreementKeypair,
-    /** See {@link generateKeyAgreementKeypair}. */
+    /** Generates a key agreement key pair. */
     generateKeypair: generateKeyAgreementKeypair,
   }
   /**
    * Digital signature operations.
    */
   static readonly digitalSignature = {
-    /** See {@link DigitalSignatureCluster.sign}. */
+    /** Signs message bytes with a private signature key. */
     sign: DigitalSignatureCluster.sign,
-    /** See {@link DigitalSignatureCluster.verify}. */
+    /** Verifies signature bytes with a public verification key. */
     verify: DigitalSignatureCluster.verify,
-    /** See {@link deriveDigitalSignatureKeypair}. */
+    /** Derives a digital signature key pair from source key material. */
     deriveKeypair: deriveDigitalSignatureKeypair,
-    /** See {@link generateDigitalSignatureKeypair}. */
+    /** Generates a digital signature key pair. */
     generateKeypair: generateDigitalSignatureKeypair,
   }
 }

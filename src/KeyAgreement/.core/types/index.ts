@@ -1,7 +1,9 @@
+/** @inline */
 type NoSymmetric = {
   k?: never
 }
 
+/** @inline */
 type NoPrivate = {
   d?: never
   p?: never
@@ -12,30 +14,52 @@ type NoPrivate = {
   oth?: never
 }
 
-type KeyAgreementAlg = 'ML-KEM-1024' | 'X25519-ML-KEM-768'
-
-type EncapsulateKeyByAlg<Alg extends KeyAgreementAlg> = JsonWebKey &
+/** @inline */
+type MlKem1024EncapsulateKey = JsonWebKey &
   NoSymmetric &
   NoPrivate & {
     kty: 'AKP'
-    alg: Alg
+    alg: 'ML-KEM-1024'
     x: string
     use: 'enc'
     key_ops: readonly []
   }
 
-type DecapsulateKeyByAlg<Alg extends KeyAgreementAlg> = JsonWebKey &
+/** @inline */
+type HybridEncapsulateKey = JsonWebKey &
+  NoSymmetric &
+  NoPrivate & {
+    kty: 'AKP'
+    alg: 'X25519-ML-KEM-768'
+    x: string
+    use: 'enc'
+    key_ops: readonly []
+  }
+
+/** @inline */
+type MlKem1024DecapsulateKey = JsonWebKey &
   NoSymmetric & {
     kty: 'AKP'
-    alg: Alg
+    alg: 'ML-KEM-1024'
     d: string
     use: 'enc'
     key_ops: readonly ('deriveKey' | 'deriveBits')[]
   }
 
+/** @inline */
+type HybridDecapsulateKey = JsonWebKey &
+  NoSymmetric & {
+    kty: 'AKP'
+    alg: 'X25519-ML-KEM-768'
+    d: string
+    use: 'enc'
+    key_ops: readonly ('deriveKey' | 'deriveBits')[]
+  }
+
+/** @inline */
 type KeyAgreementOffer = {
   /** The encapsulated shared-secret artifact emitted by a supported key agreement algorithm. */
-  ciphertext: ArrayBuffer
+  ciphertext: Uint8Array
 }
 
 type EncapsulateParams = {
@@ -50,15 +74,17 @@ type DecapsulateParams = {
 
 /**
  * Public supported key agreement JWK used to encapsulate a shared cipher key.
+ *
+ * @expand
  */
-export type EncapsulateKey =
-  EncapsulateKeyByAlg<'ML-KEM-1024'> | EncapsulateKeyByAlg<'X25519-ML-KEM-768'>
+export type EncapsulateKey = MlKem1024EncapsulateKey | HybridEncapsulateKey
 
 /**
  * Private supported key agreement JWK used to decapsulate a shared cipher key.
+ *
+ * @expand
  */
-export type DecapsulateKey =
-  DecapsulateKeyByAlg<'ML-KEM-1024'> | DecapsulateKeyByAlg<'X25519-ML-KEM-768'>
+export type DecapsulateKey = MlKem1024DecapsulateKey | HybridDecapsulateKey
 
 /**
  * Encapsulated key agreement artifact exchanged with the counterparty.

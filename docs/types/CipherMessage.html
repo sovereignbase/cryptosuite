@@ -10,11 +10,36 @@
 <ul class="tsd-breadcrumb" aria-label="Breadcrumb">
 <li><a href="" aria-current="page">CipherMessage</a></li></ul>
 <h1>Type Alias CipherMessage</h1></div>
-<div class="tsd-signature"><span class="tsd-kind-type-alias">CipherMessage</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">A256CTRMessage</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">A256GCMMessage</span></div>
+<div class="tsd-signature"><span class="tsd-kind-type-alias">CipherMessage</span><span class="tsd-signature-symbol">:</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">ciphertext</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span> <span class="tsd-signature-symbol">}</span> <span class="tsd-signature-symbol">&amp;</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">iv</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span> <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">ciphertext</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span> <span class="tsd-signature-symbol">}</span> <span class="tsd-signature-symbol">&amp;</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">iv</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span> <span class="tsd-signature-symbol">}</span></div>
 <div class="tsd-comment tsd-typography"><p>Cipher message artifact returned by cipher encryption operations.</p>
-</div><aside class="tsd-sources">
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
 <ul>
-<li>Defined in <a href="https://github.com/sovereignbase/cryptosuite/blob/a2cc17cddc047deb3d91ea93b68a10d5ef6d8e30/src/CipherMessage/.core/types/index.ts#L66">src/CipherMessage/.core/types/index.ts:66</a></li></ul></aside></div>
+<li><span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">ciphertext</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span> <span class="tsd-signature-symbol">}</span> <span class="tsd-signature-symbol">&amp;</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">iv</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span> <span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">ciphertext</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span></h5>
+<div class="tsd-comment tsd-typography"><p>The encrypted payload bytes.</p>
+</div></li></ul>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">iv</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span></h5>
+<div class="tsd-comment tsd-typography"><p>The 96-bit initialization vector used for encryption.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">ciphertext</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span> <span class="tsd-signature-symbol">}</span> <span class="tsd-signature-symbol">&amp;</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">iv</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span> <span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">ciphertext</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span></h5>
+<div class="tsd-comment tsd-typography"><p>The encrypted payload bytes.</p>
+</div></li></ul>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">iv</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span></h5>
+<div class="tsd-comment tsd-typography"><p>The 96-bit initialization vector used for encryption.</p>
+</div></li></ul></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/sovereignbase/cryptosuite/blob/0a3bdd975d2d26ce5145a7707596641461c9bd59/src/CipherMessage/.core/types/index.ts#L84">src/CipherMessage/.core/types/index.ts:84</a></li></ul></aside></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">

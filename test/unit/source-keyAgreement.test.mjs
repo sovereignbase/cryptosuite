@@ -302,7 +302,7 @@ test('source key agreement harnesses cover constructor, invariant, and export br
   await expectCodeAsync(
     () =>
       decapsulator.decapsulate({
-        ciphertext: new ArrayBuffer(ml_kem1024.lengths.cipherText),
+        ciphertext: new Uint8Array(ml_kem1024.lengths.cipherText),
       }),
     'KEY_AGREEMENT_KEY_INVALID'
   )
@@ -323,7 +323,7 @@ test('source key agreement harnesses cover constructor, invariant, and export br
   await expectCodeAsync(
     () =>
       artifactValidator.decapsulate({
-        ciphertext: new ArrayBuffer(1),
+        ciphertext: new Uint8Array(1),
       }),
     'KEY_AGREEMENT_ARTIFACT_INVALID'
   )
@@ -354,7 +354,7 @@ test('source key agreement harnesses cover constructor, invariant, and export br
   await expectCodeAsync(
     () =>
       decapsulateFailHarness.decapsulate({
-        ciphertext: new ArrayBuffer(ml_kem1024.lengths.cipherText),
+        ciphertext: new Uint8Array(ml_kem1024.lengths.cipherText),
       }),
     'DECAPSULATION_FAILED'
   )
@@ -385,7 +385,7 @@ test('source key agreement harnesses cover constructor, invariant, and export br
   await expectCodeAsync(
     () =>
       hybridDecapsulateFailHarness.decapsulate({
-        ciphertext: new ArrayBuffer(ml_kem768_x25519.lengths.cipherText),
+        ciphertext: new Uint8Array(ml_kem768_x25519.lengths.cipherText),
       }),
     'DECAPSULATION_FAILED'
   )

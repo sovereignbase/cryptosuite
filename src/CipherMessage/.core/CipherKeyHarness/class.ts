@@ -1,5 +1,6 @@
-import { toBufferSource } from '@sovereignbase/bytecodec'
+import { toBufferSource, toUint8Array } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../.errors/class.js'
+import { normalizeBytes } from '../../../.helpers/normalizeBytes.js'
 import type { CipherKey, CipherMessage, CipherParams } from '../types/index.js'
 import { validateKeyByAlgCode } from '../helpers/validateKeyByAlgCode/index.js'
 import { createParamsByAlgCode } from '../helpers/createParamsByAlgCode/index.js'
@@ -43,38 +44,48 @@ export class CipherKeyHarness {
   async encrypt(messageBytes: Uint8Array): Promise<CipherMessage> {
     const key = await this.keyPromise
     const params = createParamsByAlgCode(this.algCode)
+    const plaintext = normalizeBytes(
+      messageBytes,
+      'CipherKeyHarness.encrypt messageBytes'
+    )
     return {
       ...params,
-      ciphertext: await crypto.subtle.encrypt(
-        getParamsByAlgCode(this.algCode, params),
-        key,
-        toBufferSource(messageBytes)
+      ciphertext: toUint8Array(
+        await crypto.subtle.encrypt(
+          getParamsByAlgCode(this.algCode, params),
+          key,
+          toBufferSource(plaintext)
+        )
       ),
     }
   }
 
   async decrypt(cipherMessage: CipherMessage): Promise<Uint8Array> {
     const key = await this.keyPromise
-    if (
-      !cipherMessage ||
-      typeof cipherMessage !== 'object' ||
-      !(cipherMessage.ciphertext instanceof ArrayBuffer)
-    ) {
+    if (!cipherMessage || typeof cipherMessage !== 'object') {
       throw new CryptosuiteError(
         'CIPHER_MESSAGE_INVALID',
         'CipherKeyHarness.decrypt: expected a cipher message with ciphertext.'
       )
     }
 
+    const ciphertext = normalizeBytes(
+      cipherMessage.ciphertext,
+      'CipherKeyHarness.decrypt ciphertext',
+      'CIPHER_MESSAGE_INVALID'
+    )
+
     const params: CipherParams = {
       iv: cipherMessage.iv,
     }
-    let plaintext: ArrayBuffer
+    let plaintext: Uint8Array
     try {
-      plaintext = await crypto.subtle.decrypt(
-        getParamsByAlgCode(this.algCode, params),
-        key,
-        cipherMessage.ciphertext
+      plaintext = toUint8Array(
+        await crypto.subtle.decrypt(
+          getParamsByAlgCode(this.algCode, params),
+          key,
+          toBufferSource(ciphertext)
+        )
       )
     } catch (error) {
       if (error instanceof CryptosuiteError) throw error
@@ -83,6 +94,6 @@ export class CipherKeyHarness {
         'CipherKeyHarness.decrypt: failed to decrypt or authenticate the cipher message.'
       )
     }
-    return new Uint8Array(plaintext)
+    return plaintext
   }
 }

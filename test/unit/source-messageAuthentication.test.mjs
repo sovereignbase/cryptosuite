@@ -108,7 +108,7 @@ test('source MessageAuthenticationKeyHarness covers subtle-unavailable and impor
   )
   const harness = new MessageAuthenticationKeyHarness(createHs256Key())
   const signature = await harness.sign(bytes(1, 2, 3))
-  assert.ok(signature instanceof ArrayBuffer)
+  assert.ok(signature instanceof Uint8Array)
   const verified = await harness.verify(bytes(1, 2, 3), signature)
   assert.equal(verified, true)
 })

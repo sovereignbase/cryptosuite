@@ -1,6 +1,6 @@
 import { fromString, toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
-import { getBufferSourceLength } from '../../.helpers/getBufferSourceLength.js'
+import { normalizeBytes } from '../../.helpers/normalizeBytes.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { CipherKey } from '../.core/types/index.js'
 
@@ -24,7 +24,16 @@ export async function deriveCipherKey(
     )
   }
 
-  if (getBufferSourceLength(sourceKeyMaterial, 'deriveCipherKey') === 0) {
+  const sourceBytes = normalizeBytes(
+    sourceKeyMaterial,
+    'deriveCipherKey sourceKeyMaterial'
+  )
+  const saltBytes =
+    salt === undefined
+      ? new Uint8Array()
+      : normalizeBytes(salt, 'deriveCipherKey salt')
+
+  if (sourceBytes.byteLength === 0) {
     throw new CryptosuiteError(
       'CIPHER_KEY_INVALID',
       'deriveCipherKey: source key material must not be empty.'
@@ -36,7 +45,7 @@ export async function deriveCipherKey(
   try {
     key = await crypto.subtle.importKey(
       'raw',
-      toBufferSource(sourceKeyMaterial),
+      toBufferSource(sourceBytes),
       'HKDF',
       false,
       ['deriveKey']
@@ -45,7 +54,7 @@ export async function deriveCipherKey(
       {
         name: 'HKDF',
         hash: 'SHA-256',
-        salt: toBufferSource(salt ?? new Uint8Array()),
+        salt: toBufferSource(saltBytes),
         info: toBufferSource(INFO),
       },
       key,

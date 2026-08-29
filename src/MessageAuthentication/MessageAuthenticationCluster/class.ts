@@ -37,7 +37,7 @@ export class MessageAuthenticationCluster {
   static async sign(
     messageAuthenticationKey: MessageAuthenticationKey,
     bytes: Uint8Array
-  ): Promise<ArrayBuffer> {
+  ): Promise<Uint8Array> {
     const harness = MessageAuthenticationCluster.#loadHarness(
       messageAuthenticationKey
     )
@@ -55,7 +55,7 @@ export class MessageAuthenticationCluster {
   static async verify(
     messageAuthenticationKey: MessageAuthenticationKey,
     bytes: Uint8Array,
-    signature: ArrayBuffer
+    signature: Uint8Array
   ): Promise<boolean> {
     const harness = MessageAuthenticationCluster.#loadHarness(
       messageAuthenticationKey

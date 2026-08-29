@@ -167,8 +167,8 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
 
     assert(cipherMessage.iv.byteLength === 12, 'cipher iv must be 12 bytes')
     assert(
-      cipherMessage.ciphertext instanceof ArrayBuffer,
-      'ciphertext must be an ArrayBuffer'
+      cipherMessage.ciphertext instanceof Uint8Array,
+      'ciphertext must be a Uint8Array'
     )
   })
 
@@ -225,6 +225,7 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
       key,
       plaintext
     )
+    assert(signature instanceof Uint8Array, 'tag must be a Uint8Array')
     assert(
       signature.byteLength > 0,
       'message authentication tag must not be empty'
@@ -306,8 +307,8 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
       const { keyOffer, cipherKey } =
         await Cryptographic.keyAgreement.encapsulate(encapsulateKey)
       assert(
-        keyOffer.ciphertext instanceof ArrayBuffer,
-        'key offer ciphertext must be an ArrayBuffer'
+        keyOffer.ciphertext instanceof Uint8Array,
+        'key offer ciphertext must be a Uint8Array'
       )
       assertEqual(
         cipherKey.alg,

@@ -1,3 +1,4 @@
+/** @inline */
 type NoAsymmetric = {
   d?: never
   p?: never
@@ -13,6 +14,7 @@ type NoAsymmetric = {
   crv?: never
 }
 
+/** @inline */
 type HS256Key = JsonWebKey &
   NoAsymmetric & {
     kty: 'oct'
@@ -26,6 +28,8 @@ type HMACParams = Record<never, never>
 
 /**
  * Symmetric HMAC-SHA-256 JWK used for message authentication operations.
+ *
+ * @expand
  */
 export type MessageAuthenticationKey = HS256Key
 

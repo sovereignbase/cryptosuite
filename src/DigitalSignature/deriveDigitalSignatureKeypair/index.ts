@@ -1,6 +1,6 @@
 import { toBase64UrlString } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
-import { getBufferSourceLength } from '../../.helpers/getBufferSourceLength.js'
+import { normalizeBytes } from '../../.helpers/normalizeBytes.js'
 import { createImportKeyAlgorithmByAlgCode } from '../.core/helpers/createImportKeyAlgorithmByAlgCode/index.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { SignKey, VerifyKey } from '../.core/types/index.js'
@@ -18,19 +18,18 @@ export async function deriveDigitalSignatureKeypair(
   verifyKey: VerifyKey
 }> {
   const algorithm = createImportKeyAlgorithmByAlgCode('Ed25519-ML-DSA-65')
-  if (
-    getBufferSourceLength(
-      sourceKeyMaterial,
-      'deriveDigitalSignatureKeypair'
-    ) !== algorithm.lengths.seed
-  ) {
+  const seed = normalizeBytes(
+    sourceKeyMaterial,
+    'deriveDigitalSignatureKeypair sourceKeyMaterial'
+  )
+  if (seed.byteLength !== algorithm.lengths.seed) {
     throw new CryptosuiteError(
       'SIGN_JWK_INVALID',
       `deriveDigitalSignatureKeypair: source key material must be exactly ${algorithm.lengths.seed} bytes.`
     )
   }
 
-  const { publicKey, secretKey } = algorithm.keygen(sourceKeyMaterial)
+  const { publicKey, secretKey } = algorithm.keygen(seed)
   const signKey = validateKeyByAlgCode({
     kty: 'AKP',
     alg: 'Ed25519-ML-DSA-65',

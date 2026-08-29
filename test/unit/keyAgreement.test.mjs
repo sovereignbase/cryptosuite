@@ -56,7 +56,7 @@ test('keyAgreement.encapsulate accepts a minimal public key without key_ops', as
     ...encapsulateKey,
     key_ops: undefined,
   })
-  assert.ok(result.keyOffer.ciphertext instanceof ArrayBuffer)
+  assert.ok(result.keyOffer.ciphertext instanceof Uint8Array)
   assert.equal(result.cipherKey.alg, 'A256GCM')
 })
 
@@ -101,7 +101,7 @@ test('keyAgreement.decapsulate rejects ciphertexts with invalid lengths', async 
     () =>
       Cryptographic.keyAgreement.decapsulate(
         {
-          ciphertext: new ArrayBuffer(1),
+          ciphertext: new Uint8Array(1),
         },
         decapsulateKey
       ),
@@ -123,10 +123,15 @@ test('keyAgreement.decapsulate accepts a minimal private key without key_ops', a
 
   const { keyOffer } =
     await Cryptographic.keyAgreement.encapsulate(encapsulateKey)
-  const result = await Cryptographic.keyAgreement.decapsulate(keyOffer, {
-    ...decapsulateKey,
-    key_ops: undefined,
-  })
+  const result = await Cryptographic.keyAgreement.decapsulate(
+    {
+      ciphertext: keyOffer.ciphertext.buffer,
+    },
+    {
+      ...decapsulateKey,
+      key_ops: undefined,
+    }
+  )
   assert.equal(result.cipherKey.alg, 'A256GCM')
 })
 
