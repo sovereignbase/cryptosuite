@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/sovereignbase/cryptosuite/compare/v2.2.2...v3.0.0) (2026-08-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove Cryptographic.identifier and change symmetric deriveKey methods to accept an optional salt directly and return only the derived key.
+
+### Features
+
+* simplify the cryptographic API ([a36379c](https://github.com/sovereignbase/cryptosuite/commit/a36379c28345fc1f3ea9e03ec7d4f13244c0b5f3))
+
 ## [2.2.2](https://github.com/sovereignbase/cryptosuite/compare/v2.2.1...v2.2.2) (2026-05-03)
 
 
