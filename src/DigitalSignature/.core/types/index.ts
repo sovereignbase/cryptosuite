@@ -1,18 +1,3 @@
-/*
-Copyright 2026 Sovereignbase
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 type NoPrivate = {
   d?: never
   p?: never
@@ -65,15 +50,13 @@ type SignParams = {
  * Public supported digital signature JWK used to verify signatures.
  */
 export type VerifyKey =
-  | VerifyKeyByAlg<'ML-DSA-87'>
-  | VerifyKeyByAlg<'Ed25519-ML-DSA-65'>
+  VerifyKeyByAlg<'ML-DSA-87'> | VerifyKeyByAlg<'Ed25519-ML-DSA-65'>
 
 /**
  * Private supported digital signature JWK used to produce signatures.
  */
 export type SignKey =
-  | SignKeyByAlg<'ML-DSA-87'>
-  | SignKeyByAlg<'Ed25519-ML-DSA-65'>
+  SignKeyByAlg<'ML-DSA-87'> | SignKeyByAlg<'Ed25519-ML-DSA-65'>
 
 /**
  * Runtime key material used internally by signing and verification harnesses.

@@ -1,0 +1,275 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@sovereignbase/cryptosuite</title><link rel="icon" href="https://sovereignbase.dev/sovereignbase_logo.png"/><meta name="description" content="Documentation for @sovereignbase/cryptosuite"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="index.html" class="title">@sovereignbase/cryptosuite</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<h1>@sovereignbase/cryptosuite</h1></div>
+<div class="tsd-panel tsd-typography"><p><a href="https://www.npmjs.com/package/@sovereignbase/cryptosuite"><img src="https://img.shields.io/npm/v/@sovereignbase/cryptosuite" alt="npm version"></a>
+<a href="https://github.com/sovereignbase/cryptosuite/actions/workflows/ci.yaml"><img src="https://github.com/sovereignbase/cryptosuite/actions/workflows/ci.yaml/badge.svg?branch=master" alt="CI"></a>
+<a href="https://codecov.io/gh/sovereignbase/cryptosuite"><img src="https://codecov.io/gh/sovereignbase/cryptosuite/branch/master/graph/badge.svg" alt="codecov"></a>
+<a href="LICENSE"><img src="https://img.shields.io/npm/l/@sovereignbase/cryptosuite" alt="license"></a></p>
+<h1 id="cryptosuite" class="tsd-anchor-link">cryptosuite<a href="#cryptosuite" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>JS/TS runtime-agnostic, quantum-safe, and agile cryptography toolkit with a declarative API for cipher messaging, message authentication, digital signatures, and key agreement.</p>
+<h2 id="compatibility" class="tsd-anchor-link">Compatibility<a href="#compatibility" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Runtimes: Tested on browsers, bun, deno, node, edge-runtimes.</li>
+<li>Module format: ESM or CJS</li>
+<li>Required globals / APIs: <code>crypto</code>, <code>crypto.subtle</code>, <code>crypto.getRandomValues</code></li>
+<li>Types: bundled <code>.d.ts</code></li>
+</ul>
+<h2 id="goals" class="tsd-anchor-link">Goals<a href="#goals" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Runtime-agnostic across modern JavaScript and TypeScript environments</li>
+<li>Post-quantum by default</li>
+<li>Crypto-agile, with room to add or replace algorithms as recommendations evolve while keeping already issued keys backwards compatible</li>
+<li>Declarative API surface that expresses cryptographic intent clearly</li>
+</ul>
+<h2 id="current-algorithms" class="tsd-anchor-link">Current algorithms<a href="#current-algorithms" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Cipher messaging: <code>AES-GCM-256</code></li>
+<li>Message authentication: <code>HMAC-SHA-256</code></li>
+<li>Key agreement: <code>X25519-ML-KEM-768</code></li>
+<li>Digital signatures: <code>Ed25519-ML-DSA-65</code></li>
+</ul>
+<h2 id="installation" class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<pre><code class="sh"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@sovereignbase/cryptosuite</span><br/><span class="hl-3"># or</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">add</span><span class="hl-1"> </span><span class="hl-2">@sovereignbase/cryptosuite</span><br/><span class="hl-3"># or</span><br/><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">add</span><span class="hl-1"> </span><span class="hl-2">@sovereignbase/cryptosuite</span><br/><span class="hl-3"># or</span><br/><span class="hl-0">bun</span><span class="hl-1"> </span><span class="hl-2">add</span><span class="hl-1"> </span><span class="hl-2">@sovereignbase/cryptosuite</span><br/><span class="hl-3"># or</span><br/><span class="hl-0">deno</span><span class="hl-1"> </span><span class="hl-2">add</span><span class="hl-1"> </span><span class="hl-2">jsr:@sovereignbase/cryptosuite</span><br/><span class="hl-3"># or</span><br/><span class="hl-0">vlt</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">jsr:@sovereignbase/cryptosuite</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="usage" class="tsd-anchor-link">Usage<a href="#usage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="cipher-messages" class="tsd-anchor-link">Cipher messages<a href="#cipher-messages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="ts"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">Cryptographic</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@sovereignbase/cryptosuite&#39;</span><br/><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">Bytes</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@sovereignbase/bytecodec&#39;</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">messageBytes</span><span class="hl-1"> = </span><span class="hl-5">Bytes</span><span class="hl-1">.</span><span class="hl-0">fromString</span><span class="hl-1">(</span><span class="hl-2">&#39;hello world&#39;</span><span class="hl-1">) </span><span class="hl-3">// Uint8Array</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">cipherKey</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">cipherMessage</span><span class="hl-1">.</span><span class="hl-0">generateKey</span><span class="hl-1">() </span><span class="hl-3">// JsonWebKey</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">sourceKeyMaterial</span><span class="hl-1"> = </span><span class="hl-5">Bytes</span><span class="hl-1">.</span><span class="hl-0">fromString</span><span class="hl-1">(</span><span class="hl-2">&#39;deterministic key source&#39;</span><span class="hl-1">) </span><span class="hl-3">// Uint8Array</span><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">salt</span><span class="hl-1"> = </span><span class="hl-5">Bytes</span><span class="hl-1">.</span><span class="hl-0">fromString</span><span class="hl-1">(</span><span class="hl-2">&#39;deterministic salt source&#39;</span><span class="hl-1">) </span><span class="hl-3">// Uint8Array</span><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">cipherKey</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">cipherMessage</span><span class="hl-1">.</span><span class="hl-0">deriveKey</span><span class="hl-1">(</span><br/><span class="hl-1">  </span><span class="hl-5">sourceKeyMaterial</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">salt</span><br/><span class="hl-1">) </span><span class="hl-3">// JsonWebKey</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">cipherMessage</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">cipherMessage</span><span class="hl-1">.</span><span class="hl-0">encrypt</span><span class="hl-1">(</span><br/><span class="hl-1">  </span><span class="hl-5">cipherKey</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">messageBytes</span><br/><span class="hl-1">) </span><span class="hl-3">// {ciphertext: ArrayBuffer, iv: Uint8Array}</span><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">roundtrip</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">cipherMessage</span><span class="hl-1">.</span><span class="hl-0">decrypt</span><span class="hl-1">(</span><br/><span class="hl-1">  </span><span class="hl-5">cipherKey</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">cipherMessage</span><br/><span class="hl-1">) </span><span class="hl-3">// Uint8Array</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">plainMessage</span><span class="hl-1"> = </span><span class="hl-5">Bytes</span><span class="hl-1">.</span><span class="hl-0">toString</span><span class="hl-1">(</span><span class="hl-5">roundtrip</span><span class="hl-1">) </span><span class="hl-3">// &#39;hello world&#39;</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="message-authentication" class="tsd-anchor-link">Message authentication<a href="#message-authentication" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="ts"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">Cryptographic</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@sovereignbase/cryptosuite&#39;</span><br/><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">Bytes</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@sovereignbase/bytecodec&#39;</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">messageBytes</span><span class="hl-1"> = </span><span class="hl-5">Bytes</span><span class="hl-1">.</span><span class="hl-0">fromString</span><span class="hl-1">(</span><span class="hl-2">&#39;authenticated payload&#39;</span><span class="hl-1">) </span><span class="hl-3">// Uint8Array</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">generatedMessageAuthenticationKey</span><span class="hl-1"> =</span><br/><span class="hl-1">  </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">messageAuthentication</span><span class="hl-1">.</span><span class="hl-0">generateKey</span><span class="hl-1">() </span><span class="hl-3">// JsonWebKey</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">sourceKeyMaterial</span><span class="hl-1"> = </span><span class="hl-5">Bytes</span><span class="hl-1">.</span><span class="hl-0">fromString</span><span class="hl-1">(</span><span class="hl-2">&#39;deterministic key source&#39;</span><span class="hl-1">) </span><span class="hl-3">// Uint8Array</span><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">salt</span><span class="hl-1"> = </span><span class="hl-5">Bytes</span><span class="hl-1">.</span><span class="hl-0">fromString</span><span class="hl-1">(</span><span class="hl-2">&#39;deterministic salt source&#39;</span><span class="hl-1">) </span><span class="hl-3">// Uint8Array</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">messageAuthenticationKey</span><span class="hl-1"> =</span><br/><span class="hl-1">  </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">messageAuthentication</span><span class="hl-1">.</span><span class="hl-0">deriveKey</span><span class="hl-1">(</span><span class="hl-5">sourceKeyMaterial</span><span class="hl-1">, </span><span class="hl-5">salt</span><span class="hl-1">) </span><span class="hl-3">// JsonWebKey</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">tag</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">messageAuthentication</span><span class="hl-1">.</span><span class="hl-0">sign</span><span class="hl-1">(</span><br/><span class="hl-1">  </span><span class="hl-5">generatedMessageAuthenticationKey</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">messageBytes</span><br/><span class="hl-1">) </span><span class="hl-3">// ArrayBuffer</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">verified</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">messageAuthentication</span><span class="hl-1">.</span><span class="hl-0">verify</span><span class="hl-1">(</span><br/><span class="hl-1">  </span><span class="hl-5">generatedMessageAuthenticationKey</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">messageBytes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">tag</span><br/><span class="hl-1">) </span><span class="hl-3">// boolean</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="key-agreement" class="tsd-anchor-link">Key agreement<a href="#key-agreement" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="ts"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">Cryptographic</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@sovereignbase/cryptosuite&#39;</span><br/><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">Bytes</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@sovereignbase/bytecodec&#39;</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">sourceKeyMaterial</span><span class="hl-1"> = </span><span class="hl-5">Bytes</span><span class="hl-1">.</span><span class="hl-0">fromString</span><span class="hl-1">(</span><span class="hl-2">&#39;k&#39;</span><span class="hl-1">.</span><span class="hl-0">repeat</span><span class="hl-1">(</span><span class="hl-8">32</span><span class="hl-1">)) </span><span class="hl-3">// Uint8Array, exactly 32 bytes</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> { </span><span class="hl-7">encapsulateKey</span><span class="hl-1">, </span><span class="hl-7">decapsulateKey</span><span class="hl-1"> } =</span><br/><span class="hl-1">  </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">keyAgreement</span><span class="hl-1">.</span><span class="hl-0">generateKeypair</span><span class="hl-1">() </span><span class="hl-3">// {encapsulateKey: JsonWebKey, decapsulateKey: JsonWebKey}</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">deterministicKeypair</span><span class="hl-1"> =</span><br/><span class="hl-1">  </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">keyAgreement</span><span class="hl-1">.</span><span class="hl-0">deriveKeypair</span><span class="hl-1">(</span><span class="hl-5">sourceKeyMaterial</span><span class="hl-1">) </span><span class="hl-3">// {encapsulateKey: JsonWebKey, decapsulateKey: JsonWebKey}</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> { </span><span class="hl-7">keyOffer</span><span class="hl-1">, </span><span class="hl-5">cipherKey</span><span class="hl-1">: </span><span class="hl-7">senderCipherKey</span><span class="hl-1"> } =</span><br/><span class="hl-1">  </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">keyAgreement</span><span class="hl-1">.</span><span class="hl-0">encapsulate</span><span class="hl-1">(</span><span class="hl-5">encapsulateKey</span><span class="hl-1">) </span><span class="hl-3">// {keyOffer: {ciphertext: ArrayBuffer}, cipherKey: JsonWebKey}</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> { </span><span class="hl-5">cipherKey</span><span class="hl-1">: </span><span class="hl-7">receiverCipherKey</span><span class="hl-1"> } =</span><br/><span class="hl-1">  </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">keyAgreement</span><span class="hl-1">.</span><span class="hl-0">decapsulate</span><span class="hl-1">(</span><span class="hl-5">keyOffer</span><span class="hl-1">, </span><span class="hl-5">decapsulateKey</span><span class="hl-1">) </span><span class="hl-3">// {cipherKey: JsonWebKey}</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="digital-signatures" class="tsd-anchor-link">Digital signatures<a href="#digital-signatures" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="ts"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">Cryptographic</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@sovereignbase/cryptosuite&#39;</span><br/><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">Bytes</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@sovereignbase/bytecodec&#39;</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">sourceKeyMaterial</span><span class="hl-1"> = </span><span class="hl-5">Bytes</span><span class="hl-1">.</span><span class="hl-0">fromString</span><span class="hl-1">(</span><span class="hl-2">&#39;s&#39;</span><span class="hl-1">.</span><span class="hl-0">repeat</span><span class="hl-1">(</span><span class="hl-8">64</span><span class="hl-1">)) </span><span class="hl-3">// Uint8Array, exactly 64 bytes</span><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">bytes</span><span class="hl-1"> = </span><span class="hl-5">Bytes</span><span class="hl-1">.</span><span class="hl-0">fromString</span><span class="hl-1">(</span><span class="hl-2">&#39;signed payload&#39;</span><span class="hl-1">) </span><span class="hl-3">// Uint8Array</span><br/><span class="hl-6">const</span><span class="hl-1"> { </span><span class="hl-7">signKey</span><span class="hl-1">, </span><span class="hl-7">verifyKey</span><span class="hl-1"> } =</span><br/><span class="hl-1">  </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">digitalSignature</span><span class="hl-1">.</span><span class="hl-0">generateKeypair</span><span class="hl-1">() </span><span class="hl-3">// {signKey: JsonWebKey, verifyKey: JsonWebKey}</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">deterministicKeypair</span><span class="hl-1"> =</span><br/><span class="hl-1">  </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">digitalSignature</span><span class="hl-1">.</span><span class="hl-0">deriveKeypair</span><span class="hl-1">(</span><span class="hl-5">sourceKeyMaterial</span><span class="hl-1">) </span><span class="hl-3">// {signKey: JsonWebKey, verifyKey: JsonWebKey}</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">signature</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">digitalSignature</span><span class="hl-1">.</span><span class="hl-0">sign</span><span class="hl-1">(</span><span class="hl-5">signKey</span><span class="hl-1">, </span><span class="hl-5">bytes</span><span class="hl-1">) </span><span class="hl-3">// Uint8Array</span><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">verified</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">Cryptographic</span><span class="hl-1">.</span><span class="hl-5">digitalSignature</span><span class="hl-1">.</span><span class="hl-0">verify</span><span class="hl-1">(</span><br/><span class="hl-1">  </span><span class="hl-5">verifyKey</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">bytes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">signature</span><br/><span class="hl-1">) </span><span class="hl-3">// boolean</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="runtime-behavior" class="tsd-anchor-link">Runtime behavior<a href="#runtime-behavior" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>symmetric operations use WebCrypto</li>
+<li>symmetric key derivation accepts an optional salt and always uses a
+key-type-specific HKDF <code>info</code> value for domain separation</li>
+<li>key agreement and digital signatures use <code>noble</code> hybrid primitives</li>
+<li>unsupported crypto primitives throw typed <code>CryptosuiteError</code> codes</li>
+</ul>
+<h2 id="security-notes" class="tsd-anchor-link">Security notes<a href="#security-notes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><code>AES-GCM</code> provides confidentiality and message integrity for each ciphertext</li>
+<li>authenticate peers and session setup at the protocol layer</li>
+<li>never reuse a <code>(key, iv)</code> pair</li>
+<li>treat JWKs and derived key material as secrets</li>
+<li>sign a canonical byte representation, not loosely structured objects</li>
+</ul>
+<h2 id="tests" class="tsd-anchor-link">Tests<a href="#tests" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Latest local <code>npm run test</code> run on <code>2026-04-17</code> with Node <code>v22.14.0 (win32 x64)</code>:</p>
+<ul>
+<li><code>65/65</code> tests passed</li>
+<li>Coverage passed at <code>100%</code> for statements, branches, functions, and lines</li>
+<li>End-to-end runtime suites all passed in:
+<ul>
+<li>Node ESM</li>
+<li>Node CJS</li>
+<li>Bun ESM</li>
+<li>Bun CJS</li>
+<li>Deno ESM</li>
+<li>Edge Runtime ESM</li>
+<li>Cloudflare Workers ESM</li>
+<li>Chromium</li>
+<li>Firefox</li>
+<li>WebKit</li>
+<li>Mobile Chrome emulation</li>
+<li>Mobile Safari emulation</li>
+</ul>
+</li>
+<li>The runtime suite currently exercises <code>20/20</code> public API scenarios per runtime:
+<ul>
+<li>1 static wiring check</li>
+<li>19 public methods</li>
+</ul>
+</li>
+</ul>
+<h2 id="benchmarks" class="tsd-anchor-link">Benchmarks<a href="#benchmarks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Latest local <code>npm run bench</code> run on <code>2026-04-17</code> with Node <code>v22.14.0 (win32 x64)</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th style="text-align:right">ops</th>
+<th style="text-align:right">ms</th>
+<th style="text-align:right">ms/op</th>
+<th style="text-align:right">ops/sec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cipherMessage.generateKey</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">48.77</td>
+<td style="text-align:right">0.4877</td>
+<td style="text-align:right">2050.38</td>
+</tr>
+<tr>
+<td><code>cipherMessage.deriveKey</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">67.84</td>
+<td style="text-align:right">0.6784</td>
+<td style="text-align:right">1474.02</td>
+</tr>
+<tr>
+<td><code>cipherMessage.encrypt</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">36.80</td>
+<td style="text-align:right">0.3680</td>
+<td style="text-align:right">2717.03</td>
+</tr>
+<tr>
+<td><code>cipherMessage.decrypt</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">36.02</td>
+<td style="text-align:right">0.3602</td>
+<td style="text-align:right">2776.57</td>
+</tr>
+<tr>
+<td><code>messageAuthentication.generateKey</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">44.84</td>
+<td style="text-align:right">0.4484</td>
+<td style="text-align:right">2230.24</td>
+</tr>
+<tr>
+<td><code>messageAuthentication.deriveKey</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">75.64</td>
+<td style="text-align:right">0.7564</td>
+<td style="text-align:right">1322.07</td>
+</tr>
+<tr>
+<td><code>messageAuthentication.sign</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">29.09</td>
+<td style="text-align:right">0.2909</td>
+<td style="text-align:right">3437.31</td>
+</tr>
+<tr>
+<td><code>messageAuthentication.verify</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">25.33</td>
+<td style="text-align:right">0.2533</td>
+<td style="text-align:right">3947.69</td>
+</tr>
+<tr>
+<td><code>keyAgreement.generateKeypair</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">827.02</td>
+<td style="text-align:right">8.2702</td>
+<td style="text-align:right">120.92</td>
+</tr>
+<tr>
+<td><code>keyAgreement.deriveKeypair</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">842.11</td>
+<td style="text-align:right">8.4211</td>
+<td style="text-align:right">118.75</td>
+</tr>
+<tr>
+<td><code>keyAgreement.encapsulate</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">1669.17</td>
+<td style="text-align:right">16.6917</td>
+<td style="text-align:right">59.91</td>
+</tr>
+<tr>
+<td><code>keyAgreement.decapsulate</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">1240.95</td>
+<td style="text-align:right">12.4095</td>
+<td style="text-align:right">80.58</td>
+</tr>
+<tr>
+<td><code>digitalSignature.generateKeypair</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">808.57</td>
+<td style="text-align:right">8.0857</td>
+<td style="text-align:right">123.67</td>
+</tr>
+<tr>
+<td><code>digitalSignature.deriveKeypair</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">612.56</td>
+<td style="text-align:right">6.1256</td>
+<td style="text-align:right">163.25</td>
+</tr>
+<tr>
+<td><code>digitalSignature.sign</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">3478.93</td>
+<td style="text-align:right">34.7893</td>
+<td style="text-align:right">28.74</td>
+</tr>
+<tr>
+<td><code>digitalSignature.verify</code></td>
+<td style="text-align:right">100</td>
+<td style="text-align:right">2574.33</td>
+<td style="text-align:right">25.7433</td>
+<td style="text-align:right">38.85</td>
+</tr>
+</tbody>
+</table>
+<p>Results vary by machine and Node version.</p>
+<h2 id="credits" class="tsd-anchor-link">Credits<a href="#credits" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Post-quantum primitives are built on top of <a href="https://paulmillr.com/noble/">noble</a>.</p>
+<p>Thanks to Paul Miller for an unusually clear, well-engineered, and genuinely awesome project.</p>
+<h2 id="license" class="tsd-anchor-link">License<a href="#license" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Apache-2.0</p>
+</div></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#cryptosuite"><span>cryptosuite</span></a>
+<ul>
+<li><a href="#compatibility"><span>Compatibility</span></a></li>
+<li><a href="#goals"><span>Goals</span></a></li>
+<li><a href="#current-algorithms"><span>Current algorithms</span></a></li>
+<li><a href="#installation"><span>Installation</span></a></li>
+<li><a href="#usage"><span>Usage</span></a></li>
+<li>
+<ul>
+<li><a href="#cipher-messages"><span>Cipher messages</span></a></li>
+<li><a href="#message-authentication"><span>Message authentication</span></a></li>
+<li><a href="#key-agreement"><span>Key agreement</span></a></li>
+<li><a href="#digital-signatures"><span>Digital signatures</span></a></li></ul></li>
+<li><a href="#runtime-behavior"><span>Runtime behavior</span></a></li>
+<li><a href="#security-notes"><span>Security notes</span></a></li>
+<li><a href="#tests"><span>Tests</span></a></li>
+<li><a href="#benchmarks"><span>Benchmarks</span></a></li>
+<li><a href="#credits"><span>Credits</span></a></li>
+<li><a href="#license"><span>License</span></a></li></ul></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="modules.html">@sovereignbase/cryptosuite</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>

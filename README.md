@@ -5,11 +5,12 @@
 
 # cryptosuite
 
-JS/TS runtime-agnostic, quantum-safe, and agile cryptography toolkit with a declarative API for cipher messaging, message authentication, digital signatures, key agreement, and identifiers.
+JS/TS runtime-agnostic, quantum-safe, and agile cryptography toolkit with a declarative API for cipher messaging, message authentication, digital signatures, and key agreement.
 
 ## Compatibility
 
-- Runtimes: Tested on browsers, bun, deno, node, edge-runtimes.
+- Runtimes: Tested on browsers, Bun, Cloudflare Workers, Deno, Edge Runtime,
+  and Node.js.
 - Module format: ESM or CJS
 - Required globals / APIs: `crypto`, `crypto.subtle`, `crypto.getRandomValues`
 - Types: bundled `.d.ts`
@@ -23,7 +24,6 @@ JS/TS runtime-agnostic, quantum-safe, and agile cryptography toolkit with a decl
 
 ## Current algorithms
 
-- Identifier: `SHA-384` or 48 random bytes, encoded as a fixed-length base64url string
 - Cipher messaging: `AES-GCM-256`
 - Message authentication: `HMAC-SHA-256`
 - Key agreement: `X25519-ML-KEM-768`
@@ -47,19 +47,6 @@ vlt install jsr:@sovereignbase/cryptosuite
 
 ## Usage
 
-### Identifiers
-
-```ts
-import { Cryptographic } from '@sovereignbase/cryptosuite'
-import { Bytes } from '@sovereignbase/bytecodec'
-
-const discoveryHook = Bytes.fromString('resource discovery hook') // Uint8Array
-
-const newResourceId = await Cryptographic.identifier.generate() // "64xb64urlchars..."
-const discoveryId = await Cryptographic.identifier.derive(discoveryHook) // "64xb64urlchars..."
-const ingressId = Cryptographic.identifier.validate(discoveryId) // "64xb64urlchars..." | false
-```
-
 ### Cipher messages
 
 ```ts
@@ -72,10 +59,10 @@ const cipherKey = await Cryptographic.cipherMessage.generateKey() // JsonWebKey
 
 const sourceKeyMaterial = Bytes.fromString('deterministic key source') // Uint8Array
 const salt = Bytes.fromString('deterministic salt source') // Uint8Array
-const { cipherKey } = await Cryptographic.cipherMessage.deriveKey(
+const cipherKey = await Cryptographic.cipherMessage.deriveKey(
   sourceKeyMaterial,
-  { salt }
-) // {cipherKey: JsonWebKey, salt: Uint8Array}
+  salt
+) // JsonWebKey
 
 const cipherMessage = await Cryptographic.cipherMessage.encrypt(
   cipherKey,
@@ -103,10 +90,8 @@ const generatedMessageAuthenticationKey =
 const sourceKeyMaterial = Bytes.fromString('deterministic key source') // Uint8Array
 const salt = Bytes.fromString('deterministic salt source') // Uint8Array
 
-const { messageAuthenticationKey } =
-  await Cryptographic.messageAuthentication.deriveKey(sourceKeyMaterial, {
-    salt,
-  }) // {messageAuthenticationKey: JsonWebKey, salt: Uint8Array}
+const messageAuthenticationKey =
+  await Cryptographic.messageAuthentication.deriveKey(sourceKeyMaterial, salt) // JsonWebKey
 
 const tag = await Cryptographic.messageAuthentication.sign(
   generatedMessageAuthenticationKey,
@@ -165,8 +150,9 @@ const verified = await Cryptographic.digitalSignature.verify(
 
 ## Runtime behavior
 
-- `identifier.generate()` requires `crypto.getRandomValues`
 - symmetric operations use WebCrypto
+- symmetric key derivation accepts an optional salt and always uses a
+  key-type-specific HKDF `info` value for domain separation
 - key agreement and digital signatures use `noble` hybrid primitives
 - unsupported crypto primitives throw typed `CryptosuiteError` codes
 
@@ -180,9 +166,9 @@ const verified = await Cryptographic.digitalSignature.verify(
 
 ## Tests
 
-Latest local `npm run test` run on `2026-04-17` with Node `v22.14.0 (win32 x64)`:
+Latest local `npm run test` run on `2026-08-29` with Node `v24.16.0 (win32 x64)`:
 
-- `65/65` tests passed
+- `63/63` unit and integration tests passed
 - Coverage passed at `100%` for statements, branches, functions, and lines
 - End-to-end runtime suites all passed in:
   - Node ESM
@@ -195,37 +181,35 @@ Latest local `npm run test` run on `2026-04-17` with Node `v22.14.0 (win32 x64)`
   - Chromium
   - Firefox
   - WebKit
-  - Mobile Chrome emulation
-  - Mobile Safari emulation
-- The runtime suite currently exercises `20/20` public API scenarios per runtime:
+  - Mobile Chromium emulation
+  - Mobile Firefox emulation
+  - Mobile WebKit emulation
+- The runtime suite currently exercises `17/17` public API scenarios per runtime:
   - 1 static wiring check
-  - 19 public methods
+  - 16 public methods
 
 ## Benchmarks
 
-Latest local `npm run bench` run on `2026-04-17` with Node `v22.14.0 (win32 x64)`.
+Latest local `npm run bench` run on `2026-08-29` with Node `v24.16.0 (win32 x64)`.
 
-| Benchmark                           | ops |      ms |   ms/op |   ops/sec |
-| ----------------------------------- | --: | ------: | ------: | --------: |
-| `identifier.generate`               | 100 |    2.91 |  0.0291 |  34389.08 |
-| `identifier.derive`                 | 100 |   34.97 |  0.3497 |   2859.53 |
-| `identifier.validate`               | 100 |    0.41 |  0.0041 | 243961.94 |
-| `cipherMessage.generateKey`         | 100 |   48.77 |  0.4877 |   2050.38 |
-| `cipherMessage.deriveKey`           | 100 |   67.84 |  0.6784 |   1474.02 |
-| `cipherMessage.encrypt`             | 100 |   36.80 |  0.3680 |   2717.03 |
-| `cipherMessage.decrypt`             | 100 |   36.02 |  0.3602 |   2776.57 |
-| `messageAuthentication.generateKey` | 100 |   44.84 |  0.4484 |   2230.24 |
-| `messageAuthentication.deriveKey`   | 100 |   75.64 |  0.7564 |   1322.07 |
-| `messageAuthentication.sign`        | 100 |   29.09 |  0.2909 |   3437.31 |
-| `messageAuthentication.verify`      | 100 |   25.33 |  0.2533 |   3947.69 |
-| `keyAgreement.generateKeypair`      | 100 |  827.02 |  8.2702 |    120.92 |
-| `keyAgreement.deriveKeypair`        | 100 |  842.11 |  8.4211 |    118.75 |
-| `keyAgreement.encapsulate`          | 100 | 1669.17 | 16.6917 |     59.91 |
-| `keyAgreement.decapsulate`          | 100 | 1240.95 | 12.4095 |     80.58 |
-| `digitalSignature.generateKeypair`  | 100 |  808.57 |  8.0857 |    123.67 |
-| `digitalSignature.deriveKeypair`    | 100 |  612.56 |  6.1256 |    163.25 |
-| `digitalSignature.sign`             | 100 | 3478.93 | 34.7893 |     28.74 |
-| `digitalSignature.verify`           | 100 | 2574.33 | 25.7433 |     38.85 |
+| Benchmark                           | ops |      ms |   ms/op |  ops/sec |
+| ----------------------------------- | --: | ------: | ------: | -------: |
+| `cipherMessage.generateKey`         | 100 |   17.36 |  0.1736 |  5759.77 |
+| `cipherMessage.deriveKey`           | 100 |   41.96 |  0.4196 |  2383.23 |
+| `cipherMessage.encrypt`             | 100 |   18.99 |  0.1899 |  5264.71 |
+| `cipherMessage.decrypt`             | 100 |   18.93 |  0.1893 |  5282.15 |
+| `messageAuthentication.generateKey` | 100 |   18.20 |  0.1820 |  5494.17 |
+| `messageAuthentication.deriveKey`   | 100 |   38.44 |  0.3844 |  2601.46 |
+| `messageAuthentication.sign`        | 100 |    8.57 |  0.0857 | 11672.70 |
+| `messageAuthentication.verify`      | 100 |    7.58 |  0.0758 | 13199.93 |
+| `keyAgreement.generateKeypair`      | 100 |  312.30 |  3.1230 |   320.20 |
+| `keyAgreement.deriveKeypair`        | 100 |  244.60 |  2.4460 |   408.84 |
+| `keyAgreement.encapsulate`          | 100 |  990.29 |  9.9029 |   100.98 |
+| `keyAgreement.decapsulate`          | 100 |  803.80 |  8.0380 |   124.41 |
+| `digitalSignature.generateKeypair`  | 100 |  500.13 |  5.0013 |   199.95 |
+| `digitalSignature.deriveKeypair`    | 100 |  384.87 |  3.8487 |   259.83 |
+| `digitalSignature.sign`             | 100 | 1922.69 | 19.2269 |    52.01 |
+| `digitalSignature.verify`           | 100 |  626.36 |  6.2636 |   159.65 |
 
 Results vary by machine and Node version.
 

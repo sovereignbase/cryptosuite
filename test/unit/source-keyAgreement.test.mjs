@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { afterEach, test } from 'vitest'
 import { webcrypto } from 'node:crypto'
 import { ml_kem768_x25519 } from '@noble/post-quantum/hybrid.js'
 import { ml_kem1024 } from '@noble/post-quantum/ml-kem.js'
@@ -9,6 +9,8 @@ import { getParamsByAlgCode } from '../../src/KeyAgreement/.core/helpers/getPara
 import { validateKeyByAlgCode } from '../../src/KeyAgreement/.core/helpers/validateKeyByAlgCode/index.ts'
 import { DecapsulateKeyHarness } from '../../src/KeyAgreement/.core/DecapsulateKeyHarness/class.ts'
 import { EncapsulateKeyHarness } from '../../src/KeyAgreement/.core/EncapsulateKeyHarness/class.ts'
+import { deriveKeyAgreementKeypair } from '../../src/KeyAgreement/deriveKeyAgreementKeypair/index.ts'
+import { generateKeyAgreementKeypair } from '../../src/KeyAgreement/generateKeyAgreementKeypair/index.ts'
 import {
   buildCrypto,
   expectCodeAsync,
@@ -30,8 +32,25 @@ if (!globalThis.crypto) {
   globalThis.crypto = webcrypto
 }
 
-test.afterEach(() => {
+afterEach(() => {
   restoreCrypto()
+})
+
+test('source key agreement wrappers generate and derive keypairs', async () => {
+  await expectCodeAsync(
+    () => deriveKeyAgreementKeypair(new Uint8Array()),
+    'KEY_AGREEMENT_KEY_INVALID'
+  )
+
+  const generated = await generateKeyAgreementKeypair()
+  const derived = await deriveKeyAgreementKeypair(
+    filledBytes(ml_kem768_x25519.lengths.seed, 7)
+  )
+
+  assert.equal(generated.encapsulateKey.alg, 'X25519-ML-KEM-768')
+  assert.equal(generated.decapsulateKey.alg, 'X25519-ML-KEM-768')
+  assert.equal(derived.encapsulateKey.alg, 'X25519-ML-KEM-768')
+  assert.equal(derived.decapsulateKey.alg, 'X25519-ML-KEM-768')
 })
 
 test('source key agreement helpers cover validation and unsupported branches', () => {
@@ -286,6 +305,27 @@ test('source key agreement harnesses cover constructor, invariant, and export br
         ciphertext: new ArrayBuffer(ml_kem1024.lengths.cipherText),
       }),
     'KEY_AGREEMENT_KEY_INVALID'
+  )
+
+  const artifactValidator = new DecapsulateKeyHarness(createMlKemPrivateKey())
+  await expectCodeAsync(
+    () => artifactValidator.decapsulate(null),
+    'KEY_AGREEMENT_ARTIFACT_INVALID'
+  )
+  await expectCodeAsync(
+    () => artifactValidator.decapsulate(1),
+    'KEY_AGREEMENT_ARTIFACT_INVALID'
+  )
+  await expectCodeAsync(
+    () => artifactValidator.decapsulate({}),
+    'KEY_AGREEMENT_ARTIFACT_INVALID'
+  )
+  await expectCodeAsync(
+    () =>
+      artifactValidator.decapsulate({
+        ciphertext: new ArrayBuffer(1),
+      }),
+    'KEY_AGREEMENT_ARTIFACT_INVALID'
   )
 
   const encapsulateFailHarness = new EncapsulateKeyHarness(

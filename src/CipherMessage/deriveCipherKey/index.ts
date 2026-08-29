@@ -1,37 +1,22 @@
-/*
-Copyright 2026 Sovereignbase
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-import { toBufferSource } from '@sovereignbase/bytecodec'
+import { fromString, toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
 import { getBufferSourceLength } from '../../.helpers/getBufferSourceLength.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { CipherKey } from '../.core/types/index.js'
 
+const INFO = fromString('@sovereignbase/cryptosuite/CipherKey')
+
 /**
  * Derives a symmetric cipher key from source key material.
  *
  * @param sourceKeyMaterial - The source bytes to derive from.
- * @param options - Optional derivation options.
- * @returns The derived cipher key and the salt used for derivation.
+ * @param salt - Optional HKDF salt. An empty salt is used when omitted.
+ * @returns The derived cipher key.
  */
 export async function deriveCipherKey(
   sourceKeyMaterial: Uint8Array,
-  options: {
-    salt?: Uint8Array
-  } = {}
-): Promise<{ cipherKey: CipherKey; salt: Uint8Array }> {
+  salt?: Uint8Array
+): Promise<CipherKey> {
   if (!globalThis.crypto?.subtle) {
     throw new CryptosuiteError(
       'SUBTLE_UNAVAILABLE',
@@ -46,14 +31,6 @@ export async function deriveCipherKey(
     )
   }
 
-  if (!options.salt && !globalThis.crypto?.getRandomValues) {
-    throw new CryptosuiteError(
-      'GET_RANDOM_VALUES_UNAVAILABLE',
-      'deriveCipherKey: crypto.getRandomValues is unavailable.'
-    )
-  }
-
-  const salt = options.salt ?? crypto.getRandomValues(new Uint8Array(16))
   let key: CryptoKey
   let derived: CryptoKey
   try {
@@ -68,8 +45,8 @@ export async function deriveCipherKey(
       {
         name: 'HKDF',
         hash: 'SHA-256',
-        salt: toBufferSource(salt),
-        info: new Uint8Array(0),
+        salt: toBufferSource(salt ?? new Uint8Array()),
+        info: toBufferSource(INFO),
       },
       key,
       { name: 'AES-GCM', length: 256 },
@@ -83,11 +60,5 @@ export async function deriveCipherKey(
     )
   }
 
-  const cipherKey = validateKeyByAlgCode(
-    await crypto.subtle.exportKey('jwk', derived)
-  )
-  return {
-    cipherKey,
-    salt,
-  }
+  return validateKeyByAlgCode(await crypto.subtle.exportKey('jwk', derived))
 }

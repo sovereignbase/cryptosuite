@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { afterEach, test } from 'vitest'
 import { webcrypto } from 'node:crypto'
 import { createParamsByAlgCode } from '../../src/CipherMessage/.core/helpers/createParamsByAlgCode/index.ts'
 import { getImportKeyAlgorithmByAlgCode } from '../../src/CipherMessage/.core/helpers/getImportKeyAlgorithmByAlgCode/index.ts'
@@ -7,6 +7,7 @@ import { getParamsByAlgCode } from '../../src/CipherMessage/.core/helpers/getPar
 import { validateKeyByAlgCode } from '../../src/CipherMessage/.core/helpers/validateKeyByAlgCode/index.ts'
 import { CipherKeyHarness } from '../../src/CipherMessage/.core/CipherKeyHarness/class.ts'
 import { deriveCipherKey } from '../../src/CipherMessage/deriveCipherKey/index.ts'
+import { generateCipherKey } from '../../src/CipherMessage/generateCipherKey/index.ts'
 import {
   buildCrypto,
   expectCodeAsync,
@@ -24,7 +25,7 @@ if (!globalThis.crypto) {
   globalThis.crypto = webcrypto
 }
 
-test.afterEach(() => {
+afterEach(() => {
   restoreCrypto()
 })
 
@@ -217,6 +218,12 @@ test('source CipherKeyHarness covers constructor, import failure, and decrypt va
 })
 
 test('source deriveCipherKey covers subtle-unavailable branch', async () => {
+  setCrypto(undefined)
+  await expectCodeAsync(
+    () => deriveCipherKey(bytes(1, 2, 3)),
+    'SUBTLE_UNAVAILABLE'
+  )
+
   setCrypto({})
   await expectCodeAsync(
     () => deriveCipherKey(bytes(1, 2, 3)),
@@ -224,19 +231,56 @@ test('source deriveCipherKey covers subtle-unavailable branch', async () => {
   )
 })
 
-test('source deriveCipherKey covers generated-salt branch', async () => {
+test('source generateCipherKey returns the normalized default key', async () => {
+  setCrypto({})
+  await expectCodeAsync(() => generateCipherKey(), 'SUBTLE_UNAVAILABLE')
+
   setCrypto(
     buildCrypto({
-      getRandomValues: (array) => array.fill(5),
       subtle: {
-        importKey: async () => ({}),
-        deriveKey: async () => ({}),
+        generateKey: async () => ({}),
         exportKey: async () => createA256GcmKey(),
       },
     })
   )
 
-  const result = await deriveCipherKey(bytes(1, 2, 3))
-  assert.equal(result.cipherKey.alg, 'A256GCM')
-  assert.deepEqual(Array.from(result.salt), Array(16).fill(5))
+  const key = await generateCipherKey()
+  assert.equal(key.alg, 'A256GCM')
+})
+
+test('source deriveCipherKey uses optional salt and fixed domain info', async () => {
+  const derivationParams = []
+  setCrypto(
+    buildCrypto({
+      subtle: {
+        importKey: async () => ({}),
+        deriveKey: async (params) => {
+          derivationParams.push(params)
+          return {}
+        },
+        exportKey: async () => createA256GcmKey(),
+      },
+    })
+  )
+
+  await expectCodeAsync(
+    () => deriveCipherKey(new Uint8Array()),
+    'CIPHER_KEY_INVALID'
+  )
+
+  const unsalted = await deriveCipherKey(bytes(1, 2, 3))
+  const salted = await deriveCipherKey(bytes(1, 2, 3), bytes(4, 5))
+
+  assert.equal(unsalted.alg, 'A256GCM')
+  assert.equal(salted.alg, 'A256GCM')
+  assert.equal(derivationParams[0].salt.byteLength, 0)
+  assert.equal(
+    new TextDecoder().decode(derivationParams[0].info),
+    '@sovereignbase/cryptosuite/CipherKey'
+  )
+  assert.deepEqual(Array.from(derivationParams[1].salt), [4, 5])
+  assert.deepEqual(
+    Array.from(derivationParams[1].info),
+    Array.from(derivationParams[0].info)
+  )
 })

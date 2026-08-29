@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { afterEach, test } from 'vitest'
 import { webcrypto } from 'node:crypto'
 import { Cryptographic } from '../../dist/index.js'
 import {
@@ -14,7 +14,7 @@ if (!globalThis.crypto) {
   globalThis.crypto = webcrypto
 }
 
-test.afterEach(() => {
+afterEach(() => {
   restoreCrypto()
 })
 
@@ -47,17 +47,6 @@ test('messageAuthentication.deriveKey rejects empty source key material', async 
   await expectCodeAsync(
     () => Cryptographic.messageAuthentication.deriveKey(new Uint8Array(0)),
     'HMAC_JWK_INVALID'
-  )
-})
-
-test('messageAuthentication.deriveKey requires getRandomValues when salt is omitted', async () => {
-  setCrypto({
-    subtle: globalThis.crypto.subtle,
-  })
-
-  await expectCodeAsync(
-    () => Cryptographic.messageAuthentication.deriveKey(bytes(1, 2, 3)),
-    'GET_RANDOM_VALUES_UNAVAILABLE'
   )
 })
 

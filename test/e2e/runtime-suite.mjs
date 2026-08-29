@@ -71,18 +71,7 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
   }
 
   await run('static API is wired', async () => {
-    assert(
-      typeof Cryptographic.identifier.generate === 'function',
-      'identifier.generate is missing'
-    )
-    assert(
-      typeof Cryptographic.identifier.derive === 'function',
-      'identifier.derive is missing'
-    )
-    assert(
-      typeof Cryptographic.identifier.validate === 'function',
-      'identifier.validate is missing'
-    )
+    assert(!('identifier' in Cryptographic), 'identifier must not be exposed')
     assert(
       typeof Cryptographic.cipherMessage.generateKey === 'function',
       'cipherMessage.generateKey is missing'
@@ -149,39 +138,6 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
     )
   })
 
-  await run('identifier.generate returns an opaque identifier', async () => {
-    const generated = Cryptographic.identifier.generate()
-    assert(generated.length === 64, 'generated identifier must be 64 chars')
-    assertEqual(
-      Cryptographic.identifier.validate(generated),
-      generated,
-      'generated identifier must validate'
-    )
-  })
-
-  await run('identifier.derive is deterministic', async () => {
-    const one = await Cryptographic.identifier.derive(plaintext)
-    const two = await Cryptographic.identifier.derive(plaintext)
-    assertEqual(one, two, 'identifier derivation must be deterministic')
-    assert(one.length === 64, 'derived identifier must be 64 chars')
-  })
-
-  await run(
-    'identifier.validate accepts valid and rejects invalid input',
-    () => {
-      const valid = 'A'.repeat(64)
-      assertEqual(
-        Cryptographic.identifier.validate(valid),
-        valid,
-        'valid identifier must be returned as-is'
-      )
-      assert(
-        Cryptographic.identifier.validate('bad') === false,
-        'invalid identifier must fail validation'
-      )
-    }
-  )
-
   await run('cipherMessage.generateKey returns an AES-GCM key', async () => {
     const cipherKey = await Cryptographic.cipherMessage.generateKey()
     assertEqual(cipherKey.kty, 'oct', 'cipher key must be symmetric')
@@ -189,24 +145,18 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
     assert(typeof cipherKey.k === 'string', 'cipher key material must exist')
   })
 
-  await run(
-    'cipherMessage.deriveKey is deterministic with explicit salt',
-    async () => {
-      const one = await Cryptographic.cipherMessage.deriveKey(plaintext, {
-        salt: cipherSalt,
-      })
-      const two = await Cryptographic.cipherMessage.deriveKey(plaintext, {
-        salt: cipherSalt,
-      })
-      assertEqual(
-        one.cipherKey.k,
-        two.cipherKey.k,
-        'derived cipher keys must match'
-      )
-      assertBytesEqual(one.salt, cipherSalt, 'cipher derivation salt mismatch')
-      assertBytesEqual(two.salt, cipherSalt, 'cipher derivation salt mismatch')
-    }
-  )
+  await run('cipherMessage.deriveKey accepts an optional salt', async () => {
+    const one = await Cryptographic.cipherMessage.deriveKey(
+      plaintext,
+      cipherSalt
+    )
+    const two = await Cryptographic.cipherMessage.deriveKey(
+      plaintext,
+      cipherSalt
+    )
+    assertEqual(one.k, two.k, 'derived cipher keys must match')
+    assertEqual(one.alg, 'A256GCM', 'derived cipher key alg mismatch')
+  })
 
   await run('cipherMessage.encrypt returns a cipher artifact', async () => {
     const cipherKey = await Cryptographic.cipherMessage.generateKey()
@@ -246,34 +196,25 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
   )
 
   await run(
-    'messageAuthentication.deriveKey is deterministic with explicit salt',
+    'messageAuthentication.deriveKey accepts an optional salt',
     async () => {
       const one = await Cryptographic.messageAuthentication.deriveKey(
         plaintext,
-        {
-          salt: messageAuthenticationSalt,
-        }
+        messageAuthenticationSalt
       )
       const two = await Cryptographic.messageAuthentication.deriveKey(
         plaintext,
-        {
-          salt: messageAuthenticationSalt,
-        }
+        messageAuthenticationSalt
       )
       assertEqual(
-        one.messageAuthenticationKey.k,
-        two.messageAuthenticationKey.k,
+        one.k,
+        two.k,
         'message authentication derivation must be deterministic'
       )
-      assertBytesEqual(
-        one.salt,
-        messageAuthenticationSalt,
-        'message authentication derivation salt mismatch'
-      )
-      assertBytesEqual(
-        two.salt,
-        messageAuthenticationSalt,
-        'message authentication derivation salt mismatch'
+      assertEqual(
+        one.alg,
+        'HS256',
+        'derived message authentication key alg mismatch'
       )
     }
   )

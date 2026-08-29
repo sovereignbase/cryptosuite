@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { afterEach, test } from 'vitest'
 import { Cryptographic as SourceCryptographic } from '../../src/index.ts'
 import * as cipherMessage from '../../src/CipherMessage/index.ts'
 import * as digitalSignature from '../../src/DigitalSignature/index.ts'
@@ -14,12 +14,12 @@ import {
   buildCrypto,
 } from '../support/index.mjs'
 
-test.afterEach(() => {
+afterEach(() => {
   restoreCrypto()
 })
 
 test('source core exports expose the expected runtime surface', () => {
-  assert.equal(typeof SourceCryptographic.identifier.generate, 'function')
+  assert.equal('identifier' in SourceCryptographic, false)
   assert.equal(typeof SourceCryptographic.cipherMessage.encrypt, 'function')
   assert.equal(
     typeof SourceCryptographic.messageAuthentication.sign,
@@ -80,18 +80,4 @@ test('getBufferSourceLength handles both supported inputs and rejects others', (
     () => getBufferSourceLength('x', 'boom'),
     'BUFFER_SOURCE_EXPECTED'
   )
-})
-
-test('source root surface remains usable when crypto is stubbed', async () => {
-  setCrypto(
-    buildCrypto({
-      subtle: {
-        digest: async () => new Uint8Array(48).buffer,
-      },
-    })
-  )
-
-  const id = await SourceCryptographic.identifier.derive(new Uint8Array([1, 2]))
-  assert.equal(typeof id, 'string')
-  assert.equal(id.length, 64)
 })

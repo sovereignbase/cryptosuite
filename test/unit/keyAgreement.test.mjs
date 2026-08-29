@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { afterEach, test } from 'vitest'
 import { webcrypto } from 'node:crypto'
 import { Cryptographic } from '../../dist/index.js'
 import {
@@ -18,7 +18,7 @@ if (!globalThis.crypto) {
   globalThis.crypto = webcrypto
 }
 
-test.afterEach(() => {
+afterEach(() => {
   restoreCrypto()
 })
 

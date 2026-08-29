@@ -68,8 +68,6 @@ function printTable(results) {
   }
 }
 
-const identifierBytes = encoder.encode('cryptosuite benchmark identifier')
-const validIdentifier = await Cryptographic.identifier.derive(identifierBytes)
 const cipherDerivationSalt = createBytes(16, 17)
 const cipherDerivationSource = encoder.encode(
   'cryptosuite benchmark cipher derivation source'
@@ -91,28 +89,6 @@ const digitalSignatureBytes = encoder.encode(
 const results = []
 
 results.push(
-  await measure('identifier.generate', iterations, async () => {
-    await Cryptographic.identifier.generate()
-  })
-)
-
-results.push(
-  await measure('identifier.derive', iterations, async () => {
-    await Cryptographic.identifier.derive(identifierBytes)
-  })
-)
-
-results.push(
-  await measure('identifier.validate', iterations, () => {
-    if (
-      Cryptographic.identifier.validate(validIdentifier) !== validIdentifier
-    ) {
-      throw new Error('identifier.validate failed its benchmark invariant.')
-    }
-  })
-)
-
-results.push(
   await measure('cipherMessage.generateKey', iterations, async () => {
     await Cryptographic.cipherMessage.generateKey()
   })
@@ -120,9 +96,10 @@ results.push(
 
 results.push(
   await measure('cipherMessage.deriveKey', iterations, async () => {
-    await Cryptographic.cipherMessage.deriveKey(cipherDerivationSource, {
-      salt: cipherDerivationSalt,
-    })
+    await Cryptographic.cipherMessage.deriveKey(
+      cipherDerivationSource,
+      cipherDerivationSalt
+    )
   })
 )
 
@@ -156,7 +133,7 @@ results.push(
   await measure('messageAuthentication.deriveKey', iterations, async () => {
     await Cryptographic.messageAuthentication.deriveKey(
       messageAuthenticationSource,
-      { salt: messageAuthenticationSalt }
+      messageAuthenticationSalt
     )
   })
 )

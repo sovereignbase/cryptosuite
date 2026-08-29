@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { afterEach, test } from 'vitest'
 import { webcrypto } from 'node:crypto'
 import { Cryptographic } from '../../dist/index.js'
 import {
@@ -18,7 +18,7 @@ if (!globalThis.crypto) {
   globalThis.crypto = webcrypto
 }
 
-test.afterEach(() => {
+afterEach(() => {
   restoreCrypto()
 })
 
@@ -54,19 +54,6 @@ test('cipherMessage.deriveKey rejects empty source key material', async () => {
   )
 })
 
-test('cipherMessage.deriveKey requires getRandomValues when salt is omitted', async () => {
-  setCrypto(
-    buildCrypto({
-      getRandomValues: undefined,
-    })
-  )
-
-  await expectCodeAsync(
-    () => Cryptographic.cipherMessage.deriveKey(bytes(1, 2, 3)),
-    'GET_RANDOM_VALUES_UNAVAILABLE'
-  )
-})
-
 test('cipherMessage.deriveKey maps unsupported HKDF or AES-GCM to ALGORITHM_UNSUPPORTED', async () => {
   setCrypto(
     buildCrypto({
@@ -80,9 +67,7 @@ test('cipherMessage.deriveKey maps unsupported HKDF or AES-GCM to ALGORITHM_UNSU
 
   await expectCodeAsync(
     () =>
-      Cryptographic.cipherMessage.deriveKey(bytes(1, 2, 3), {
-        salt: new Uint8Array(16),
-      }),
+      Cryptographic.cipherMessage.deriveKey(bytes(1, 2, 3), new Uint8Array(16)),
     'ALGORITHM_UNSUPPORTED'
   )
 })

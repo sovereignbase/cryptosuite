@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { test } from 'vitest'
 import { ml_dsa87 } from '@noble/post-quantum/ml-dsa.js'
 import { createImportKeyAlgorithmByAlgCode } from '../../src/DigitalSignature/.core/helpers/createImportKeyAlgorithmByAlgCode/index.ts'
 import { createParamsByAlgCode } from '../../src/DigitalSignature/.core/helpers/createParamsByAlgCode/index.ts'
@@ -7,6 +7,8 @@ import { getParamsByAlgCode } from '../../src/DigitalSignature/.core/helpers/get
 import { validateKeyByAlgCode } from '../../src/DigitalSignature/.core/helpers/validateKeyByAlgCode/index.ts'
 import { SignKeyHarness } from '../../src/DigitalSignature/.core/SignKeyHarness/class.ts'
 import { VerifyKeyHarness } from '../../src/DigitalSignature/.core/VerifyKeyHarness/class.ts'
+import { deriveDigitalSignatureKeypair } from '../../src/DigitalSignature/deriveDigitalSignatureKeypair/index.ts'
+import { generateDigitalSignatureKeypair } from '../../src/DigitalSignature/generateDigitalSignatureKeypair/index.ts'
 import { expectCodeAsync, expectCodeSync } from '../support/index.mjs'
 import {
   bytes,
@@ -16,6 +18,21 @@ import {
   createMlDsaVerifyKey,
   filledBytes,
 } from '../support/fixtures.mjs'
+
+test('source digital signature wrappers generate and derive keypairs', async () => {
+  await expectCodeAsync(
+    () => deriveDigitalSignatureKeypair(new Uint8Array()),
+    'SIGN_JWK_INVALID'
+  )
+
+  const generated = await generateDigitalSignatureKeypair()
+  const derived = await deriveDigitalSignatureKeypair(filledBytes(64, 7))
+
+  assert.equal(generated.signKey.alg, 'Ed25519-ML-DSA-65')
+  assert.equal(generated.verifyKey.alg, 'Ed25519-ML-DSA-65')
+  assert.equal(derived.signKey.alg, 'Ed25519-ML-DSA-65')
+  assert.equal(derived.verifyKey.alg, 'Ed25519-ML-DSA-65')
+})
 
 test('source digital signature helpers cover validation and unsupported branches', () => {
   expectCodeSync(() => validateKeyByAlgCode(null), 'SIGN_JWK_INVALID')

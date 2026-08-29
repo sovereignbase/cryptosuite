@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { test } from 'vitest'
 import { webcrypto } from 'node:crypto'
 import { ml_kem768_x25519 } from '@noble/post-quantum/hybrid.js'
 import { Cryptographic } from '../../dist/index.js'
@@ -10,15 +10,6 @@ if (!globalThis.crypto) {
 }
 
 const PLAINTEXT = new TextEncoder().encode('cryptosuite integration')
-
-test('integration: identifier generate/derive/validate', async () => {
-  const generated = await Cryptographic.identifier.generate()
-  const derived = await Cryptographic.identifier.derive(PLAINTEXT)
-  assert.equal(Cryptographic.identifier.validate(generated), generated)
-  assert.equal(Cryptographic.identifier.validate(derived), derived)
-  assert.equal(generated.length, 64)
-  assert.equal(derived.length, 64)
-})
 
 test('integration: AES-GCM encrypt/decrypt roundtrip', async () => {
   const cipherKey = await Cryptographic.cipherMessage.generateKey()
@@ -34,13 +25,14 @@ test('integration: AES-GCM encrypt/decrypt roundtrip', async () => {
   assert.equal(cipherMessage.iv.byteLength, 12)
 })
 
-test('integration: cipher derivation is deterministic with explicit salt', async () => {
+test('integration: cipher derivation accepts an optional salt', async () => {
   const salt = new Uint8Array(16).fill(9)
-  const one = await Cryptographic.cipherMessage.deriveKey(PLAINTEXT, { salt })
-  const two = await Cryptographic.cipherMessage.deriveKey(PLAINTEXT, { salt })
-  assert.equal(one.cipherKey.k, two.cipherKey.k)
-  assert.deepEqual(Array.from(one.salt), Array.from(salt))
-  assert.equal(one.salt.byteLength, 16)
+  const one = await Cryptographic.cipherMessage.deriveKey(PLAINTEXT, salt)
+  const two = await Cryptographic.cipherMessage.deriveKey(PLAINTEXT, salt)
+  const unsalted = await Cryptographic.cipherMessage.deriveKey(PLAINTEXT)
+  assert.equal(one.k, two.k)
+  assert.notEqual(one.k, unsalted.k)
+  assert.equal(one.alg, 'A256GCM')
 })
 
 test('integration: HMAC sign/verify roundtrip', async () => {
@@ -64,18 +56,21 @@ test('integration: HMAC sign/verify roundtrip', async () => {
   assert.equal(rejected, false)
 })
 
-test('integration: HMAC derivation is deterministic with explicit salt', async () => {
+test('integration: HMAC derivation accepts an optional salt', async () => {
   const material = bytes(1, 2, 3, 4, 5, 6, 7, 8)
   const salt = new Uint8Array(16).fill(7)
-  const one = await Cryptographic.messageAuthentication.deriveKey(material, {
-    salt,
-  })
-  const two = await Cryptographic.messageAuthentication.deriveKey(material, {
-    salt,
-  })
-  assert.equal(one.messageAuthenticationKey.k, two.messageAuthenticationKey.k)
-  assert.deepEqual(Array.from(one.salt), Array.from(salt))
-  assert.equal(one.salt.byteLength, 16)
+  const one = await Cryptographic.messageAuthentication.deriveKey(
+    material,
+    salt
+  )
+  const two = await Cryptographic.messageAuthentication.deriveKey(
+    material,
+    salt
+  )
+  const unsalted = await Cryptographic.messageAuthentication.deriveKey(material)
+  assert.equal(one.k, two.k)
+  assert.notEqual(one.k, unsalted.k)
+  assert.equal(one.alg, 'HS256')
 })
 
 test('integration: key agreement encapsulate/decapsulate reconstructs the same cipher key', async () => {

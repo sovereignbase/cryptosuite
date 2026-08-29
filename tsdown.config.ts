@@ -1,5 +1,6 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsdown'
 
+/** Apache-2.0 notice prepended to every emitted JavaScript bundle. */
 const apache2Banner = [
   '/*',
   ` * Copyright ${new Date().getUTCFullYear()} Sovereignbase`,
@@ -27,12 +28,10 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  splitting: true,
   banner: {
     js: `${apache2Banner}\n`,
   },
-  external: [],
-  outExtension({ format }) {
+  outExtensions({ format }) {
     return { js: format === 'cjs' ? '.cjs' : '.js' }
   },
 })

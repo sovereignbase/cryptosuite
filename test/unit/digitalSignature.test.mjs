@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { test } from 'vitest'
 import { Cryptographic } from '../../dist/index.js'
 import { expectCodeAsync } from '../support/index.mjs'
 import {

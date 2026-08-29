@@ -1,18 +1,3 @@
-/*
-Copyright 2026 Sovereignbase
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 type NoSymmetric = {
   k?: never
 }
@@ -67,15 +52,13 @@ type DecapsulateParams = {
  * Public supported key agreement JWK used to encapsulate a shared cipher key.
  */
 export type EncapsulateKey =
-  | EncapsulateKeyByAlg<'ML-KEM-1024'>
-  | EncapsulateKeyByAlg<'X25519-ML-KEM-768'>
+  EncapsulateKeyByAlg<'ML-KEM-1024'> | EncapsulateKeyByAlg<'X25519-ML-KEM-768'>
 
 /**
  * Private supported key agreement JWK used to decapsulate a shared cipher key.
  */
 export type DecapsulateKey =
-  | DecapsulateKeyByAlg<'ML-KEM-1024'>
-  | DecapsulateKeyByAlg<'X25519-ML-KEM-768'>
+  DecapsulateKeyByAlg<'ML-KEM-1024'> | DecapsulateKeyByAlg<'X25519-ML-KEM-768'>
 
 /**
  * Encapsulated key agreement artifact exchanged with the counterparty.

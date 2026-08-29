@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { afterEach, test } from 'vitest'
 import { webcrypto } from 'node:crypto'
 import { createImportKeyAlgorithmByAlgCode } from '../../src/MessageAuthentication/.core/helpers/createImportKeyAlgorithmByAlgCode/index.ts'
 import { createParamsByAlgCode } from '../../src/MessageAuthentication/.core/helpers/createParamsByAlgCode/index.ts'
@@ -7,6 +7,7 @@ import { getParamsByAlgCode } from '../../src/MessageAuthentication/.core/helper
 import { validateKeyByAlgCode } from '../../src/MessageAuthentication/.core/helpers/validateKeyByAlgCode/index.ts'
 import { MessageAuthenticationKeyHarness } from '../../src/MessageAuthentication/.core/MessageAuthenticationKeyHarness/class.ts'
 import { deriveMessageAuthenticationKey } from '../../src/MessageAuthentication/deriveMessageAuthenticationKey/index.ts'
+import { generateMessageAuthenticationKey } from '../../src/MessageAuthentication/generateMessageAuthenticationKey/index.ts'
 import {
   buildCrypto,
   expectCodeAsync,
@@ -20,7 +21,7 @@ if (!globalThis.crypto) {
   globalThis.crypto = webcrypto
 }
 
-test.afterEach(() => {
+afterEach(() => {
   restoreCrypto()
 })
 
@@ -113,9 +114,75 @@ test('source MessageAuthenticationKeyHarness covers subtle-unavailable and impor
 })
 
 test('source deriveMessageAuthenticationKey covers subtle-unavailable branch', async () => {
+  setCrypto(undefined)
+  await expectCodeAsync(
+    () => deriveMessageAuthenticationKey(bytes(1, 2, 3)),
+    'SUBTLE_UNAVAILABLE'
+  )
+
   setCrypto({})
   await expectCodeAsync(
     () => deriveMessageAuthenticationKey(bytes(1, 2, 3)),
     'SUBTLE_UNAVAILABLE'
+  )
+})
+
+test('source generateMessageAuthenticationKey returns the normalized default key', async () => {
+  setCrypto({})
+  await expectCodeAsync(
+    () => generateMessageAuthenticationKey(),
+    'SUBTLE_UNAVAILABLE'
+  )
+
+  setCrypto(
+    buildCrypto({
+      subtle: {
+        generateKey: async () => ({}),
+        exportKey: async () => createHs256Key(),
+      },
+    })
+  )
+
+  const key = await generateMessageAuthenticationKey()
+  assert.equal(key.alg, 'HS256')
+})
+
+test('source deriveMessageAuthenticationKey uses optional salt and fixed domain info', async () => {
+  const derivationParams = []
+  setCrypto(
+    buildCrypto({
+      subtle: {
+        importKey: async () => ({}),
+        deriveKey: async (params) => {
+          derivationParams.push(params)
+          return {}
+        },
+        exportKey: async () => createHs256Key(),
+      },
+    })
+  )
+
+  await expectCodeAsync(
+    () => deriveMessageAuthenticationKey(new Uint8Array()),
+    'HMAC_JWK_INVALID'
+  )
+
+  const unsalted = await deriveMessageAuthenticationKey(bytes(1, 2, 3))
+  const salted = await deriveMessageAuthenticationKey(
+    bytes(1, 2, 3),
+    bytes(4, 5)
+  )
+
+  assert.equal(unsalted.alg, 'HS256')
+  assert.equal(salted.alg, 'HS256')
+  assert.equal(derivationParams[0].salt.byteLength, 0)
+  assert.equal(
+    new TextDecoder().decode(derivationParams[0].info),
+    '@sovereignbase/cryptosuite/MessageAuthenticationKey'
+  )
+  assert.deepEqual(Array.from(derivationParams[1].salt), [4, 5])
+  assert.deepEqual(
+    Array.from(derivationParams[1].info),
+    Array.from(derivationParams[0].info)
   )
 })
