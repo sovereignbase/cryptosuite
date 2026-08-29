@@ -1,4 +1,5 @@
 [![npm version](https://img.shields.io/npm/v/@sovereignbase/cryptosuite)](https://www.npmjs.com/package/@sovereignbase/cryptosuite)
+[![JSR](https://jsr.io/badges/@sovereignbase/cryptosuite)](https://jsr.io/@sovereignbase/cryptosuite)
 [![CI](https://github.com/sovereignbase/cryptosuite/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/sovereignbase/cryptosuite/actions/workflows/ci.yaml)
 [![codecov](https://codecov.io/gh/sovereignbase/cryptosuite/branch/master/graph/badge.svg)](https://codecov.io/gh/sovereignbase/cryptosuite)
 [![license](https://img.shields.io/npm/l/@sovereignbase/cryptosuite)](LICENSE)
