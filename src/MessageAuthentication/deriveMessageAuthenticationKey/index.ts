@@ -1,10 +1,12 @@
-import { fromString, toBufferSource } from '@sovereignbase/bytecodec'
+import { Bytes } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
 import { normalizeBytes } from '../../.helpers/normalizeBytes.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { MessageAuthenticationKey } from '../.core/types/index.js'
 
-const INFO = fromString('@sovereignbase/cryptosuite/MessageAuthenticationKey')
+const INFO: Uint8Array = Bytes.utf8.decode(
+  '@sovereignbase/cryptosuite/MessageAuthenticationKey'
+)
 
 /**
  * Derives a symmetric message authentication key from source key material.
@@ -43,19 +45,15 @@ export async function deriveMessageAuthenticationKey(
   let key: CryptoKey
   let derived: CryptoKey
   try {
-    key = await crypto.subtle.importKey(
-      'raw',
-      toBufferSource(sourceBytes),
-      'HKDF',
-      false,
-      ['deriveKey']
-    )
+    key = await crypto.subtle.importKey('raw', sourceBytes, 'HKDF', false, [
+      'deriveKey',
+    ])
     derived = await crypto.subtle.deriveKey(
       {
         name: 'HKDF',
         hash: 'SHA-256',
-        salt: toBufferSource(saltBytes),
-        info: toBufferSource(INFO),
+        salt: saltBytes,
+        info: INFO as BufferSource,
       },
       key,
       { name: 'HMAC', hash: 'SHA-256' },

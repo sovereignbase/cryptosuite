@@ -1,4 +1,3 @@
-import { toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../.errors/class.js'
 import { normalizeBytes } from '../../../.helpers/normalizeBytes.js'
 import { validateKeyByAlgCode } from '../helpers/validateKeyByAlgCode/index.js'
@@ -45,7 +44,7 @@ export class DecapsulateKeyHarness {
     try {
       cipherKey = await crypto.subtle.importKey(
         'raw',
-        toBufferSource(sharedSecret),
+        new Uint8Array(sharedSecret),
         { name: 'AES-GCM', length: 256 },
         true,
         ['encrypt', 'decrypt']

@@ -19,7 +19,9 @@ afterEach(() => {
 })
 
 test('source core exports expose the expected runtime surface', () => {
-  assert.equal('identifier' in SourceCryptographic, false)
+  assert.equal(typeof SourceCryptographic.identifier.generate, 'function')
+  assert.equal(typeof SourceCryptographic.identifier.derive, 'function')
+  assert.equal(typeof SourceCryptographic.identifier.validate, 'function')
   assert.equal(typeof SourceCryptographic.cipherMessage.encrypt, 'function')
   assert.equal(
     typeof SourceCryptographic.messageAuthentication.sign,

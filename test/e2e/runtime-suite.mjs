@@ -71,7 +71,18 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
   }
 
   await run('static API is wired', async () => {
-    assert(!('identifier' in Cryptographic), 'identifier must not be exposed')
+    assert(
+      typeof Cryptographic.identifier.generate === 'function',
+      'identifier.generate is missing'
+    )
+    assert(
+      typeof Cryptographic.identifier.derive === 'function',
+      'identifier.derive is missing'
+    )
+    assert(
+      typeof Cryptographic.identifier.validate === 'function',
+      'identifier.validate is missing'
+    )
     assert(
       typeof Cryptographic.cipherMessage.generateKey === 'function',
       'cipherMessage.generateKey is missing'
@@ -135,6 +146,47 @@ export async function runCryptosuiteRuntimeSuite(Cryptographic) {
     assert(
       typeof Cryptographic.digitalSignature.verify === 'function',
       'digitalSignature.verify is missing'
+    )
+  })
+
+  await run('identifier.generate returns a valid identifier', async () => {
+    const identifier = Cryptographic.identifier.generate(24)
+
+    assertEqual(identifier.length, 32, 'identifier length mismatch')
+    assert(
+      Cryptographic.identifier.validate(identifier, 24),
+      'generated identifier must validate'
+    )
+  })
+
+  await run(
+    'identifier.derive is deterministic and domain-separated',
+    async () => {
+      const first = await Cryptographic.identifier.derive(
+        { value: 'runtime-base' },
+        { value: 'runtime-domain' },
+        24
+      )
+      const second = await Cryptographic.identifier.derive(
+        { value: 'runtime-base' },
+        { value: 'runtime-domain' },
+        24
+      )
+      const separateDomain = await Cryptographic.identifier.derive(
+        { value: 'runtime-base' },
+        { value: 'other-domain' },
+        24
+      )
+
+      assertEqual(first, second, 'derived identifiers must match')
+      assert(first !== separateDomain, 'domains must separate identifiers')
+    }
+  )
+
+  await run('identifier.validate rejects malformed identifiers', async () => {
+    assert(
+      !Cryptographic.identifier.validate('not an identifier', 24),
+      'malformed identifier must not validate'
     )
   })
 

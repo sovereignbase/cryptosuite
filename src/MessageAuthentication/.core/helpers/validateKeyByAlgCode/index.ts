@@ -1,4 +1,4 @@
-import { fromBase64UrlString } from '@sovereignbase/bytecodec'
+import { Bytes } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../../.errors/class.js'
 import type { MessageAuthenticationKey } from '../../types/index.js'
 
@@ -45,7 +45,7 @@ export function validateKeyByAlgCode(
 
       let keyBytes: Uint8Array
       try {
-        keyBytes = fromBase64UrlString(candidate.k)
+        keyBytes = Bytes.base64url.decode(candidate.k)
       } catch {
         throw new CryptosuiteError(
           'BASE64URL_INVALID',

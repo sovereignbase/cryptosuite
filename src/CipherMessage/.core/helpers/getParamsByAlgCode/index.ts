@@ -1,4 +1,3 @@
-import { toBufferSource } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../../.errors/class.js'
 import { normalizeBytes } from '../../../../.helpers/normalizeBytes.js'
 import type {
@@ -53,7 +52,7 @@ export function getParamsByAlgCode(
 
       return {
         name: 'AES-GCM',
-        iv: toBufferSource(normalizedIv),
+        iv: normalizedIv,
         tagLength: 128,
       }
     }

@@ -1,4 +1,4 @@
-import { toBase64UrlString } from '@sovereignbase/bytecodec'
+import { Bytes } from '@sovereignbase/bytecodec'
 import { createImportKeyAlgorithmByAlgCode } from '../.core/helpers/createImportKeyAlgorithmByAlgCode/index.js'
 import { validateKeyByAlgCode } from '../.core/helpers/validateKeyByAlgCode/index.js'
 import type { EncapsulateKey, DecapsulateKey } from '../.core/types/index.js'
@@ -17,14 +17,14 @@ export async function generateKeyAgreementKeypair(): Promise<{
   const encapsulateKey = validateKeyByAlgCode({
     kty: 'AKP',
     alg: 'X25519-ML-KEM-768',
-    x: toBase64UrlString(publicKey),
+    x: Bytes.base64url.encode(publicKey),
     use: 'enc',
     key_ops: [],
   })
   const decapsulateKey = validateKeyByAlgCode({
     kty: 'AKP',
     alg: 'X25519-ML-KEM-768',
-    d: toBase64UrlString(secretKey),
+    d: Bytes.base64url.encode(secretKey),
     use: 'enc',
     key_ops: ['deriveKey', 'deriveBits'],
   })

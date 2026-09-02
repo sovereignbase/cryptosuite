@@ -1,4 +1,4 @@
-import { fromBase64UrlString } from '@sovereignbase/bytecodec'
+import { Bytes } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../../.errors/class.js'
 import { createImportKeyAlgorithmByAlgCode } from '../createImportKeyAlgorithmByAlgCode/index.js'
 import type { SignKey, VerifyKey } from '../../types/index.js'
@@ -46,7 +46,7 @@ export function validateKeyByAlgCode(key: JsonWebKey): SignKey | VerifyKey {
 
         let secretKey: Uint8Array
         try {
-          secretKey = fromBase64UrlString(candidate.d)
+          secretKey = Bytes.base64url.decode(candidate.d)
         } catch {
           throw new CryptosuiteError(
             'BASE64URL_INVALID',
@@ -100,7 +100,7 @@ export function validateKeyByAlgCode(key: JsonWebKey): SignKey | VerifyKey {
 
         let publicKey: Uint8Array
         try {
-          publicKey = fromBase64UrlString(candidate.x)
+          publicKey = Bytes.base64url.decode(candidate.x)
         } catch {
           throw new CryptosuiteError(
             'BASE64URL_INVALID',

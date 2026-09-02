@@ -1,4 +1,4 @@
-import { toUint8Array, type ByteSource } from '@sovereignbase/bytecodec'
+import { Bytes, type ByteSource } from '@sovereignbase/bytecodec'
 import {
   CryptosuiteError,
   type CryptosuiteErrorCode,
@@ -8,9 +8,9 @@ export function normalizeBytes(
   source: unknown,
   context = 'value',
   code: CryptosuiteErrorCode = 'BUFFER_SOURCE_EXPECTED'
-): Uint8Array {
+): Uint8Array<ArrayBuffer> {
   try {
-    return toUint8Array(source as ByteSource)
+    return new Uint8Array(Bytes.normalize(source as ByteSource))
   } catch {
     throw new CryptosuiteError(
       code,

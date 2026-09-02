@@ -1,4 +1,4 @@
-import { toBase64UrlString } from '@sovereignbase/bytecodec'
+import { Bytes } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
 import { normalizeBytes } from '../../.helpers/normalizeBytes.js'
 import { createImportKeyAlgorithmByAlgCode } from '../.core/helpers/createImportKeyAlgorithmByAlgCode/index.js'
@@ -33,14 +33,14 @@ export async function deriveDigitalSignatureKeypair(
   const signKey = validateKeyByAlgCode({
     kty: 'AKP',
     alg: 'Ed25519-ML-DSA-65',
-    d: toBase64UrlString(secretKey),
+    d: Bytes.base64url.encode(secretKey),
     use: 'sig',
     key_ops: ['sign'],
   })
   const verifyKey = validateKeyByAlgCode({
     kty: 'AKP',
     alg: 'Ed25519-ML-DSA-65',
-    x: toBase64UrlString(publicKey),
+    x: Bytes.base64url.encode(publicKey),
     use: 'sig',
     key_ops: ['verify'],
   })

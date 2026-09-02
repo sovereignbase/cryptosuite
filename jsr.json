@@ -2,7 +2,14 @@
   "$schema": "https://jsr.io/schema/config-file.v1.json",
   "name": "@sovereignbase/cryptosuite",
   "version": "3.1.0",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./CipherMessage": "./src/CipherMessage/index.ts",
+    "./DigitalSignature": "./src/DigitalSignature/index.ts",
+    "./Identifier": "./src/Identifier/index.ts",
+    "./KeyAgreement": "./src/KeyAgreement/index.ts",
+    "./MessageAuthentication": "./src/MessageAuthentication/index.ts"
+  },
   "publish": {
     "include": [
       "package.json",

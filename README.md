@@ -6,7 +6,9 @@
 
 # cryptosuite
 
-JS/TS runtime-agnostic, quantum-safe, and agile cryptography toolkit with a declarative API for cipher messaging, message authentication, digital signatures, and key agreement.
+JS/TS runtime-agnostic, quantum-safe, and agile cryptography toolkit with a
+declarative API for opaque identifiers, cipher messaging, message
+authentication, digital signatures, and key agreement.
 
 ## Compatibility
 
@@ -48,18 +50,49 @@ vlt install jsr:@sovereignbase/cryptosuite
 
 ## Usage
 
+The package root exposes the complete declarative API through `Cryptographic`.
+Each cryptographic area also has a focused entry point:
+
+```ts
+import { Cryptographic } from '@sovereignbase/cryptosuite'
+import { CipherCluster } from '@sovereignbase/cryptosuite/CipherMessage'
+import { DigitalSignatureCluster } from '@sovereignbase/cryptosuite/DigitalSignature'
+import { Identifier } from '@sovereignbase/cryptosuite/Identifier'
+import { KeyAgreementCluster } from '@sovereignbase/cryptosuite/KeyAgreement'
+import { MessageAuthenticationCluster } from '@sovereignbase/cryptosuite/MessageAuthentication'
+```
+
+### Identifiers
+
+```ts
+import { Cryptographic } from '@sovereignbase/cryptosuite'
+
+const randomId = Cryptographic.identifier.generate(32)
+const valid = Cryptographic.identifier.validate(randomId, 32) // true
+
+const accountId = await Cryptographic.identifier.derive(
+  { value: 'tenant-123' },
+  { value: 'account-id' },
+  32
+)
+```
+
+Generated and derived identifiers are canonical, unpadded base64url strings.
+Derivation is deterministic for the same base, domain, and byte length. Use a
+distinct domain for every identifier purpose.
+
 ### Cipher messages
 
 ```ts
 import { Cryptographic } from '@sovereignbase/cryptosuite'
 import { Bytes } from '@sovereignbase/bytecodec'
 
-const messageBytes = Bytes.fromString('hello world') // Uint8Array
+const messageBytes = Bytes.utf8.decode('hello world') // Uint8Array
 
 const cipherKey = await Cryptographic.cipherMessage.generateKey() // JsonWebKey
 
-const sourceKeyMaterial = Bytes.fromString('deterministic key source') // Uint8Array
-const salt = Bytes.fromString('deterministic salt source') // Uint8Array
+const sourceKeyMaterial = Bytes.utf8.decode('deterministic key source') // Uint8Array
+const salt = Bytes.utf8.decode('deterministic salt source') // Uint8Array
 const cipherKey = await Cryptographic.cipherMessage.deriveKey(
   sourceKeyMaterial,
   salt
@@ -74,7 +107,7 @@ const roundtrip = await Cryptographic.cipherMessage.decrypt(
   cipherMessage
 ) // Uint8Array
 
-const plainMessage = Bytes.toString(roundtrip) // 'hello world'
+const plainMessage = Bytes.utf8.encode(roundtrip) // 'hello world'
 ```
 
 ### Message authentication
@@ -83,13 +116,13 @@ const plainMessage = Bytes.toString(roundtrip) // 'hello world'
 import { Cryptographic } from '@sovereignbase/cryptosuite'
 import { Bytes } from '@sovereignbase/bytecodec'
 
-const messageBytes = Bytes.fromString('authenticated payload') // Uint8Array
+const messageBytes = Bytes.utf8.decode('authenticated payload') // Uint8Array
 
 const generatedMessageAuthenticationKey =
   await Cryptographic.messageAuthentication.generateKey() // JsonWebKey
 
-const sourceKeyMaterial = Bytes.fromString('deterministic key source') // Uint8Array
-const salt = Bytes.fromString('deterministic salt source') // Uint8Array
+const sourceKeyMaterial = Bytes.utf8.decode('deterministic key source') // Uint8Array
+const salt = Bytes.utf8.decode('deterministic salt source') // Uint8Array
 
 const messageAuthenticationKey =
   await Cryptographic.messageAuthentication.deriveKey(sourceKeyMaterial, salt) // JsonWebKey
@@ -112,7 +145,7 @@ const verified = await Cryptographic.messageAuthentication.verify(
 import { Cryptographic } from '@sovereignbase/cryptosuite'
 import { Bytes } from '@sovereignbase/bytecodec'
 
-const sourceKeyMaterial = Bytes.fromString('k'.repeat(32)) // Uint8Array, exactly 32 bytes
+const sourceKeyMaterial = Bytes.utf8.decode('k'.repeat(32)) // Uint8Array, exactly 32 bytes
 
 const { encapsulateKey, decapsulateKey } =
   await Cryptographic.keyAgreement.generateKeypair() // {encapsulateKey: JsonWebKey, decapsulateKey: JsonWebKey}
@@ -133,8 +166,8 @@ const { cipherKey: receiverCipherKey } =
 import { Cryptographic } from '@sovereignbase/cryptosuite'
 import { Bytes } from '@sovereignbase/bytecodec'
 
-const sourceKeyMaterial = Bytes.fromString('s'.repeat(64)) // Uint8Array, exactly 64 bytes
-const bytes = Bytes.fromString('signed payload') // Uint8Array
+const sourceKeyMaterial = Bytes.utf8.decode('s'.repeat(64)) // Uint8Array, exactly 64 bytes
+const bytes = Bytes.utf8.decode('signed payload') // Uint8Array
 const { signKey, verifyKey } =
   await Cryptographic.digitalSignature.generateKeypair() // {signKey: JsonWebKey, verifyKey: JsonWebKey}
 
@@ -168,9 +201,9 @@ const verified = await Cryptographic.digitalSignature.verify(
 
 ## Tests
 
-Latest local `npm run test` run on `2026-08-29` with Node `v24.16.0 (win32 x64)`:
+Latest local `npm test` run on `2026-09-02` with Node `v24.16.0 (win32 x64)`:
 
-- `63/63` unit and integration tests passed
+- `73/73` unit and integration tests passed
 - Coverage passed at `100%` for statements, branches, functions, and lines
 - End-to-end runtime suites all passed in:
   - Node ESM
@@ -186,9 +219,9 @@ Latest local `npm run test` run on `2026-08-29` with Node `v24.16.0 (win32 x64)`
   - Mobile Chromium emulation
   - Mobile Firefox emulation
   - Mobile WebKit emulation
-- The runtime suite currently exercises `17/17` public API scenarios per runtime:
+- The runtime suite currently exercises `20/20` public API scenarios per runtime:
   - 1 static wiring check
-  - 16 public methods
+  - 19 public methods
 
 ## Benchmarks
 

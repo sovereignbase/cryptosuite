@@ -28,12 +28,19 @@ import {
   deriveDigitalSignatureKeypair,
   generateDigitalSignatureKeypair,
 } from './DigitalSignature/index.js'
+import { Identifier } from './Identifier/index.js'
 /***/
 
 /**
  * Exposes the public cryptographic API surface of this package.
  */
 export class Cryptographic {
+  static readonly identifier = {
+    generate: Identifier.generate,
+    validate: Identifier.validate,
+    derive: Identifier.derive,
+  }
+
   /**
    * Symmetric cipher operations.
    */

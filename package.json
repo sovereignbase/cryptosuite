@@ -1,7 +1,7 @@
 {
   "name": "@sovereignbase/cryptosuite",
   "version": "3.1.0",
-  "description": "JS/TS runtime-agnostic, post-quantum, crypto-agile cryptography toolkit with a declarative API for cipher messaging, message authentication, digital signatures, and key agreement.",
+  "description": "JS/TS runtime-agnostic, post-quantum, crypto-agile cryptography toolkit for identifiers, cipher messaging, message authentication, digital signatures, and key agreement.",
   "keywords": [
     "cryptography",
     "webcrypto",
@@ -16,6 +16,7 @@
     "key-agreement",
     "key-encapsulation",
     "key-decapsulation",
+    "opaque-identifier",
     "jwk",
     "hmac-256",
     "aes-ctr-256",
@@ -43,6 +44,36 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
+    },
+    "./CipherMessage": {
+      "types": "./dist/CipherMessage/index.d.ts",
+      "import": "./dist/CipherMessage/index.js",
+      "require": "./dist/CipherMessage/index.cjs",
+      "default": "./dist/CipherMessage/index.js"
+    },
+    "./DigitalSignature": {
+      "types": "./dist/DigitalSignature/index.d.ts",
+      "import": "./dist/DigitalSignature/index.js",
+      "require": "./dist/DigitalSignature/index.cjs",
+      "default": "./dist/DigitalSignature/index.js"
+    },
+    "./Identifier": {
+      "types": "./dist/Identifier/index.d.ts",
+      "import": "./dist/Identifier/index.js",
+      "require": "./dist/Identifier/index.cjs",
+      "default": "./dist/Identifier/index.js"
+    },
+    "./KeyAgreement": {
+      "types": "./dist/KeyAgreement/index.d.ts",
+      "import": "./dist/KeyAgreement/index.js",
+      "require": "./dist/KeyAgreement/index.cjs",
+      "default": "./dist/KeyAgreement/index.js"
+    },
+    "./MessageAuthentication": {
+      "types": "./dist/MessageAuthentication/index.d.ts",
+      "import": "./dist/MessageAuthentication/index.js",
+      "require": "./dist/MessageAuthentication/index.cjs",
+      "default": "./dist/MessageAuthentication/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -77,7 +108,8 @@
   "dependencies": {
     "@noble/curves": "^2.4.0",
     "@noble/post-quantum": "^0.7.1",
-    "@sovereignbase/bytecodec": "^1.7.0"
+    "@sovereignbase/bytecodec": "^2.0.1",
+    "@sovereignbase/utils": "^2.3.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
@@ -95,6 +127,6 @@
     "typedoc": "^0.28.20",
     "typescript": "^5.9.3",
     "vitest": "^4.1.11",
-    "wrangler": "4.127.1"
+    "wrangler": "4.128.0"
   }
 }

@@ -1,4 +1,4 @@
-import { toBufferSource, toUint8Array } from '@sovereignbase/bytecodec'
+import { Bytes } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../.errors/class.js'
 import { validateKeyByAlgCode } from '../helpers/validateKeyByAlgCode/index.js'
 import { createImportKeyAlgorithmByAlgCode } from '../helpers/createImportKeyAlgorithmByAlgCode/index.js'
@@ -44,7 +44,7 @@ export class EncapsulateKeyHarness {
     try {
       cipherKey = await crypto.subtle.importKey(
         'raw',
-        toBufferSource(sharedSecret),
+        new Uint8Array(sharedSecret),
         { name: 'AES-GCM', length: 256 },
         true,
         ['encrypt', 'decrypt']
@@ -83,7 +83,7 @@ export class EncapsulateKeyHarness {
         params.publicKey
       )
       return {
-        keyOffer: { ciphertext: toUint8Array(cipherText) },
+        keyOffer: { ciphertext: Bytes.normalize(cipherText) },
         cipherKey: await this.exportCipherKey(sharedSecret),
       }
     } catch {

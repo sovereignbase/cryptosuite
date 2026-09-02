@@ -1,4 +1,4 @@
-import { toBufferSource, toUint8Array } from '@sovereignbase/bytecodec'
+import { Bytes } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../.errors/class.js'
 import { normalizeBytes } from '../../../.helpers/normalizeBytes.js'
 import type { CipherKey, CipherMessage, CipherParams } from '../types/index.js'
@@ -50,11 +50,11 @@ export class CipherKeyHarness {
     )
     return {
       ...params,
-      ciphertext: toUint8Array(
+      ciphertext: Bytes.normalize(
         await crypto.subtle.encrypt(
           getParamsByAlgCode(this.algCode, params),
           key,
-          toBufferSource(plaintext)
+          plaintext
         )
       ),
     }
@@ -80,11 +80,11 @@ export class CipherKeyHarness {
     }
     let plaintext: Uint8Array
     try {
-      plaintext = toUint8Array(
+      plaintext = Bytes.normalize(
         await crypto.subtle.decrypt(
           getParamsByAlgCode(this.algCode, params),
           key,
-          toBufferSource(ciphertext)
+          ciphertext
         )
       )
     } catch (error) {

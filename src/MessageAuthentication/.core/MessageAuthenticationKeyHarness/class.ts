@@ -1,4 +1,4 @@
-import { toBufferSource, toUint8Array } from '@sovereignbase/bytecodec'
+import { Bytes } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../../.errors/class.js'
 import { normalizeBytes } from '../../../.helpers/normalizeBytes.js'
 import { validateKeyByAlgCode } from '../helpers/validateKeyByAlgCode/index.js'
@@ -53,11 +53,11 @@ export class MessageAuthenticationKeyHarness {
     const params: MessageAuthenticationParams = createParamsByAlgCode(
       this.algCode
     )
-    return toUint8Array(
+    return Bytes.normalize(
       await crypto.subtle.sign(
         getParamsByAlgCode(this.algCode, params),
         key,
-        toBufferSource(message)
+        message
       )
     )
   }
@@ -78,8 +78,8 @@ export class MessageAuthenticationKeyHarness {
     return await crypto.subtle.verify(
       getParamsByAlgCode(this.algCode, params),
       key,
-      toBufferSource(tag),
-      toBufferSource(message)
+      tag,
+      message
     )
   }
 }

@@ -1,4 +1,4 @@
-import { toBase64UrlString } from '@sovereignbase/bytecodec'
+import { Bytes } from '@sovereignbase/bytecodec'
 import { CryptosuiteError } from '../../.errors/class.js'
 import { normalizeBytes } from '../../.helpers/normalizeBytes.js'
 import { createImportKeyAlgorithmByAlgCode } from '../.core/helpers/createImportKeyAlgorithmByAlgCode/index.js'
@@ -34,14 +34,14 @@ export async function deriveKeyAgreementKeypair(
   const encapsulateKey = validateKeyByAlgCode({
     kty: 'AKP',
     alg: 'X25519-ML-KEM-768',
-    x: toBase64UrlString(publicKey),
+    x: Bytes.base64url.encode(publicKey),
     use: 'enc',
     key_ops: [],
   })
   const decapsulateKey = validateKeyByAlgCode({
     kty: 'AKP',
     alg: 'X25519-ML-KEM-768',
-    d: toBase64UrlString(secretKey),
+    d: Bytes.base64url.encode(secretKey),
     use: 'enc',
     key_ops: ['deriveKey', 'deriveBits'],
   })
