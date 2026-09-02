@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.2.0](https://github.com/sovereignbase/cryptosuite/compare/v3.1.0...v3.2.0) (2026-09-02)
+
+
+### Features
+
+* bring back identifier methods with a better implementation ([fa77aa8](https://github.com/sovereignbase/cryptosuite/commit/fa77aa8d5e9cdb5a5540f648dbda673490214fc1))
+* bring back identifier methods with a better implementation ([d2c9b9d](https://github.com/sovereignbase/cryptosuite/commit/d2c9b9db560cc559f4bea06777d2d9e2cd867c03))
+
 ## [3.1.0](https://github.com/sovereignbase/cryptosuite/compare/v3.0.0...v3.1.0) (2026-08-29)
 
 
